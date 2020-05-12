@@ -2,6 +2,7 @@
 
 import uuid
 
+from . import tasks
 from ..extensions import db
 
 
@@ -19,3 +20,12 @@ class Extract(db.Model):
     def save(self) -> None:
         db.session.add(self)
         db.session.commit()
+
+        self.submit_task()
+
+    def submit_task(self):
+        extract_dict = {
+            'uuid': self.uuid,
+            'email': self.email,
+        }
+        tasks.build_extract.delay(extract_dict)

@@ -3,7 +3,7 @@ import sys
 
 from flask import Flask, render_template, request
 
-from . import extract
+from wdra_extender import extract
 
 __all__ = [
     'create_app',
@@ -35,9 +35,18 @@ def register_extensions(app) -> None:
         migrate,
     )
 
-    celery.conf.update(app.config)
     db.init_app(app)
     migrate.init_app(app, db)
+
+    celery.conf.update(app.config)
+
+    class ContextTask(celery.Task):
+        """Celery Task class that can access the Flask context."""
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery.Task = ContextTask
 
 
 def register_blueprints(app) -> None:

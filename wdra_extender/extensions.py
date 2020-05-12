@@ -12,5 +12,8 @@ __all__ = [
 ]
 
 celery = Celery('wdra', broker=settings.CELERY_BROKER_URL)
+# Need to discover tasks here so the worker can see them too
+celery.autodiscover_tasks(['wdra_extender.extract'], force=True)
+
 db = SQLAlchemy()
 migrate = Migrate()
