@@ -1,9 +1,9 @@
+"""Module containing setup code for Flask extensions."""
+
 from celery import Celery
 import flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-
-from . import settings
 
 __all__ = [
     'celery',
@@ -13,6 +13,10 @@ __all__ = [
 
 
 class FlaskCelery(Celery):
+    """Celery wrapper to support binding of the Flask context.
+
+    See https://stackoverflow.com/a/14146403 for reference.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -27,18 +31,17 @@ class FlaskCelery(Celery):
         TaskBase = self.Task
         _celery = self
 
-        class ContextTask(TaskBase):
+        class ContextTask(TaskBase):  # pylint: disable=too-few-public-methods
             abstract = True
 
             def __call__(self, *args, **kwargs):
                 if flask.has_app_context():
                     return TaskBase.__call__(self, *args, **kwargs)
 
-                else:
-                    with _celery.app.app_context():
-                        return TaskBase.__call__(self, *args, **kwargs)
+                with _celery.app.app_context():
+                    return TaskBase.__call__(self, *args, **kwargs)
 
-        self.Task = ContextTask
+        self.Task = ContextTask  # pylint: disable=invalid-name
 
     def init_app(self, app):
         self.app = app

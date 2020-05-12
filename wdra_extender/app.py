@@ -1,10 +1,17 @@
+"""Module containing the Flask App itself.
+
+This is the entrypoint to WDRA-Extender.
+"""
+
+# pylint: disable=redefined-outer-name
+
 import logging
 import sys
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template
 
 from wdra_extender import extract
-from wdra_extender.extensions import celery
+from wdra_extender.extensions import (celery, db, migrate)
 
 __all__ = [
     'app',
@@ -23,29 +30,34 @@ def create_app(config_object='wdra_extender.settings'):
     register_extensions(app)
     register_blueprints(app)
 
-    @app.route('/')
-    def index():
-        return render_template('index.html')
-
     return app
 
 
 def register_extensions(app) -> None:
-    from .extensions import (
-        db,
-        migrate,
-    )
+    """Initialise all Flask extensions.
 
+    This populates settings and gives them access to the Flask context.
+
+    :param app: Flask App which extensions should be initialised to.
+    """
     celery.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
 
 
 def register_blueprints(app) -> None:
+    """Register all views with the Flask controller.
+
+    :param app: Flask App which views should be registered to.
+    """
     app.register_blueprint(extract.views.blueprint)
 
 
 def configure_logger(app) -> None:
+    """Send logging to stdout.
+
+    :param app: Flask App for which logging is being handled.
+    """
     handler = logging.StreamHandler(sys.stdout)
 
     if not app.logger.handlers:
@@ -53,3 +65,9 @@ def configure_logger(app) -> None:
 
 
 app = create_app()
+
+
+@app.route('/')
+def index():
+    """Static page where users will land when first accessing WDRA-Extender."""
+    return render_template('index.html')

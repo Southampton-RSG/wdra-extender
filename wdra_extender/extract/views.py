@@ -1,4 +1,6 @@
-from flask import Blueprint, render_template, redirect, request, url_for
+"""Module containing views related to Twitter Extract Bundles."""
+
+from flask import Blueprint, render_template, redirect, request
 
 from . import models
 
@@ -10,7 +12,7 @@ def request_extract():
     """View to request a Twitter Extract Bundle."""
     extract = models.Extract(email=request.form['email'])
     extract.save()
-    extract.submit_task()
+    extract.queue_build()
 
     return redirect(extract.get_absolute_url())
 
