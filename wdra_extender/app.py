@@ -5,11 +5,18 @@ from flask import Flask, render_template, request
 
 from . import extract
 
+__all__ = [
+    'create_app',
+]
 
-def create_app():
-    """App factory as in https://flask.palletsprojects.com/en/1.1.x/patterns/appfactories/."""
+
+def create_app(config_object='wdra_extender.settings'):
+    """App factory as in https://flask.palletsprojects.com/en/1.1.x/patterns/appfactories/.
+
+    :param config_object: Configuration object to use.
+    """
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../db.sqlite3'
+    app.config.from_object(config_object)
 
     register_extensions(app)
     register_blueprints(app)
@@ -23,9 +30,12 @@ def create_app():
 
 def register_extensions(app) -> None:
     from .extensions import (
+        celery,
         db,
         migrate,
     )
+
+    celery.conf.update(app.config)
     db.init_app(app)
     migrate.init_app(app, db)
 
