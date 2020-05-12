@@ -4,9 +4,11 @@ import sys
 from flask import Flask, render_template, request
 
 from wdra_extender import extract
+from wdra_extender.extensions import celery
 
 __all__ = [
-    'create_app',
+    'app',
+    'celery',
 ]
 
 
@@ -30,23 +32,13 @@ def create_app(config_object='wdra_extender.settings'):
 
 def register_extensions(app) -> None:
     from .extensions import (
-        celery,
         db,
         migrate,
     )
 
+    celery.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
-
-    celery.conf.update(app.config)
-
-    class ContextTask(celery.Task):
-        """Celery Task class that can access the Flask context."""
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return self.run(*args, **kwargs)
-
-    celery.Task = ContextTask
 
 
 def register_blueprints(app) -> None:
@@ -58,3 +50,6 @@ def configure_logger(app) -> None:
 
     if not app.logger.handlers:
         app.logger.addHandler(handler)
+
+
+app = create_app()

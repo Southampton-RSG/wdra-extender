@@ -10,6 +10,7 @@ def request_extract():
     """View to request a Twitter Extract Bundle."""
     extract = models.Extract(email=request.form['email'])
     extract.save()
+    extract.submit_task()
 
     return redirect(extract.get_absolute_url())
 
