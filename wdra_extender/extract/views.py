@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, redirect, request, url_for
 
 from . import models
 
@@ -11,10 +11,12 @@ def request_extract():
     extract = models.Extract(email=request.form['email'])
     extract.save()
 
-    return extract.uuid
+    return redirect(extract.get_absolute_url())
 
 
-@blueprint.route('/<uuid:extract_id>')
-def download_extract(extract_id):
+@blueprint.route('/<uuid:extract_uuid>')
+def download_extract(extract_uuid):
     """View to download a Twitter Extract Bundle."""
-    raise NotImplementedError
+    extract = models.Extract.query.get(str(extract_uuid))
+
+    return render_template('extract.html', extract=extract)
