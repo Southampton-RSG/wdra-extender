@@ -1,16 +1,23 @@
 """Module containing the Extract model and supporting functionality."""
 
+import datetime
+import logging
+import json
+from pprint import pprint
 import time
 from uuid import uuid4
 
-from flask import url_for
+from flask import current_app, url_for
+from twarc import Twarc
+import redis
 
-from . import tasks
 from ..extensions import db
 
 __all__ = [
     'Extract',
 ]
+
+logger = logging.getLogger(__name__)
 
 
 class Extract(db.Model):
@@ -40,17 +47,44 @@ class Extract(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def queue_build(self):
-        """Trigger the building of this extract bundle."""
-        tasks.build_extract.delay(self.uuid)
-
-    def build(self):
+    def build(self, tweet_ids):
         """Build a requested Twitter extract.
 
         Called by `extract.tasks.build_extract` Celery task.
+
+        :param tweet_ids: Tweet IDs to include within this Bundle.
         """
-        time.sleep(10)
-        print(self.uuid)
+        logger.info(f'Processing Bundle {self.uuid}')
+
+        r = redis.Redis(host='localhost')
+
+        uncached_tweet_ids = []
+        cached_tweets = []
+        for tweet_id in tweet_ids:
+            redis_key = f'tweet_hyrated:{tweet_id}'
+            tweet_string = r.get(redis_key)
+
+            if tweet_string is None:
+                uncached_tweet_ids.append(tweet_id)
+
+            else:
+                cached_tweets.append(json.loads(tweet_string))
+
+        logger.info(f'Found {len(cached_tweets)} cached Tweets')
+
+        if uncached_tweet_ids:
+            logger.info(f'Fetching {len(uncached_tweet_ids)} uncached Tweets')
+            t = Twarc(current_app.config['TWITTER_CONSUMER_KEY'],
+                      current_app.config['TWITTER_CONSUMER_SECRET'])
+
+            time.sleep(10)
+
+            for tweet in t.hydrate(uncached_tweet_ids):
+                redis_key = f'tweet_hyrated:{tweet["id"]}'
+                redis_value = json.dumps(tweet)
+                r.setex(redis_key, datetime.timedelta(days=1), redis_value)
+
+                cached_tweets.append(tweet)
 
         self.ready = True
         self.save()

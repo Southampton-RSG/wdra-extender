@@ -1,4 +1,5 @@
 """Module containing setup code for Flask extensions."""
+import typing
 
 from celery import Celery
 import flask
@@ -44,8 +45,14 @@ class FlaskCelery(Celery):
         self.Task = ContextTask  # pylint: disable=invalid-name
 
     def init_app(self, app):
+        def get_celery_keys(config: typing.Mapping) -> typing.Dict:
+            return {
+                k.replace('CELERY_', '', 1): v
+                for k, v in config.items() if k.startswith('CELERY_')
+            }
+
         self.app = app
-        self.config_from_object(app.config)
+        self.config_from_object(get_celery_keys(app.config))
 
 
 celery = FlaskCelery()

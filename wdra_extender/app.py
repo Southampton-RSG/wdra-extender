@@ -11,7 +11,7 @@ import sys
 from flask import Flask, render_template
 
 from wdra_extender import extract
-from wdra_extender.extensions import (celery, db, migrate)
+from wdra_extender.extensions import celery, db, migrate
 
 __all__ = [
     'app',

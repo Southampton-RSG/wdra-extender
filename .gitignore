@@ -9,3 +9,10 @@
 # Data
 *.sqlite3
 .lock
+
+# Config
+/settings.ini
+
+# Misc
+/notes/
+twarc.log
