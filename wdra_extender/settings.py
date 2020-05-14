@@ -10,8 +10,13 @@ from decouple import AutoConfig
 BASE_DIR = pathlib.Path(__name__).absolute().parent
 config = AutoConfig(search_path=str(BASE_DIR))
 
-CELERY_BROKER_URL = config('CELERY_BROKER_URL',
-                           default='redis://localhost:6379/0')
+REDIS_HOST = config('REDIS_HOST', default='localhost')
+REDIS_PORT = config('REDIS_PORT', cast=int, default=6379)
+REDIS_DB = config('REDIS_DB', default='0')
+
+CELERY_BROKER_URL = config(
+    'CELERY_BROKER_URL',
+    default=f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}')
 
 SQLALCHEMY_DATABASE_URI = config('SQLALCHEMY_DATABASE_URI',
                                  default='sqlite:///../db.sqlite3')

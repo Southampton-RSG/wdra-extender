@@ -56,29 +56,37 @@ class Extract(db.Model):
         """
         logger.info(f'Processing Bundle {self.uuid}')
 
-        r = redis.Redis(host='localhost')
+        config = current_app.config
+        r = redis.Redis(host=config['REDIS_HOST'],
+                        port=config['REDIS_PORT'],
+                        db=config['REDIS_DB'])
 
         uncached_tweet_ids = []
         cached_tweets = []
-        for tweet_id in tweet_ids:
-            redis_key = f'tweet_hyrated:{tweet_id}'
-            tweet_string = r.get(redis_key)
+
+        # Attempt to get all Tweets from cache
+        get_redis_key = lambda i: f'tweet_hydrated:{i}'
+        for tweet_id, tweet_string in zip(
+                tweet_ids, r.mget(map(get_redis_key, tweet_ids))):
 
             if tweet_string is None:
                 uncached_tweet_ids.append(tweet_id)
 
             else:
-                cached_tweets.append(json.loads(tweet_string))
+                cached_tweets.append(tweet_string)
 
         logger.info(f'Found {len(cached_tweets)} cached Tweets')
 
         if uncached_tweet_ids:
             logger.info(f'Fetching {len(uncached_tweet_ids)} uncached Tweets')
+            # Twitter API consumer - handles rate limits for us
             t = Twarc(current_app.config['TWITTER_CONSUMER_KEY'],
                       current_app.config['TWITTER_CONSUMER_SECRET'])
 
             time.sleep(10)
 
+            # Get data for Tweets not in cache
+            # Then put them in the cache for one day
             for tweet in t.hydrate(uncached_tweet_ids):
                 redis_key = f'tweet_hyrated:{tweet["id"]}'
                 redis_value = json.dumps(tweet)
