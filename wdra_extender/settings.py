@@ -18,8 +18,9 @@ CELERY_BROKER_URL = config(
     'CELERY_BROKER_URL',
     default=f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}')
 
-SQLALCHEMY_DATABASE_URI = config('SQLALCHEMY_DATABASE_URI',
-                                 default='sqlite:///../db.sqlite3')
+SQLALCHEMY_DATABASE_URI = config(
+    'SQLALCHEMY_DATABASE_URI',
+    default=f'sqlite:///{BASE_DIR.joinpath("db.sqlite3")}')
 
 TWITTER_CONSUMER_KEY = config('TWITTER_CONSUMER_KEY')
 TWITTER_CONSUMER_SECRET = config('TWITTER_CONSUMER_SECRET')

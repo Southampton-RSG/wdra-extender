@@ -29,10 +29,12 @@ class FlaskCelery(Celery):
         self.autodiscover_tasks(['wdra_extender.extract'])
 
     def patch_task(self):
+        """Replace Celery Task type with one that has access to the Flask context."""
         TaskBase = self.Task
         _celery = self
 
         class ContextTask(TaskBase):  # pylint: disable=too-few-public-methods
+            """Celery Task class with access to the Flask context."""
             abstract = True
 
             def __call__(self, *args, **kwargs):
@@ -45,6 +47,7 @@ class FlaskCelery(Celery):
         self.Task = ContextTask  # pylint: disable=invalid-name
 
     def init_app(self, app):
+        """Initialize Celery configuration from the Flask app config dictionary."""
         def get_celery_keys(config: typing.Mapping) -> typing.Dict:
             return {
                 k.replace('CELERY_', '', 1): v

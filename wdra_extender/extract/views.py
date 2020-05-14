@@ -10,19 +10,21 @@ blueprint = Blueprint("extract", __name__, url_prefix='/extracts')
 
 
 class ValidationError(werkzeug.exceptions.BadRequest):
+    """Error in validating user-provided data."""
     code = 400
     description = 'Invalid data provided.'
 
 
 def validate_tweet_ids(tweet_ids: typing.Iterable[str]) -> typing.List[int]:
+    """Cast Tweet IDs to integer or raise ValidationError."""
     if not tweet_ids:
         raise ValidationError('No Tweet IDs were found.')
 
     try:
         return [int(tweet_id) for tweet_id in tweet_ids]
 
-    except ValueError as e:
-        raise ValidationError('Tweet IDs must be integers.') from e
+    except ValueError as exc:
+        raise ValidationError('Tweet IDs must be integers.') from exc
 
 
 @blueprint.route('/', methods=['POST'])
