@@ -1,6 +1,6 @@
-name: Python package
+name: Lint and Test
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -19,9 +19,9 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install prospector pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with flake8
+        pip install -r requirements.txt
+        pip install -r requirements-devel.txt
+    - name: Lint with prospector
       run: |
         # log all prospector warnings but don't stop the build
         prospector wdra_extender --strictness veryhigh --zero-exit

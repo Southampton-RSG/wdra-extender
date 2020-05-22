@@ -1,0 +1,6 @@
+# Generate requirements.txt using pip-tools
+celery[redis]
+flask
+flask-migrate
+flask-sqlalchemy
+twarc

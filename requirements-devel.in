@@ -1,0 +1,5 @@
+# Generate requirements.txt using pip-tools
+-c requirements.txt
+pip-tools
+prospector
+pytest
