@@ -19,7 +19,7 @@ __all__ = [
     'Extract',
 ]
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 
 class Extract(db.Model):
@@ -59,10 +59,15 @@ class Extract(db.Model):
         logger.info('Processing Bundle %s', self.uuid)
 
         tweets = get_tweets(tweet_ids)
-        with pathlib.Path(tempfile.TemporaryDirectory()) as work_dir:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            work_dir = pathlib.Path(tmp_dir)
             tweets_file = work_dir.joinpath('tweets.json')
             with open(tweets_file, mode='w', encoding='utf-8') as f:
                 json.dump(tweets, f, ensure_ascii=False, indent=4)
+
+        for Plugin in get_plugins():
+            instance = Plugin(tweets)
+            instance.run()
 
         self.ready = True
         self.save()
@@ -71,6 +76,14 @@ class Extract(db.Model):
     def get_absolute_url(self):
         """Get the URL for this object's detail view."""
         return url_for('extract.download_extract', extract_uuid=self.uuid)
+
+
+def get_plugins() -> typing.List[typing.Type]:
+    """Get list of plugin classes."""
+    # TODO detect plugins in directory
+    from .plugins.hashtag_counter import HashtagCounter
+
+    return [HashtagCounter]
 
 
 def get_tweets(tweet_ids: typing.Iterable[int]) -> typing.List[typing.Mapping]:
