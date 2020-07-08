@@ -65,9 +65,9 @@ class Extract(db.Model):
             with open(tweets_file, mode='w', encoding='utf-8') as f:
                 json.dump(tweets, f, ensure_ascii=False, indent=4)
 
-        for Plugin in get_plugins():
-            instance = Plugin(tweets)
-            instance.run()
+            for plugin_name, plugin in get_plugins().items():
+                output = plugin(tweets=tweets, tweets_file=tweets_file)
+                logger.info(output)
 
         self.ready = True
         self.save()
@@ -78,12 +78,14 @@ class Extract(db.Model):
         return url_for('extract.download_extract', extract_uuid=self.uuid)
 
 
-def get_plugins() -> typing.List[typing.Type]:
+def get_plugins() -> typing.Dict[pathlib.Path, typing.Callable]:
     """Get list of plugin classes."""
-    # TODO detect plugins in directory
-    from .plugins.hashtag_counter import HashtagCounter
+    from .plugins.base import PluginCollection
 
-    return [HashtagCounter]
+    plugin_directories = [
+        pathlib.Path('wdra_extender', 'extract', 'plugins'),
+    ]
+    return PluginCollection(plugin_directories).load_plugins()
 
 
 def get_tweets(tweet_ids: typing.Iterable[int]) -> typing.List[typing.Mapping]:
