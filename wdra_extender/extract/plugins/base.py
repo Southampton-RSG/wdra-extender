@@ -31,10 +31,23 @@ class PluginBase(metaclass=abc.ABCMeta):
 
 
 def executable_plugin(filepath):
-    def run(tweets: typing.Iterable = None, tweets_file: pathlib.Path = None):
+    def run(tweets: typing.Iterable = None,
+            tweets_file: pathlib.Path = None,
+            work_dir: pathlib.Path = None):
+        """Run an executable file as a WDRAX plugin.
+
+        The file is expected to save files in the working directory=
+        which will be included in the output zip file.
+        """
+        # Add plugin directory to environment so extra files can be used
+        env = os.environ.copy()
+        env['BIN'] = filepath.parent
+
         logger.info('Executing plugin: %s', filepath)
         proc = subprocess.run([filepath, tweets_file],
+                              cwd=work_dir,
                               capture_output=True,
+                              env=env,
                               text=True)
 
         logger.info('-- Plugin STDERR')
@@ -49,7 +62,9 @@ def executable_plugin(filepath):
 
 class PluginCollection:
     def __init__(self, plugin_directories: typing.Iterable[pathlib.Path]):
-        self.plugin_directories = plugin_directories
+        self.plugin_directories = [
+            d.resolve() for d in plugin_directories if d.is_dir()
+        ]
         self.plugins = {}
 
     def load_plugins(self) -> typing.Dict[pathlib.Path, typing.Callable]:

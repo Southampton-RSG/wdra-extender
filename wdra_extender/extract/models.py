@@ -66,7 +66,9 @@ class Extract(db.Model):
                 json.dump(tweets, f, ensure_ascii=False, indent=4)
 
             for plugin_name, plugin in get_plugins().items():
-                output = plugin(tweets=tweets, tweets_file=tweets_file)
+                output = plugin(tweets=tweets,
+                                tweets_file=tweets_file,
+                                work_dir=tmp_dir)
                 logger.info(output)
 
         self.ready = True
