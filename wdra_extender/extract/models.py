@@ -104,7 +104,7 @@ def get_plugins() -> typing.Dict[pathlib.Path, typing.Callable]:
     from .plugins.base import PluginCollection
 
     plugin_directories = [
-        pathlib.Path('wdra_extender', 'extract', 'plugins'),
+        current_app.config['BASE_DIR'].joinpath('plugins-enabled'),
     ]
     return PluginCollection(plugin_directories).load_plugins()
 
