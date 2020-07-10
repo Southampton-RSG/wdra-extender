@@ -3,11 +3,13 @@
 import datetime
 import logging
 import json
+import os
 import pathlib
 import tempfile
 import time
 import typing
 from uuid import uuid4
+import zipfile
 
 from flask import current_app, url_for
 from twarc import Twarc
@@ -71,6 +73,11 @@ class Extract(db.Model):
                                 work_dir=tmp_dir)
                 logger.info(output)
 
+            zip_path = current_app.config['OUTPUT_DIR'].joinpath(
+                self.uuid).with_suffix('.zip')
+            zip_directory(zip_path, work_dir)
+            logger.info('Zipped output files to %s', zip_path)
+
         self.ready = True
         self.save()
         return self.uuid
@@ -78,6 +85,18 @@ class Extract(db.Model):
     def get_absolute_url(self):
         """Get the URL for this object's detail view."""
         return url_for('extract.download_extract', extract_uuid=self.uuid)
+
+
+def zip_directory(zip_path: pathlib.Path, dir_path: pathlib.Path):
+    """Create a zipfile from a directory."""
+    if not dir_path.is_dir():
+        raise NotADirectoryError
+
+    with zipfile.ZipFile(zip_path, 'w') as z:
+        for root, dirs, files in os.walk(dir_path):
+            for f in files:
+                filepath = pathlib.Path(root, f)
+                z.write(filepath, arcname=filepath.relative_to(dir_path))
 
 
 def get_plugins() -> typing.Dict[pathlib.Path, typing.Callable]:
