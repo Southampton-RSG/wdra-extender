@@ -1,9 +1,18 @@
 <!DOCTYPE html>
 <head>
     <title>WDRA Extender</title>
+
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+          crossorigin="anonymous">
 </head>
 
-<body>
-    {% block content %}
-    {% endblock %}
+<body class="bg-light">
+    <div class="container-fluid row justify-content-md-center">
+        <div class="col-md-6">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
 </body>

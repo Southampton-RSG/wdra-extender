@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Extract</h1>
+<h1>Extract Details</h1>
+
+<hr>
 
 <dl>
     <dt>UUID</dt>
@@ -9,7 +11,8 @@
 </dl>
 
 {% if extract.ready %}
-    <a href="{{ url_for('extract.download_extract', extract_uuid=extract.uuid) }}">
+    <a class="btn btn-primary btn-lg btn-block"
+       href="{{ url_for('extract.download_extract', extract_uuid=extract.uuid) }}">
         Download
     </a>
 {% endif %}
