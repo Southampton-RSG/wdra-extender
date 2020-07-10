@@ -7,4 +7,10 @@
     <dt>UUID</dt>
     <dd>{{ extract.uuid }}</dd>
 </dl>
+
+{% if extract.ready %}
+    <a href="{{ url_for('extract.download_extract', extract_uuid=extract.uuid) }}">
+        Download
+    </a>
+{% endif %}
 {% endblock %}

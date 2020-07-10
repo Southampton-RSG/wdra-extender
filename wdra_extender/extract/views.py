@@ -1,7 +1,9 @@
 """Module containing views related to Twitter Extract Bundles."""
+
+import pathlib
 import typing
 
-from flask import Blueprint, render_template, redirect, request
+from flask import Blueprint, current_app, render_template, redirect, request, send_from_directory
 import werkzeug
 
 from . import models, tasks
@@ -42,8 +44,17 @@ def request_extract():
 
 
 @blueprint.route('/<uuid:extract_uuid>')
-def download_extract(extract_uuid):
-    """View to download a Twitter Extract Bundle."""
+def detail_extract(extract_uuid):
+    """View displaying details of a Twitter Extract Bundle."""
     extract = models.Extract.query.get(str(extract_uuid))
 
     return render_template('extract.html', extract=extract)
+
+
+@blueprint.route('/<uuid:extract_uuid>/fetch')
+def download_extract(extract_uuid):
+    """View to download a Twitter Extract Bundle."""
+    return send_from_directory(current_app.config['OUTPUT_DIR'],
+                               pathlib.Path(
+                                   str(extract_uuid)).with_suffix('.zip'),
+                               as_attachment=True)

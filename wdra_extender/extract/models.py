@@ -84,7 +84,7 @@ class Extract(db.Model):
 
     def get_absolute_url(self):
         """Get the URL for this object's detail view."""
-        return url_for('extract.download_extract', extract_uuid=self.uuid)
+        return url_for('extract.detail_extract', extract_uuid=self.uuid)
 
 
 def zip_directory(zip_path: pathlib.Path, dir_path: pathlib.Path):
