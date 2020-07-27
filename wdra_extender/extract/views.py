@@ -8,7 +8,7 @@ import werkzeug
 
 from . import models, tasks
 
-blueprint = Blueprint("extract", __name__, url_prefix='/extracts')
+blueprint = Blueprint("extract", __name__, url_prefix='/extracts')  # pylint: disable=invalid-name
 
 
 class ValidationError(werkzeug.exceptions.BadRequest):

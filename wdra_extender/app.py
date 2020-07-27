@@ -64,7 +64,7 @@ def configure_logger(app) -> None:
         app.logger.addHandler(handler)
 
 
-app = create_app()
+app = create_app()  # pylint: disable=invalid-name
 
 
 @app.route('/')

@@ -8,7 +8,7 @@ import pathlib
 from decouple import AutoConfig
 
 BASE_DIR = pathlib.Path(__name__).absolute().parent
-config = AutoConfig(search_path=str(BASE_DIR))
+config = AutoConfig(search_path=str(BASE_DIR))  # pylint: disable=invalid-name
 
 #: Directory into which output zip files should be placed
 OUTPUT_DIR = config('OUTPUT_DIR',
