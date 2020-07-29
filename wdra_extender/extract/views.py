@@ -38,7 +38,11 @@ def request_extract():
     extract = models.Extract(email=request.form['email'])
     extract.save()
 
-    tasks.build_extract.delay(extract.uuid, tweet_ids)
+    if current_app.config['IN_PROCESS_TASKS']:
+        extract.build(tweet_ids)
+
+    else:
+        tasks.build_extract.delay(extract.uuid, tweet_ids)
 
     return redirect(extract.get_absolute_url())
 

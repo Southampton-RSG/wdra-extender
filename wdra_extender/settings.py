@@ -19,9 +19,17 @@ REDIS_HOST = config('REDIS_HOST', default='localhost')
 REDIS_PORT = config('REDIS_PORT', cast=int, default=6379)
 REDIS_DB = config('REDIS_DB', default='0')
 
+#: Run tasks synchronously, in-process, rather than using Celery task queue
+IN_PROCESS_TASKS = config('IN_PROCESS_TASKS', cast=bool, default=False)
+
 CELERY_BROKER_URL = config(
     'CELERY_BROKER_URL',
-    default=f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}')
+    default=(None if IN_PROCESS_TASKS else
+             f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'))
+
+if IN_PROCESS_TASKS and CELERY_BROKER_URL is not None:
+    raise ValueError(
+        'CELERY_BROKER_URL must not be set if IN_PROCESS_TASKS is True')
 
 SQLALCHEMY_DATABASE_URI = config(
     'SQLALCHEMY_DATABASE_URI',

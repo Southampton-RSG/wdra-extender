@@ -40,7 +40,9 @@ def register_extensions(app) -> None:
 
     :param app: Flask App which extensions should be initialised to.
     """
-    celery.init_app(app)
+    if not app.config['IN_PROCESS_TASKS']:
+        celery.init_app(app)
+
     db.init_app(app)
     migrate.init_app(app, db)
 
