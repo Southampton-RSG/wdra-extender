@@ -1,6 +1,7 @@
 """Module containing tweet processing plugin loaders and structure."""
 
 import abc
+import functools
 import importlib
 import logging
 import os
@@ -42,15 +43,17 @@ class PluginBase(metaclass=abc.ABCMeta):
 def log_proc_output(proc: subprocess.CompletedProcess,
                     level: int = logging.INFO) -> None:
     """Log stdout and stderr of a subprocess."""
-    logger.log('-- Plugin STDOUT', level=level)
-    for line in proc.stderr.splitlines():
-        logger.log(line, level=level)
-    logger.log('-- End plugin STDOUT', level=level)
+    log = lambda x: logger.log(level, x)
 
-    logger.log('-- Plugin STDERR', level=level)
+    log('-- Plugin STDOUT')
+    for line in proc.stderr.splitlines():
+        log(line)
+    log('-- End plugin STDOUT')
+
+    log('-- Plugin STDERR')
     for line in proc.stdout.splitlines():
-        logger.log(line, level=level)
-    logger.log('-- End plugin STDERR', level=level)
+        log(line)
+    log('-- End plugin STDERR')
 
 
 def executable_plugin(filepath) -> typing.Callable:

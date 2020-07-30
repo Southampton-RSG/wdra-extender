@@ -10,6 +10,29 @@ from decouple import AutoConfig
 BASE_DIR = pathlib.Path(__name__).absolute().parent
 config = AutoConfig(search_path=str(BASE_DIR))  # pylint: disable=invalid-name
 
+#: Python logging config dictionary
+#: See https://docs.python.org/3/library/logging.config.html#logging-config-dictschema
+LOGGING = {
+    'version': 1,
+    'formatters': {
+        'default': {
+            'format':
+            '[%(asctime)s] %(levelname)s in %(name)s:%(lineno)d %(message)s',
+        }
+    },
+    'handlers': {
+        'wsgi': {
+            'class': 'logging.StreamHandler',
+            'stream': 'ext://flask.logging.wsgi_errors_stream',
+            'formatter': 'default'
+        }
+    },
+    'root': {
+        'level': config('LOG_LEVEL', default='INFO'),
+        'handlers': ['wsgi']
+    }
+}
+
 #: Directory into which output zip files should be placed
 OUTPUT_DIR = config('OUTPUT_DIR',
                     cast=pathlib.Path,

@@ -5,8 +5,8 @@ This is the entrypoint to WDRA-Extender.
 
 # pylint: disable=redefined-outer-name
 
-import logging
-import sys
+import importlib
+import logging.config
 
 from flask import Flask, render_template
 
@@ -19,13 +19,22 @@ __all__ = [
 ]
 
 
-def create_app(config_object='wdra_extender.settings'):
+def create_app(config_module='wdra_extender.settings'):
     """App factory as in https://flask.palletsprojects.com/en/1.1.x/patterns/appfactories/.
 
     :param config_object: Configuration object to use.
     """
+    config = importlib.import_module(config_module)
+
+    # Logging should be configured before anything else
+    logging.config.dictConfig(config.LOGGING)
+    logger = logging.getLogger(__name__)
+
     app = Flask(__name__)
-    app.config.from_object(config_object)
+    app.config.from_object(config)
+    if app.config['IN_PROCESS_TASKS']:
+        logger.warning(
+            'Running with IN_PROCESS_TASKS - not suitable for production')
 
     register_extensions(app)
     register_blueprints(app)
@@ -53,17 +62,6 @@ def register_blueprints(app) -> None:
     :param app: Flask App which views should be registered to.
     """
     app.register_blueprint(extract.views.blueprint)
-
-
-def configure_logger(app) -> None:
-    """Send logging to stdout.
-
-    :param app: Flask App for which logging is being handled.
-    """
-    handler = logging.StreamHandler(sys.stdout)
-
-    if not app.logger.handlers:
-        app.logger.addHandler(handler)
 
 
 app = create_app()  # pylint: disable=invalid-name
