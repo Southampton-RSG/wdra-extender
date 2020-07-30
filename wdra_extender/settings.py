@@ -58,6 +58,11 @@ SQLALCHEMY_DATABASE_URI = config(
     'SQLALCHEMY_DATABASE_URI',
     default=f'sqlite:///{BASE_DIR.joinpath("db.sqlite3")}')
 
+TWEET_PROVIDERS = [
+    'wdra_extender.extract.tweet_providers.redis_provider',
+    'wdra_extender.extract.tweet_providers.twarc_provider',
+]
+
 TWITTER_CONSUMER_KEY = config('TWITTER_CONSUMER_KEY')
 TWITTER_CONSUMER_SECRET = config('TWITTER_CONSUMER_SECRET')
 
