@@ -67,7 +67,7 @@ class Extract(db.Model):
             with open(tweets_file, mode='w', encoding='utf-8') as f:
                 json.dump(tweets, f, ensure_ascii=False, indent=4)
 
-            for plugin_name, plugin in get_plugins().items():
+            for plugin in get_plugins().values():
                 output = plugin(tweets=tweets,
                                 tweets_file=tweets_file,
                                 work_dir=tmp_dir)
@@ -101,7 +101,7 @@ def zip_directory(zip_path: pathlib.Path, dir_path: pathlib.Path):
 
 def get_plugins() -> typing.Dict[pathlib.Path, typing.Callable]:
     """Get list of plugin classes."""
-    from .plugins.base import PluginCollection
+    from .plugins import PluginCollection
 
     plugin_directories = [
         current_app.config['BASE_DIR'].joinpath('plugins-enabled'),
