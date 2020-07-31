@@ -9,8 +9,6 @@ from flask import current_app
 import redis
 from twarc import Twarc
 
-from ..settings import TWEET_PROVIDERS
-
 __all__ = [
     'get_tweets',
     'redis_provider',
@@ -28,15 +26,22 @@ def import_object(name: str) -> object:
     return getattr(module, object_name)
 
 
-def get_tweets(tweet_ids: typing.Iterable[int]) -> typing.List[typing.Mapping]:
+def get_tweets(
+        tweet_ids: typing.Iterable[int],
+        tweet_providers: typing.Iterable[str]) -> typing.List[typing.Mapping]:
     """Get a list of Tweets from their IDs.
 
-    First check for Tweets which have been cached, then collect uncached Tweets from the Twitter API.
+    Attempt to get tweets from each of the tweet providers in turn.
+    Tweet providers should be passed as the importable name of the callable.
+    e.g. 'wdra_extender.extract.tweet_providers.redis_provider'
+
+    :param tweet_ids: Tweet IDs to lookup.
+    :param tweet_providers: Iterable of names of tweet provider functions to import.
     """
     tweet_ids = set(tweet_ids)
     found_tweets = []
 
-    for provider in map(import_object, TWEET_PROVIDERS):
+    for provider in map(import_object, tweet_providers):
         provider_found_ids, provider_found_tweets = provider(tweet_ids)
 
         found_tweets.extend(provider_found_tweets)

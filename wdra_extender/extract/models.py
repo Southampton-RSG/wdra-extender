@@ -57,7 +57,9 @@ class Extract(db.Model):
         """
         logger.info('Processing Bundle %s', self.uuid)
 
-        tweets = get_tweets(tweet_ids)
+        tweets = get_tweets(
+            tweet_ids, tweet_providers=current_app.config['TWEET_PROVIDERS'])
+
         with tempfile.TemporaryDirectory() as tmp_dir:
             work_dir = pathlib.Path(tmp_dir)
             tweets_file = work_dir.joinpath('tweets.json')
