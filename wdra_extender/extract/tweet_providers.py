@@ -56,12 +56,6 @@ def get_tweets(
             logger.info('Found all tweets - skipping remaining providers')
             break
 
-    try:
-        save_to_redis(found_tweets)
-
-    except ConnectionError as exc:
-        logger.error('Failed to cache found Tweets: %s', exc)
-
     return found_tweets
 
 

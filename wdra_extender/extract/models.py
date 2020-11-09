@@ -12,7 +12,7 @@ import zipfile
 from flask import current_app, url_for
 
 from ..extensions import db
-from .tweet_providers import get_tweets
+from .tweet_providers import get_tweets, save_to_redis
 
 __all__ = [
     'Extract',
@@ -59,6 +59,12 @@ class Extract(db.Model):
 
         tweets = get_tweets(
             tweet_ids, tweet_providers=current_app.config['TWEET_PROVIDERS'])
+
+        try:
+            save_to_redis(tweets)
+
+        except ConnectionError as exc:
+            logger.error('Failed to cache found Tweets: %s', exc)
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             work_dir = pathlib.Path(tmp_dir)
