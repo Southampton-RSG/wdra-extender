@@ -13,6 +13,7 @@ from flask import current_app, url_for
 
 from ..extensions import db
 from .tweet_providers import get_tweets, save_to_redis
+from .plugins import PluginCollection
 
 __all__ = [
     'Extract',
@@ -69,13 +70,12 @@ class Extract(db.Model):
         with tempfile.TemporaryDirectory() as tmp_dir:
             work_dir = pathlib.Path(tmp_dir)
             tweets_file = work_dir.joinpath('tweets.json')
-            with open(tweets_file, mode='w', encoding='utf-8') as f:
-                json.dump(tweets, f, ensure_ascii=False, indent=4)
+
+            with open(tweets_file, mode='w', encoding='utf-8') as json_out:
+                json.dump(tweets, json_out, ensure_ascii=False, indent=4)
 
             for plugin in get_plugins().values():
-                output = plugin(tweets=tweets,
-                                tweets_file=tweets_file,
-                                work_dir=tmp_dir)
+                output = plugin(tweets_file, tmp_dir)
                 logger.info(output)
 
             zip_path = current_app.config['OUTPUT_DIR'].joinpath(
@@ -97,17 +97,15 @@ def zip_directory(zip_path: pathlib.Path, dir_path: pathlib.Path):
     if not dir_path.is_dir():
         raise NotADirectoryError
 
-    with zipfile.ZipFile(zip_path, 'w') as z:
+    with zipfile.ZipFile(zip_path, 'w') as z:  # pylint: disable=invalid-name
         for root, dirs, files in os.walk(dir_path):
-            for f in files:
+            for f in files:  # pylint: disable=invalid-name
                 filepath = pathlib.Path(root, f)
                 z.write(filepath, arcname=filepath.relative_to(dir_path))
 
 
 def get_plugins() -> typing.Dict[pathlib.Path, typing.Callable]:
     """Get list of plugin classes."""
-    from .plugins import PluginCollection
-
     plugin_directories = [
         current_app.config['BASE_DIR'].joinpath('plugins-enabled'),
     ]

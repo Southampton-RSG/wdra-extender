@@ -1,8 +1,6 @@
 """Module containing tweet processing plugin loaders and structure."""
 
 import abc
-import functools
-import importlib
 import logging
 import os
 import pathlib
@@ -43,7 +41,8 @@ class PluginBase(metaclass=abc.ABCMeta):
 def log_proc_output(proc: subprocess.CompletedProcess,
                     level: int = logging.INFO) -> None:
     """Log stdout and stderr of a subprocess."""
-    log = lambda x: logger.log(level, x)
+    def log(msg):
+        logger.log(level, msg)
 
     log('-- Plugin STDOUT')
     for line in proc.stderr.splitlines():
@@ -63,8 +62,7 @@ def executable_plugin(filepath) -> typing.Callable:
     the tweet data provided by it to WDRAX and produces a number
     of output files in the specified working directory.
     """
-    def run(tweets: typing.Iterable = None,
-            tweets_file: pathlib.Path = None,
+    def run(tweets_file: pathlib.Path = None,
             work_dir: pathlib.Path = None):
         """Run an executable file as a WDRAX plugin.
 

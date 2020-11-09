@@ -2,7 +2,6 @@ import datetime
 import importlib
 import json
 import logging
-import time
 import typing
 
 from flask import current_app
@@ -98,9 +97,8 @@ def redis_provider(
     found_tweets = []
 
     # Attempt to get all Tweets from cache
-    get_redis_key = lambda i: f'tweet_hydrated:{i}'
     try:
-        tweets = r.mget(map(get_redis_key, tweet_ids))
+        tweets = r.mget(map(lambda i: f'tweet_hydrated:{i}', tweet_ids))
 
     except redis.exceptions.ConnectionError as exc:
         raise ConnectionError from exc
