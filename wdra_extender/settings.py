@@ -43,16 +43,16 @@ REDIS_PORT = config('REDIS_PORT', cast=int, default=6379)
 REDIS_DB = config('REDIS_DB', default='0')
 
 #: Run tasks synchronously, in-process, rather than using Celery task queue
-IN_PROCESS_TASKS = config('IN_PROCESS_TASKS', cast=bool, default=False)
+ENABLE_TASK_QUEUE = config('ENABLE_TASK_QUEUE', cast=bool, default=False)
 
 CELERY_BROKER_URL = config(
     'CELERY_BROKER_URL',
-    default=(None if IN_PROCESS_TASKS else
+    default=(None if ENABLE_TASK_QUEUE else
              f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'))
 
-if IN_PROCESS_TASKS and CELERY_BROKER_URL is not None:
+if ENABLE_TASK_QUEUE and CELERY_BROKER_URL is not None:
     raise ValueError(
-        'CELERY_BROKER_URL must not be set if IN_PROCESS_TASKS is True')
+        'CELERY_BROKER_URL must not be set if task queue is not enabled')
 
 SQLALCHEMY_DATABASE_URI = config(
     'SQLALCHEMY_DATABASE_URI',
@@ -63,8 +63,8 @@ TWEET_PROVIDERS = [
     'wdra_extender.extract.tweet_providers.twarc_provider',
 ]
 
-TWITTER_CONSUMER_KEY = config('TWITTER_CONSUMER_KEY')
-TWITTER_CONSUMER_SECRET = config('TWITTER_CONSUMER_SECRET')
+TWITTER_CONSUMER_KEY = config('TWITTER_CONSUMER_KEY', default=None)
+TWITTER_CONSUMER_SECRET = config('TWITTER_CONSUMER_SECRET', default=None)
 
 # TWITTER_ACCESS_TOKEN = config('TWITTER_ACCESS_TOKEN')
 # TWITTER_ACCESS_TOKEN_SECRET = config('TWITTER_ACCESS_TOKEN_SECRET')

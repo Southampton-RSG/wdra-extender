@@ -38,11 +38,13 @@ def request_extract():
     extract = models.Extract(email=request.form['email'])
     extract.save()
 
-    if current_app.config['IN_PROCESS_TASKS']:
-        extract.build(tweet_ids)
+    if current_app.config['ENABLE_TASK_QUEUE']:
+        # Add job to task queue
+        tasks.build_extract.delay(extract.uuid, tweet_ids)
 
     else:
-        tasks.build_extract.delay(extract.uuid, tweet_ids)
+        # Build the extract now
+        extract.build(tweet_ids)
 
     return redirect(extract.get_absolute_url())
 

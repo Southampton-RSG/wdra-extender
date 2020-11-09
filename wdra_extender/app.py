@@ -32,9 +32,9 @@ def create_app(config_module='wdra_extender.settings'):
 
     app = Flask(__name__)
     app.config.from_object(config)
-    if app.config['IN_PROCESS_TASKS']:
+    if not app.config['ENABLE_TASK_QUEUE']:
         logger.warning(
-            'Running with IN_PROCESS_TASKS - not suitable for production')
+            'Running without task queue - not suitable for production')
 
     register_extensions(app)
     register_blueprints(app)
@@ -49,7 +49,7 @@ def register_extensions(app) -> None:
 
     :param app: Flask App which extensions should be initialised to.
     """
-    if not app.config['IN_PROCESS_TASKS']:
+    if app.config['ENABLE_TASK_QUEUE']:
         celery.init_app(app)
 
     db.init_app(app)
