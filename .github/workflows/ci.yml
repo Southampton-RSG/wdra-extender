@@ -23,7 +23,9 @@ jobs:
         pip install -r requirements-devel.txt
     - name: Lint with prospector
       run: |
-        # log all prospector warnings but don't stop the build
+        # Stop build in case of errors found by pyflakes
+        prospector wdra_extender --strictness veryhigh --tool pyflakes
+        # Continue build for all other warnings but log them
         prospector wdra_extender --strictness veryhigh --zero-exit
     - name: Test with pytest
       run: |
