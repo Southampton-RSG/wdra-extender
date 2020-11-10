@@ -34,8 +34,7 @@ $ python -m flask run
 #### Using Docker
 
 ```
-$ docker build --tag wdrax .
-$ docker run --rm --publish 5000:5000 --name wdrax wdrax
+$ docker-compose up --build
 ```
 
 
