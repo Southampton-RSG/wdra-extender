@@ -33,6 +33,8 @@ $ python -m flask run
 
 #### Using Docker
 
+Copy the `docker-compose.yml.example` file and fill in your Twitter API credentials, then:
+
 ```
 $ docker-compose up --build
 ```
@@ -40,7 +42,7 @@ $ docker-compose up --build
 
 ### Updating Python Dependencies
 
-The `requirements.txt` and `requirements-devel.txt` files for this project have been generates using [pip-tools](https://github.com/jazzband/pip-tools).
+The `requirements.txt` and `requirements-devel.txt` files for this project have been generated using [pip-tools](https://github.com/jazzband/pip-tools).
 To update pinned dependency versions:
 
 ```

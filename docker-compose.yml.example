@@ -1,0 +1,31 @@
+version: "3.8"
+services:
+  wdrax:
+    build: .
+    environment:
+      # Web server component never connects to Twitter API
+      - REDIS_HOST=redis
+    image: wdrax:dev
+    ports:
+      - 8000:8000
+    volumes:
+      - ./db.sqlite3:/var/www/wdrax/db.sqlite3:z
+      - ./media:/var/www/wdrax/media:z,ro
+
+  runner:
+    build: .
+    environment:
+      - REDIS_HOST=redis
+      - TWITTER_CONSUMER_KEY=<SECRET>
+      - TWITTER_CONSUMER_SECRET=<SECRET>
+      - TWITTER_ACCESS_TOKEN=<SECRET>
+      - TWITTER_ACCESS_TOKEN_SECRET=<SECRET>
+    image: wdrax:dev
+    command: celery -A wdra_extender.app:celery worker --loglevel=debug --concurrency=1
+    volumes:
+      - ./db.sqlite3:/var/www/wdrax/db.sqlite3:z
+      - ./media:/var/www/wdrax/media:z
+      - ./plugins-enabled:/var/www/wdrax/plugins-enabled:z,ro
+
+  redis:
+    image: redis
