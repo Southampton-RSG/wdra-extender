@@ -38,7 +38,7 @@ def request_extract():
     extract = models.Extract(email=request.form['email'])
     extract.save()
 
-    if current_app.config['ENABLE_TASK_QUEUE']:
+    if current_app.config['CELERY_BROKER_URL']:
         # Add job to task queue
         tasks.build_extract.delay(extract.uuid, tweet_ids)
 

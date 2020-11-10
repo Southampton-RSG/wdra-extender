@@ -106,8 +106,6 @@ def redis_provider(
     for tweet_id, tweet_string in zip(tweet_ids, tweets):
         if tweet_string is not None:
             found_tweet_ids.add(tweet_id)
-
-        else:
             found_tweets.append(json.loads(tweet_string))
 
     logger.info('Found %d cached Tweets', len(found_tweet_ids))
@@ -125,8 +123,11 @@ def twarc_provider(
     logger.info('Fetching %d uncached Tweets', len(tweet_ids))
     # Twitter API consumer - handles rate limits for us
     t = Twarc(  # pylint: disable=invalid-name
-        current_app.config['TWITTER_CONSUMER_KEY'],
-        current_app.config['TWITTER_CONSUMER_SECRET'])
+        consumer_key=current_app.config['TWITTER_CONSUMER_KEY'],
+        consumer_secret=current_app.config['TWITTER_CONSUMER_SECRET'],
+        access_token=current_app.config['TWITTER_ACCESS_TOKEN'],
+        access_token_secret=current_app.config['TWITTER_ACCESS_TOKEN_SECRET'],
+    )
 
     found_tweets = list(t.hydrate(tweet_ids))
     found_tweet_ids = {tweet['id'] for tweet in found_tweets}

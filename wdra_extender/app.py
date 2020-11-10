@@ -18,6 +18,8 @@ __all__ = [
     'celery',
 ]
 
+logger = logging.getLogger(__name__)
+
 
 def create_app(config_module='wdra_extender.settings'):
     """App factory as in https://flask.palletsprojects.com/en/1.1.x/patterns/appfactories/.
@@ -26,15 +28,8 @@ def create_app(config_module='wdra_extender.settings'):
     """
     config = importlib.import_module(config_module)
 
-    # Logging should be configured before anything else
-    logging.config.dictConfig(config.LOGGING)
-    logger = logging.getLogger(__name__)
-
     app = Flask(__name__)
     app.config.from_object(config)
-    if not app.config['ENABLE_TASK_QUEUE']:
-        logger.warning(
-            'Running without task queue - not suitable for production')
 
     register_extensions(app)
     register_blueprints(app)
@@ -49,8 +44,12 @@ def register_extensions(app) -> None:
 
     :param app: Flask App which extensions should be initialised to.
     """
-    if app.config['ENABLE_TASK_QUEUE']:
+    if app.config['CELERY_BROKER_URL']:
         celery.init_app(app)
+
+    else:
+        logger.warning(
+            'Running without task queue - not suitable for production')
 
     db.init_app(app)
     migrate.init_app(app, db)
