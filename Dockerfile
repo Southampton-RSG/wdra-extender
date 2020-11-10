@@ -16,4 +16,4 @@ EXPOSE 8000
 
 ENV FLASK_APP="wdra_extender/app.py"
 RUN [ "python", "-m", "flask", "db", "upgrade" ]
-CMD [ "gunicorn", "wdra_extender.app:app", "--bind", "0.0.0.0:8000" ]
+CMD [ "gunicorn", "wdra_extender.app:app", "--worker-tmp-dir", "/dev/shm", "--bind", "0.0.0.0:8000" ]
