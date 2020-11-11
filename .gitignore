@@ -15,7 +15,10 @@
 /settings.ini
 /plugins-enabled/
 /docker-compose.yml
+inventory.yml
+vagrant_extra_vars.yml
 
 # Misc
 /notes/
 twarc.log
+.vagrant/

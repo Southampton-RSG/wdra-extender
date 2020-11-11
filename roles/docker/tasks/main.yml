@@ -1,0 +1,34 @@
+---
+
+- block:
+  - name: Add Docker repo to yum
+    get_url:
+      url: https://download.docker.com/linux/centos/docker-ce.repo
+      dest: /etc/yum.repos.d/docker-ce.repo
+
+  - name: Install Docker
+    yum:
+      name: '{{ packages }}'
+      state: latest
+      update_cache: yes
+    vars:
+      packages:
+        - git
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+
+  - name: Start Docker service
+    systemd:
+      name: docker
+      state: started
+      enabled: yes
+
+  - name: Install docker-compose
+    get_url:
+      url: https://github.com/docker/compose/releases/download/1.27.4/docker-compose-Linux-x86_64
+      dest: /usr/bin/docker-compose
+      mode: a+x
+
+  become_user: root
+  become: yes
