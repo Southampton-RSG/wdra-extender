@@ -33,7 +33,7 @@ $ python -m flask run
 
 #### Using Docker
 
-Copy the `docker-compose.yml.example` file and fill in your Twitter API credentials, then:
+Copy the `docker-compose.yml.j2` file and fill in your Twitter API credentials, then:
 
 ```
 $ docker-compose up --build
