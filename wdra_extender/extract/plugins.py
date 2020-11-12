@@ -7,7 +7,7 @@ import pathlib
 import subprocess
 import typing
 
-logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
+from flask import current_app
 
 
 class PluginBase(metaclass=abc.ABCMeta):
@@ -20,7 +20,7 @@ class PluginBase(metaclass=abc.ABCMeta):
         self.tweets = tweets
         self.tweets_file = tweets_file
 
-        logger.info('Starting plugin: %s', self)
+        current_app.logger.info('Starting plugin: %s', self)
 
     @abc.abstractmethod
     def run(self,
@@ -42,7 +42,7 @@ def log_proc_output(proc: subprocess.CompletedProcess,
                     level: int = logging.INFO) -> None:
     """Log stdout and stderr of a subprocess."""
     def log(msg):
-        logger.log(level, msg)
+        current_app.logger.log(level, msg)
 
     log('-- Plugin STDOUT')
     for line in proc.stderr.splitlines():
@@ -62,8 +62,7 @@ def executable_plugin(filepath) -> typing.Callable:
     the tweet data provided by it to WDRAX and produces a number
     of output files in the specified working directory.
     """
-    def run(tweets_file: pathlib.Path = None,
-            work_dir: pathlib.Path = None):
+    def run(tweets_file: pathlib.Path = None, work_dir: pathlib.Path = None):
         """Run an executable file as a WDRAX plugin.
 
         The file is expected to save files in the working directory
@@ -72,8 +71,13 @@ def executable_plugin(filepath) -> typing.Callable:
         # Add plugin directory to environment so extra files can be used
         env = os.environ.copy()
         env['BIN'] = filepath.parent
+        for key in {
+                'TWITTER_CONSUMER_KEY', 'TWITTER_CONSUMER_SECRET',
+                'TWITTER_ACCESS_TOKEN', 'TWITTER_ACCESS_TOKEN_SECRET'
+        }:
+            env[key] = current_app.config[key]
 
-        logger.info('Executing plugin: %s', filepath)
+        current_app.logger.info('Executing plugin: %s', filepath.parent.name)
         try:
             proc = subprocess.run([filepath, tweets_file],
                                   cwd=work_dir,
@@ -84,7 +88,7 @@ def executable_plugin(filepath) -> typing.Callable:
 
         except subprocess.CalledProcessError:
             # Process returned non-zero status
-            logger.error('Plugin failed: %s', filepath)
+            current_app.logger.error('Plugin failed: %s', filepath.parent.name)
             log_proc_output(proc, level=logging.ERROR)
 
             raise
@@ -128,7 +132,7 @@ class PluginCollection:
         """Load plugins from the specified directories."""
         # Load executable files as plugins
         for directory in self.plugin_directories:
-            logger.info('Loading plugins from directory: %s', directory)
+            current_app.logger.info('Loading plugins from directory: %s', directory)
 
             subdirs = sorted(p for p in directory.iterdir() if p.is_dir())
             for dir_path in subdirs:
@@ -136,11 +140,11 @@ class PluginCollection:
                     plugin_path = self.get_main_file(dir_path)
 
                 except IOError as exc:
-                    logger.error('Error loading plugin %s: %s', dir_path,
+                    current_app.logger.error('Error loading plugin %s: %s', dir_path,
                                  str(exc))
                     continue
 
-                logger.info('Found executable plugin: %s', dir_path.name)
+                current_app.logger.info('Loaded executable plugin: %s', dir_path.name)
                 self.plugins[dir_path] = executable_plugin(plugin_path)
 
         return self.plugins
