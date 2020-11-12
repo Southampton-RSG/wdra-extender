@@ -1,0 +1,26 @@
+#!/bin/sh
+
+K=1
+V=2
+SUM=1
+CNT=0
+LST=0
+F='-F\\t'
+
+ORDER=""
+
+while true; do
+case $1 in 
+-S) K=2; V=1;;
+-W) F=''; F1=''; F2='';;
+-b) SUM=1; CNT=1; LST=0;;
+-c) SUM=0; CNT=1; LST=0;;
+-l) SUM=0; CNT=0; LST=1;;
+-n) ORDER="-k 2n,3";;
+-r) ORDER="-k 2nr,3";;
+*) break;;
+esac
+shift
+done
+
+awk $F -v docnt=$CNT -v dosum=$SUM -v dolst=$LST -v kpos=$K -v vpos=$V '{idx[$kpos]=$kpos; tab[$kpos]+=$vpos; cnt[$kpos]+=1; lst[$kpos]=lst[$kpos]" "$vpos;}END{for(i in idx){d=i; if(docnt)d=d"\t"cnt[i]; if(dosum)d=d"\t"tab[i]; if(dolst)d=d"\t"lst[i]; print d}}' $* | sort $ORDER
