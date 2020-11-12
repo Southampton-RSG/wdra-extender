@@ -107,6 +107,6 @@ def zip_directory(zip_path: pathlib.Path, dir_path: pathlib.Path):
 def get_plugins() -> typing.Dict[pathlib.Path, typing.Callable]:
     """Get list of plugin classes."""
     plugin_directories = [
-        current_app.config['BASE_DIR'].joinpath('plugins-enabled'),
+        current_app.config['PLUGIN_DIR'],
     ]
     return PluginCollection(plugin_directories).load_plugins()
