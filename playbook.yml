@@ -89,6 +89,7 @@
       - name: Run containers with docker-compose
         docker_compose:
           project_src: '{{ project_dir }}'
+          build: yes  # We've already built it, but this should force services to renew
 
       become_user: '{{ wdrax_user }}'
       become: yes
