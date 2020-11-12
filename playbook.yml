@@ -84,7 +84,7 @@
           state: started
           restart: yes
           volumes:
-            - '{{ project_dir }}/db.sqlite3:/var/www/wdrax/db.sqlite3'
+            - '{{ project_dir }}/db.sqlite3:/var/www/wdrax/db.sqlite3:z'
 
       - name: Run containers with docker-compose
         docker_compose:
