@@ -9,8 +9,8 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - ./db.sqlite3:/var/www/wdrax/db.sqlite3:z
-      - ./media:/var/www/wdrax/media:z,ro
+      - {{ PROJECT_DIR }}/db.sqlite3:/var/www/wdrax/db.sqlite3:z
+      - {{ PROJECT_DIR }}/media:/var/www/wdrax/media:z,ro
 
   runner:
     build: .
@@ -23,9 +23,9 @@ services:
     image: wdrax:dev
     command: celery -A wdra_extender.app:celery worker --loglevel=debug --concurrency=1
     volumes:
-      - ./db.sqlite3:/var/www/wdrax/db.sqlite3:z
-      - ./media:/var/www/wdrax/media:z
-      - ./plugins:/var/www/wdrax/plugins:z,ro
+      - {{ PROJECT_DIR }}/db.sqlite3:/var/www/wdrax/db.sqlite3:z
+      - {{ PROJECT_DIR }}/media:/var/www/wdrax/media:z
+      - {{ PROJECT_DIR }}/plugins:/var/www/wdrax/plugins:z,ro
 
   redis:
     image: redis
