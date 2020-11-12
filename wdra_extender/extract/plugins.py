@@ -105,17 +105,42 @@ class PluginCollection:
         ]
         self.plugins = {}
 
+    @staticmethod
+    def get_main_file(dir_path: pathlib.Path) -> pathlib.Path:
+        """Find and validate the main file within a plugin directory."""
+        main_files = list(dir_path.glob('main.*'))
+
+        if len(main_files) == 1:
+            plugin_path = main_files[0]
+            if plugin_path.is_file() and os.access(plugin_path, os.X_OK):
+                return plugin_path
+
+            raise IOError('Plugin main.* file is not executable')
+
+        elif len(main_files) > 1:
+            raise IOError('Plugin has more than one main.* file')
+
+        else:
+            raise IOError('Plugin has no main.* file')
+
+
     def load_plugins(self) -> typing.Dict[pathlib.Path, typing.Callable]:
         """Load plugins from the specified directories."""
-        # TODO detect plugins in directory
-
         # Load executable files as plugins
         for directory in self.plugin_directories:
             logger.info('Loading plugins from directory: %s', directory)
 
-            for filepath in directory.iterdir():
-                if filepath.is_file() and os.access(filepath, os.X_OK):
-                    logger.info('Found executable plugin: %s', filepath)
-                    self.plugins[filepath] = executable_plugin(filepath)
+            subdirs = sorted(p for p in directory.iterdir() if p.is_dir())
+            for dir_path in subdirs:
+                try:
+                    plugin_path = self.get_main_file(dir_path)
+
+                except IOError as exc:
+                    logger.error('Error loading plugin %s: %s', dir_path,
+                                 str(exc))
+                    continue
+
+                logger.info('Found executable plugin: %s', dir_path.name)
+                self.plugins[dir_path] = executable_plugin(plugin_path)
 
         return self.plugins
