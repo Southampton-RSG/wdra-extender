@@ -22,3 +22,4 @@ vagrant_extra_vars.yml
 /notes/
 twarc.log
 .vagrant/
+/plugins-available/original/
