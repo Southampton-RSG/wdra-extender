@@ -7,7 +7,7 @@ import pathlib
 import subprocess
 import typing
 
-logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
+from flask import current_app
 
 
 class PluginBase(metaclass=abc.ABCMeta):
@@ -20,7 +20,7 @@ class PluginBase(metaclass=abc.ABCMeta):
         self.tweets = tweets
         self.tweets_file = tweets_file
 
-        logger.info('Starting plugin: %s', self)
+        current_app.logger.info('Starting plugin: %s', self)
 
     @abc.abstractmethod
     def run(self,
@@ -42,7 +42,7 @@ def log_proc_output(proc: subprocess.CompletedProcess,
                     level: int = logging.INFO) -> None:
     """Log stdout and stderr of a subprocess."""
     def log(msg):
-        logger.log(level, msg)
+        current_app.logger.log(level, msg)
 
     log('-- Plugin STDOUT')
     for line in proc.stderr.splitlines():
@@ -62,8 +62,7 @@ def executable_plugin(filepath) -> typing.Callable:
     the tweet data provided by it to WDRAX and produces a number
     of output files in the specified working directory.
     """
-    def run(tweets_file: pathlib.Path = None,
-            work_dir: pathlib.Path = None):
+    def run(tweets_file: pathlib.Path = None, work_dir: pathlib.Path = None):
         """Run an executable file as a WDRAX plugin.
 
         The file is expected to save files in the working directory
@@ -72,8 +71,13 @@ def executable_plugin(filepath) -> typing.Callable:
         # Add plugin directory to environment so extra files can be used
         env = os.environ.copy()
         env['BIN'] = filepath.parent
+        for key in {
+                'TWITTER_CONSUMER_KEY', 'TWITTER_CONSUMER_SECRET',
+                'TWITTER_ACCESS_TOKEN', 'TWITTER_ACCESS_TOKEN_SECRET'
+        }:
+            env[key.replace('TWITTER_', '')] = current_app.config[key]
 
-        logger.info('Executing plugin: %s', filepath)
+        current_app.logger.info('Executing plugin: %s', filepath.parent.name)
         try:
             proc = subprocess.run([filepath, tweets_file],
                                   cwd=work_dir,
@@ -84,7 +88,7 @@ def executable_plugin(filepath) -> typing.Callable:
 
         except subprocess.CalledProcessError:
             # Process returned non-zero status
-            logger.error('Plugin failed: %s', filepath)
+            current_app.logger.error('Plugin failed: %s', filepath.parent.name)
             log_proc_output(proc, level=logging.ERROR)
 
             raise
@@ -105,17 +109,42 @@ class PluginCollection:
         ]
         self.plugins = {}
 
+    @staticmethod
+    def get_main_file(dir_path: pathlib.Path) -> pathlib.Path:
+        """Find and validate the main file within a plugin directory."""
+        main_files = list(dir_path.glob('main.*'))
+
+        if len(main_files) == 1:
+            plugin_path = main_files[0]
+            if plugin_path.is_file() and os.access(plugin_path, os.X_OK):
+                return plugin_path
+
+            raise IOError('Plugin main.* file is not executable')
+
+        elif len(main_files) > 1:
+            raise IOError('Plugin has more than one main.* file')
+
+        else:
+            raise IOError('Plugin has no main.* file')
+
+
     def load_plugins(self) -> typing.Dict[pathlib.Path, typing.Callable]:
         """Load plugins from the specified directories."""
-        # TODO detect plugins in directory
-
         # Load executable files as plugins
         for directory in self.plugin_directories:
-            logger.info('Loading plugins from directory: %s', directory)
+            current_app.logger.info('Loading plugins from directory: %s', directory)
 
-            for filepath in directory.iterdir():
-                if filepath.is_file() and os.access(filepath, os.X_OK):
-                    logger.info('Found executable plugin: %s', filepath)
-                    self.plugins[filepath] = executable_plugin(filepath)
+            subdirs = sorted(p for p in directory.iterdir() if p.is_dir())
+            for dir_path in subdirs:
+                try:
+                    plugin_path = self.get_main_file(dir_path)
+
+                except IOError as exc:
+                    current_app.logger.error('Error loading plugin %s: %s', dir_path,
+                                 str(exc))
+                    continue
+
+                current_app.logger.info('Loaded executable plugin: %s', dir_path.name)
+                self.plugins[dir_path] = executable_plugin(plugin_path)
 
         return self.plugins

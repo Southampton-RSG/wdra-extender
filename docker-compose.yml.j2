@@ -25,7 +25,7 @@ services:
     volumes:
       - ./db.sqlite3:/var/www/wdrax/db.sqlite3:z
       - ./media:/var/www/wdrax/media:z
-      - ./plugins-enabled:/var/www/wdrax/plugins-enabled:z,ro
+      - ./plugins:/var/www/wdrax/plugins:z,ro
 
   redis:
     image: redis

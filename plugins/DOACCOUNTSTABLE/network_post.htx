@@ -1,0 +1,508 @@
+// ================ INSERT DATA THERE ^^^^^
+// ================ INSERT DATA THERE ||||| ========= [[...nodes...],[...links...]] ======================
+	)
+}
+
+function redoGraph(whichType){
+    clearDown()
+
+    timeoutID=setTimeout(expensiveProcessing,500,whichType)
+}
+
+function expensiveProcessing(whichType){
+    theDATA=evaluateDATA()
+    data = {nodes:[], edges:[]}
+
+    doGraph(whichType)
+  }
+
+function doGraph(whichType){
+  processGraph(whichType)
+  postSetup()
+  }
+
+function processGraph(graphType){
+    reshapeTheData(graphType,theDATA)
+
+    data={
+	nodes:theDATA[0].map(x=>(x.radius=sizeNodesByFollowers(x),x)),
+	edges:theDATA[1].map(x=>({
+		source: theDATA[0].find(y=>y.name==x.source),
+		target:theDATA[0].find(y=>y.name==x.target),
+		weight:x.weight
+		}))
+	}
+
+    simulation.nodes(data.nodes)
+    simulation.force("link").links(data.edges)
+    //simulation.restart()
+    simulation.stop()
+//var startT = new Date().getTime();
+    while(simulation.alpha()>simulation.alphaMin())
+	simulation.tick()
+//console.log("Layout graph: "+((new Date().getTime())-startT)+"ms")
+    simulationUpdate()
+    }
+
+
+function setupOnce(){
+    graphCanvas = d3.select('#graphDiv').append('canvas')
+	.attr('width', graphWidth + 'px')
+	.attr('height', height + 'px')
+	.attr('position', 'fixed')
+	.node();
+
+    d3.select(graphCanvas)
+        //.call(d3.drag().subject(dragsubject).on("start", dragstarted).on("drag", dragged).on("end",dragended))
+        .call(d3.zoom().scaleExtent([1 / 10, 8]).on("zoom", zoomed))
+
+    context = graphCanvas.getContext('2d');
+
+    div = d3.select("div.tooltip")
+      //.append("div")
+      //.attr("class", "tooltip")
+      .style("opacity", 0);
+
+    simulation = d3.forceSimulation()
+              .force("center", d3.forceCenter(graphWidth / 2, height / 2))
+              .force("x", d3.forceX(graphWidth / 2).strength(0.1))
+              .force("y", d3.forceY(height / 2).strength(0.1))
+              .force("charge", d3.forceManyBody().strength(-50))
+              .force("link", d3.forceLink().strength(1).id(function(d) { return d.id; }))
+	      .force('collision', d3.forceCollide().radius(function(d) { return d.radius }))
+              .alphaTarget(0)
+              .alphaDecay(0.05)
+              .on("tick",simulationUpdate)
+
+    transform = d3.zoomIdentity;
+
+    d3.select("canvas").on("mousemove", mouseMoveHandler)
+    d3.select("canvas").on("mouseout", mouseOutHandler)
+    d3.select("canvas").on("click", clickHandler)
+    document.getElementById("searchBox").addEventListener('change', doSearchBtn);
+    document.getElementById("graph-select").addEventListener('change', doChooseGraph);
+  }
+
+function clearDown(){
+    clearCanvas()
+    document.getElementById("graphStats").innerHTML=""
+    tabulate([], ['name','fullname','profile','tweets','followers']);
+    document.getElementsByClassName("spinner")[0].style.display="block"
+
+    simulation.alpha(0.9)
+
+    transform = d3.zoomIdentity;
+  }
+
+function postSetup(){
+  document.getElementsByClassName("spinner")[0].style.display="none"
+  tabulate(theDATA[0].filter(n=>n.mod==popularCliques[0]), ['name','fullname','profile','tweets','followers']);
+  }
+
+function clickHandler(d){
+    closeNode  = simulation.find( transform.invertX(d3.event.x), transform.invertY(d3.event.y), 20);
+    if(closeNode)
+	  tabulate(theDATA[0].filter(n=>n.mod==closeNode.mod), ['name','fullname','profile','tweets','followers']);
+  }
+
+function mouseMoveHandler(d){
+    var lastTime
+    closeNode  = simulation.find( transform.invertX(d3.event.x), transform.invertY(d3.event.y), 20);
+    if(closeNode){
+	if(closeNode.id!=lastCloseID){
+            showTooltip(describe(closeNode), d3.event.pageX,d3.event.pageY)
+	    lastCloseID=closeNode.id
+	    }
+	else{
+	    if(d3.event.timestamp-lastTime>4000)
+		hideTooltip()
+	    }
+	}
+    else{
+	lastCloseID=""
+	hideTooltip()
+	}
+    lastTime=d3.event.timestamp
+    }
+
+function mouseOutHandler(d){
+	lastCloseID=""
+	hideTooltip()
+	}
+
+//set up a palette of 100 colours generated randomly at http://jnnnnn.github.io/category-colors-constrained.html
+//manually changed two ones thta were too grey:
+//#27ff00b3 instead of #646a58b3 and #ff0000b3 instead of #888593b3
+//all colours are opacity 0.7 which is the suffix b3 for the alpha channel
+function colPal(p,alt){
+	let cp=["#3957ffb3", "#d3fe14b3", "#c9080ab3", "#fec7f8b3", "#0b7b3eb3", "#0bf0e9b3", "#c203c8b3", "#fd9b39b3", "#ff0000b3", "#906407b3", "#98ba7fb3", "#fe6794b3", "#10b0ffb3", "#ac7bffb3", "#fee7c0b3", "#964c63b3", "#1da49cb3", "#0ad811b3", "#bbd9fdb3", "#fe6cfeb3", "#297192b3", "#d1a09cb3", "#78579eb3", "#81ffadb3", "#739400b3", "#ca6949b3", "#d9bf01b3", "#27ff00b3", "#d5097eb3", "#bb73a9b3", "#ccf6e9b3", "#9cb4b6b3", "#b6a7d4b3", "#9e8c62b3", "#6e83c8b3", "#01af64b3", "#a71afdb3", "#cfe589b3", "#d4ccd1b3", "#fd4109b3", "#bf8f0eb3", "#2f786eb3", "#4ed1a5b3", "#d8bb7db3", "#a54509b3", "#6a9276b3", "#a4777ab3", "#fc12c9b3", "#606f15b3", "#3cc4d9b3", "#f31c4eb3", "#73616fb3", "#f097c6b3", "#fc8772b3", "#92a6feb3", "#875b44b3", "#699ab3b3", "#94bc19b3", "#7d5bf0b3", "#d24dfeb3", "#c85b74b3", "#68ff57b3", "#b62347b3", "#994b91b3", "#646b8cb3", "#977ab4b3", "#d694fdb3", "#c4d5b5b3", "#fdc4bdb3", "#1cae05b3", "#7bd972b3", "#e9700ab3", "#d08f5db3", "#8bb9e1b3", "#fde945b3", "#a29d98b3", "#1682fbb3", "#9ad9e0b3", "#d6cafeb3", "#8d8328b3", "#b091a7b3", "#647579b3", "#1f8d11b3", "#e7eafdb3", "#b9660bb3", "#a4a644b3", "#fec24cb3", "#b1168cb3", "#188cc1b3", "#7ab297b3", "#4468aeb3", "#c949a6b3", "#d48295b3", "#eb6dc2b3", "#d5b0cbb3", "#ff9ffbb3", "#fdb082b3", "#af4d44b3", "#a759c4b3", "#a9e03ab3"]
+	return (p>=0 && p<cp.length)? cp[p] : alt
+	}
+
+function makeVisibleNode(node){
+	d3.zoom().translateTo(d3.select(graphCanvas), node.x, node.y)
+	d3.zoom().scaleTo(d3.select(graphCanvas), 1)
+	programmatic_zoomed()
+	}
+
+function showTooltipOfID(nodeID){
+	let node=theDATA[0].find(d=>d.id==nodeID)
+	if(node)showTooltipOfNode(node)
+	}
+
+function describe(node){
+	return node.fullname+": "+node.profile+" [ID: "+node.name+", Tweets: "+node.tweets+", Followers: "+node.followers+"]"
+	}
+
+function showTooltipOfNode(node){
+	makeVisibleNode(node)
+	let xpos=transform.applyX(node.x)
+	let ypos=transform.applyY(node.y)
+	let content=describe(node)
+	div.transition()		
+           .duration(200)		
+           .style("opacity", .9)
+        div.html(content)
+           .style("left", xpos + "px")		
+           .style("top", ypos + "px");	
+	}
+
+function showTooltip(content,x,y){
+	div.transition()		
+           .duration(200)		
+           .style("opacity", .9);		
+        div.html(content)
+           .style("left", x + "px")		
+           .style("top", y + "px");	
+	}
+
+function hideTooltip(){
+	div.transition()
+	   .duration(200)
+	   .style("opacity",0)
+	}
+
+function tabulate(data, columns) {
+	var table = d3.select('table')
+	table.selectAll("*").remove()
+	var thead = table.append('thead')
+	var tbody = table.append('tbody');
+
+	let p, col
+	if(data&&data[0]&&data[0].hasOwnProperty('mod')){
+	    p=popularCliques.indexOf(""+data[0].mod);
+	    col= (columns[0]=='mod') ? '#bbb' : colPal(p,'#bbb')
+	    }
+	else col='#bbb'
+
+	// append the header row
+	thead.append('tr')
+	  .selectAll('th')
+	  .data(columns).enter()
+	  .append('th')
+            .style('background-color',col)
+	    //.style('width',x=>("mod,tweets,followers".includes(x) ? '10%' : 'auto'))
+	    .text(function (column) { return column=='mod' ? 'clique' : column; });
+
+	// create a row for each object in the data
+	var rows = tbody.selectAll('tr')
+	  .data(data)
+	  .enter()
+	  .append('tr');
+
+	// create a cell in each row for each column
+	var cells = rows.selectAll('td')
+	  .data(function (row) {
+	    return columns.map(function (column) {
+	      return {column: column, value: row[column]};
+	    });
+	  })
+	  .enter()
+	  .append('td')
+	    //.style('width',x=>("mod,name,tweets,followers".includes(x.column) ? '5%' : 'auto'))
+	    .style('background-color',d=>((d.column=="mod")?colPal(popularCliques.indexOf(""+d.value),'#fff'):'#fff'))
+	    .text(function (d) { if(d.column=="mod")return " "; else return d.value; })
+	    .on("click", x=>{if(x.column=="name")showTooltipOfID(x.value)});
+
+	return table;
+	}
+
+function prune(bigD){
+  const nodeNames=bigD[0].map(x=>x.name)
+  bigD[1]=bigD[1].filter(e=>nodeNames.includes(e.source)&&nodeNames.includes(e.target))
+  }
+
+function jcalculate_popularity(community){
+  const popLim=0
+  var commFreqs=Object.entries(community).map(e=>e[1]).reduce((prev, curr) => (prev[curr] = ++prev[curr] || 1, prev), [])
+  //commFreqs is an array such that commFreqs[communityid]==freq(communityid) 
+  var bM = []
+  for(let e in commFreqs)if(e!="-1"&&commFreqs[e]>=popLim)bM.push([e,commFreqs[e]])
+  bM.sort((a, b) => b[1] - a[1]);
+  //bM is commFreqs, filtered and sorted into an array of tuples [..[commid, freq]..]
+  return bM.map(x=>x[0]).slice(0,100)
+  //return an array of popular modularity ids, in descending frequency order, limited to 100
+  }
+
+function modularity(bigD){
+  	const nn=bigD[0].map(x=>x.name)
+	const community = jLouvain().nodes(nn).edges(bigD[1]);
+	let res
+	//I have updated the jLouvain package to expose the metric as well as
+	//the community partitioning
+	[res, modMetric]=community();
+	for(let e of bigD[0])e.mod=res[e.name]
+	return jcalculate_popularity(res)
+	}
+
+
+function reshapeTheData(graphType, dataAndLinks){
+  var community
+
+//let startT=new Date().getTime()
+  prune(dataAndLinks)
+  if(graphType=="full"){
+	popularCliques=modularity(dataAndLinks)
+	}
+  else if(graphType=="tweets"){
+	//for the TWEET GRAPH, filter out non-tweeting nodes and links to them
+	dataAndLinks[0]=dataAndLinks[0].filter(e=>e.tweets&&(e.tweets+0>0))
+
+	//now redo the sanity check on the links - is each link end in the revised list of nodes
+  	prune(dataAndLinks)
+
+	popularCliques=modularity(dataAndLinks)
+	}
+  else if(graphType=="significant"){
+	//for filter on the significance measure of each account -
+	//ie the score of the likes and retweets it has accrued
+	dataAndLinks[0]=dataAndLinks[0].filter(e=>e.significance>=SIGLIMIT)
+
+	//now redo the sanity check on the links
+  	prune(dataAndLinks)
+
+	popularCliques=modularity(dataAndLinks)
+	}
+  else if(graphType=="conversational"){
+	//for the CONVERSATIONAL GRAPH, filter out non-coloured nodes and links
+	//oh god when mod is attributed it becomes a STRING AHHHGH
+	var targetNames=dataAndLinks[1].map(x=>x.target)
+	dataAndLinks[0]=dataAndLinks[0].filter(e=>e.tweets&&(e.tweets+0>1)&&targetNames.includes(e.name))
+
+	//now redo the sanity check on the links - is each link end in the revised list of nodes
+  	prune(dataAndLinks)
+
+	popularCliques=modularity(dataAndLinks)
+
+	//and filter the nodes AGAIN to leave only the popular modularities
+	dataAndLinks[0]= dataAndLinks[0].filter(e=>popularCliques.includes(""+e.mod))
+
+	//and then check that the remaining popular nodes aren't orphans,
+	//they do function in a remaining link
+	//because currently the popularclique may have been fragmented
+	//this is the opposite of prune(), the existence of each node
+	//is predicated on it appearing in a link
+	targetNames=dataAndLinks[1].map(x=>x.target)
+	var sourceNames=dataAndLinks[1].map(x=>x.source)
+	var allNames=sourceNames.concat(targetNames)
+	dataAndLinks[0]=dataAndLinks[0].filter(e=>allNames.includes(e.name))
+
+	//and then check that the links only link to nodes that still exist
+  	prune(dataAndLinks)
+	}
+  else if(graphType=="user"){
+	//for filter on the significance measure of each account -
+	//ie the score of the likes and retweets it has accrued
+	userList=prompt("List of accounts (space or comma separated)",userList.join(" ")).replace(/@/,"").replace(/[ ,\n]+/g," ").split(" ")
+
+	dataAndLinks[0]=dataAndLinks[0].filter(e=>userList.includes(e.name))
+
+	//now redo the sanity check on the links
+  	prune(dataAndLinks)
+
+	popularCliques=modularity(dataAndLinks)
+	}
+
+	mostTweets = Math.max(...theDATA[0].map(x=>x.tweets));
+	summariseGraph()
+//console.log("Reshape data: "+((new Date().getTime())-startT)+"ms")
+  }
+
+function summariseGraph(){
+	let N=theDATA[0].length
+	document.getElementById("graphStats").innerHTML="<p><i>Total of "+N+" nodes, community modularity metric = "+modMetric.toFixed(2)+"</i></p>"
+	}
+
+function sizeNodesByFollowers(d){
+	if(d.followers){
+		if(d.followers<1000)return 6
+		else if(d.followers<1000000)return 18
+		else return 30
+		}
+	else return 3
+	}
+	  
+  function programmatic_zoomed() {
+    transform = graphCanvas.__zoom
+    simulationUpdate();
+   }
+
+  function zoomed() {
+    transform = d3.event.transform;
+    simulationUpdate();
+   }
+
+  function dragsubject() {
+    var i,
+    x = transform.invertX(d3.event.x),
+    y = transform.invertY(d3.event.y),
+    dx,
+    dy;
+    for (i = data.nodes.length - 1; i >= 0; --i) {
+      node = data.nodes[i];
+      dx = x - node.x;
+      dy = y - node.y;
+
+      if (dx * dx + dy * dy < node.radius * node.radius) {
+
+        node.x =  transform.applyX(node.x);
+        node.y = transform.applyY(node.y);
+
+        return node;
+      }
+    }
+  }
+
+  function dragstarted() {
+    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+    d3.event.subject.fx = transform.invertX(d3.event.x);
+    d3.event.subject.fy = transform.invertY(d3.event.y);
+  }
+
+  function dragged() {
+    d3.event.subject.fx = transform.invertX(d3.event.x);
+    d3.event.subject.fy = transform.invertY(d3.event.y);
+  }
+
+  function dragended() {
+    if (!d3.event.active) simulation.alphaTarget(0);
+    d3.event.subject.fx = null;
+    d3.event.subject.fy = null;
+  }
+
+function colourNodesByContrib(d){
+	return (d.tweets && d.tweets>0) ? d3.interpolateOrRd(d.tweets/mostTweets) : '#b0b0b0b3'
+	//return (d.tweets && d.tweets>0) ? d3.interpolateOrRd(d.tweets/10) : '#b0b0b0b3'
+	}
+
+//color the nodes according to the significant modularity group they are in
+//note this doesn't take into accoiunt whether the node has tweeted
+function isCliquey(d){
+  if(d.mod && d.mod>=0 && popularCliques.indexOf(""+d.mod)>=0)return true
+  else return false
+  }
+
+//note this takes into account whether the node has tweeted
+function colourNodesByMod(d){
+	if(d.tweets==0) return '#ddd' //override palette - I dont care what clique the node is in - it hasn't made a contribution
+	else if(d.mod>=0){
+		let p=popularCliques.indexOf(""+d.mod);
+		return colPal(p, '#bbb')
+		}
+	else return '#bbb'
+	}
+
+
+    function render(){
+	simulationUpdate()
+    }
+
+    function clearCanvas(){
+      context.save();
+      context.clearRect(0, 0, graphWidth, height);
+      context.restore();
+      }
+
+    function simulationUpdate(){
+//var startT = new Date().getTime();
+      context.save();
+
+      context.clearRect(0, 0, graphWidth, height);
+      context.translate(transform.x, transform.y);
+      context.scale(transform.k, transform.k);
+
+      data.edges.forEach(function(d) {
+            context.beginPath();
+            context.moveTo(d.source.x, d.source.y);
+            context.lineTo(d.target.x, d.target.y);
+            context.stroke();
+        });
+
+      // Draw the nodes
+      data.nodes.forEach(function(d, i) {
+            context.beginPath();
+            context.arc(d.x, d.y, sizeNodesByFollowers(d), 0, 2 * Math.PI, true);
+            context.fillStyle = colourNodesByMod(d)
+            context.fill();
+if(searchResults.includes(d)){
+	    context.lineWidth=6
+            context.strokeStyle = HIGHLIGHT
+	    context.setLineDash([40, 20]);
+} else {
+	    context.lineWidth=3
+            context.strokeStyle = colourNodesByContrib(d)
+	    context.setLineDash([]);
+}
+            context.stroke();
+	    context.font="10px sans-serif"
+            context.fillStyle = "black"
+	    context.fillText(d.name,d.x,d.y)
+      });
+
+      // Now redraw the coloured (popular) nodes! This stops them
+      // being obliterated by the mass of non-popular nodes
+      //note, this will redraw the ones that are popular but non-tweeting as grey
+      data.nodes.forEach(function(d, i) {
+        if (isCliquey(d)){
+            context.beginPath();
+            context.arc(d.x, d.y, sizeNodesByFollowers(d), 0, 2 * Math.PI, true);
+            context.fillStyle = colourNodesByMod(d)
+            context.fill();
+if(searchResults.includes(d)){
+	    context.lineWidth=6
+            context.strokeStyle = HIGHLIGHT
+	    context.setLineDash([40, 20]);
+} else {
+	    context.lineWidth=3
+            context.strokeStyle = colourNodesByContrib(d)
+	    context.setLineDash([]);
+}
+            context.stroke();
+	    context.font="10px sans-serif"
+            context.fillStyle = "black"
+	    context.fillText(d.name,d.x,d.y)
+            }
+      });
+      context.restore();
+//console.log("Canvas update: "+((new Date().getTime())-startT)+"ms")
+      }
+
+function doSearchBtn(ev){
+  let searchTerm=ev.target.value
+  if(searchTerm=='')
+    searchResults=[]
+  else {
+    let re=new RegExp(ev.target.value, 'i')
+    searchResults=theDATA[0].filter(n=>re.test(n.profile))
+    }
+  tabulate(searchResults, ['mod','name','fullname','profile','tweets','followers']); // 2 column table
+  simulationUpdate()
+  }
+
+function doChooseGraph(ev){
+  redoGraph(ev.target.value)
+  }
+
+
+</script>
+</body>

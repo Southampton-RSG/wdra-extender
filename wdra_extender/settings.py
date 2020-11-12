@@ -12,7 +12,7 @@ config = AutoConfig(search_path=str(BASE_DIR))  # pylint: disable=invalid-name
 
 PLUGIN_DIR = config('PLUGIN_DIR',
                     cast=pathlib.Path,
-                    default=BASE_DIR.joinpath('plugins-enabled'))
+                    default=BASE_DIR.joinpath('plugins'))
 
 #: Directory into which output zip files should be placed
 OUTPUT_DIR = config('OUTPUT_DIR',
