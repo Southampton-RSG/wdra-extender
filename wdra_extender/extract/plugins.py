@@ -75,7 +75,7 @@ def executable_plugin(filepath) -> typing.Callable:
                 'TWITTER_CONSUMER_KEY', 'TWITTER_CONSUMER_SECRET',
                 'TWITTER_ACCESS_TOKEN', 'TWITTER_ACCESS_TOKEN_SECRET'
         }:
-            env[key] = current_app.config[key]
+            env[key.replace('TWITTER_', '')] = current_app.config[key]
 
         current_app.logger.info('Executing plugin: %s', filepath.parent.name)
         try:
