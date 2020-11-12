@@ -37,3 +37,18 @@ Not yet ported.
 ### DOIMG
 
 Not yet ported.
+
+
+## Porting a Plugin
+
+The new implementation of WDRAX will pick up any files which a plugin outputs into the current working directory.
+
+Previously, plugins output their data on stdout, now they should output it to a file.
+
+Due to changes in the JSON format, each JQ file that begins with accessing user attributes first needs to index the user array, e.g.:
+
+```
+.[] |
+.user.screen_name as $by |
+...
+```
