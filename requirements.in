@@ -5,3 +5,4 @@ flask-migrate
 flask-sqlalchemy
 python-decouple
 twarc
+wordcloud
