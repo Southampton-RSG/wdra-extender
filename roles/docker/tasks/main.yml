@@ -6,6 +6,13 @@
       url: https://download.docker.com/linux/centos/docker-ce.repo
       dest: /etc/yum.repos.d/docker-ce.repo
 
+  - name: Fix repo link for RHEL7
+    ini_file:
+      dest: /etc/yum.repos.d/docker-ce.repo
+      section: docker-ce-stable
+      option: baseurl
+      value: https://download.docker.com/linux/centos/7/$basearch/stable
+
   - name: Install Docker
     yum:
       name: '{{ packages }}'
