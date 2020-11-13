@@ -30,7 +30,9 @@ Is not used in original WDRAX implementation.
 
 ### DOWORDCLOUD
 
-Not yet ported.
+Ported from original WDRAX implementation.
+
+Renders non-stopwords into a word cloud.
 
 ### DOKWIK
 
