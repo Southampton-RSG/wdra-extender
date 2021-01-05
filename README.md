@@ -18,7 +18,7 @@ It is anticipated that more powerful text and network analysis will be provided 
 ### Configuration
 
 Regardless of the method you use to run WDRAX, you will need to provide some configuration parameters.
-The required options are `TWITTER_CONSUMER_KEY`, `TWITTER_CONSUMER_SECRET`, `TWITTER_ACCESS_TOKEN` and `TWITTER_ACCESS_TOKEN_SECRET` - for guidance on getting a Twitter API key see the [Twitter API docs] https://developer.twitter.com/en/docs/twitter-api/getting-started/guide.
+The required options are `TWITTER_CONSUMER_KEY`, `TWITTER_CONSUMER_SECRET`, `TWITTER_ACCESS_TOKEN` and `TWITTER_ACCESS_TOKEN_SECRET` - for guidance on getting a Twitter API key see the [Twitter API docs](https://developer.twitter.com/en/docs/twitter-api/getting-started/guide).
 
 In addition to these required parameters, there are a number of optional parameters which can be seen in `wdra_extender/settings.py`.
 
