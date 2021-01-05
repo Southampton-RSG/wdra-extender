@@ -26,7 +26,7 @@ The method used to get these configuration values into WDRAX is different in eac
 
 ### Running a Local Version
 
-To run a local version of WDRAX for testing purposes there are a number of options.
+To run a local version of WDRAX for testing purposes there are a number of options described below.
 
 
 #### Using Flask Directly
@@ -45,6 +45,8 @@ $ python -m flask db upgrade
 $ python -m flask run
 ```
 
+WDRAX will be accessible on localhost using port 8000.
+
 #### Using Docker
 
 Docker with `docker-compose` allows us to split the application into multiple independent components and run these together.
@@ -55,6 +57,8 @@ This method embeds the configuration in a `docker-compose.yml` file - copy the `
 ```
 $ docker-compose up --build
 ```
+
+WDRAX will be accessible on localhost using port 8000.
 
 
 #### Using Vagrant
@@ -68,6 +72,8 @@ This method uses a `vagrant_extra_vars.yml.j2` file to provide configuration - c
 ```
 $ vagrant up
 ```
+
+WDRAX will be accessible on localhost using port 8888.
 
 
 ### Updating Python Dependencies
