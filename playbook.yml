@@ -68,13 +68,10 @@
           state: touch
           owner: '{{ wdrax_user }}'
 
-      - name: Build Docker image
-        docker_image:
-          build:
-            path: '{{ project_dir }}'
-          source: build
-          name: wdrax
-          tag: dev
+      - name: Run containers with docker-compose
+        docker_compose:
+          project_src: '{{ project_dir }}'
+          build: yes  # We've already built it, but this should force services to renew
 
       - name: Perform DB migrations
         docker_container:
@@ -85,11 +82,6 @@
           restart: yes
           volumes:
             - '{{ project_dir }}/db.sqlite3:/var/www/wdrax/db.sqlite3:z'
-
-      - name: Run containers with docker-compose
-        docker_compose:
-          project_src: '{{ project_dir }}'
-          build: yes  # We've already built it, but this should force services to renew
 
       become_user: '{{ wdrax_user }}'
       become: yes
