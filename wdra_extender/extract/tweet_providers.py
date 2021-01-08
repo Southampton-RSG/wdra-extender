@@ -43,10 +43,8 @@ def get_tweets(
     for provider in map(import_object, tweet_providers):
         try:
             provider_found_ids, provider_found_tweets = provider(tweet_ids)
-
         except ConnectionError as exc:
             logger.error('Failed to execute Tweet provider: %s', exc)
-
         else:
             found_tweets.extend(provider_found_tweets)
             tweet_ids -= provider_found_ids
@@ -72,14 +70,13 @@ def save_to_redis(
     # Pipeline executes all commands in a single request
     pipe = r.pipeline()
     for tweet in tweets:
+        logger.debug(f'Saving tweet:{tweet["id"]}')
         redis_key = f'tweet_hydrated:{tweet["id"]}'
         redis_value = json.dumps(tweet)
         # There is no MSETEX command to do this in one request without a pipeline
         pipe.setex(redis_key, cache_time, redis_value)
-
     try:
         pipe.execute()
-
     except redis.exceptions.ConnectionError as exc:
         raise ConnectionError from exc
 
@@ -99,7 +96,6 @@ def redis_provider(
     # Attempt to get all Tweets from cache
     try:
         tweets = r.mget(map(lambda i: f'tweet_hydrated:{i}', tweet_ids))
-
     except redis.exceptions.ConnectionError as exc:
         raise ConnectionError from exc
 

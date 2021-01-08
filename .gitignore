@@ -9,13 +9,15 @@
 # Data
 *.sqlite3
 .lock
-/media/
+/media/*.zip
 
 # Config
 /settings.ini
 /docker-compose.yml
 inventory.yml
 vagrant_extra_vars.yml
+.idea/
+.DS_Store
 
 # Misc
 /notes/

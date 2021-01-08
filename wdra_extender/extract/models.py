@@ -57,13 +57,11 @@ class Extract(db.Model):
         :param tweet_ids: Tweet IDs to include within this Bundle.
         """
         logger.info('Processing Bundle %s', self.uuid)
-
         tweets = get_tweets(
             tweet_ids, tweet_providers=current_app.config['TWEET_PROVIDERS'])
 
         try:
             save_to_redis(tweets)
-
         except ConnectionError as exc:
             logger.error('Failed to cache found Tweets: %s', exc)
 

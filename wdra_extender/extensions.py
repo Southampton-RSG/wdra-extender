@@ -19,9 +19,9 @@ class FlaskCelery(Celery):
     See https://stackoverflow.com/a/14146403 for reference.
     """
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
+        super(FlaskCelery, self).__init__(*args, **kwargs)
         self.patch_task()
+
         if 'app' in kwargs:
             self.init_app(kwargs['app'])
 

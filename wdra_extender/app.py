@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 def create_app(config_module='wdra_extender.settings'):
     """App factory as in https://flask.palletsprojects.com/en/1.1.x/patterns/appfactories/.
 
-    :param config_object: Configuration object to use.
+    :param config_module: Configuration object to use.
     """
     config = importlib.import_module(config_module)
 
