@@ -60,7 +60,10 @@ def register_blueprints(app) -> None:
 
     :param app: Flask App which views should be registered to.
     """
-    app.register_blueprint(extract.views.blueprint)
+    app.register_blueprint(extract.views.blueprint_extract_method)
+    app.register_blueprint(extract.views.blueprint_extract_id)
+    app.register_blueprint(extract.views.blueprint_extract_search)
+    app.register_blueprint(extract.views.blueprint_extract_rep)
 
 
 app = create_app()  # pylint: disable=invalid-name
