@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>WDRA Extender</h1>
+<h2>Pick Tweet Input</h2>
+
+<form action="{{ url_for('extract_method.select_method', extract_uuid=extract_uuid) }}" method="POST">
+    <div>
+        <label for="method_select">Input Source</label>
+        <select class = "browser-default custom-select" name= "method_select">
+            {% for key, value in extract_methods.items() %}
+            <option name= "{{ key }}" SELECTED>{{ key }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <input class="button1" type="submit" value="Select">
+    </div>
+</form>
+{% endblock %}

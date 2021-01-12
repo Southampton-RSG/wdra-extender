@@ -1,13 +1,14 @@
 """Module containing views related to Twitter Extract Bundles."""
-
 import pathlib
 import typing
 
-from flask import Blueprint, current_app, render_template, redirect, request, send_from_directory
+from flask import Blueprint, current_app, render_template, redirect, request, send_from_directory, url_for
 import werkzeug
 
 from . import models, tasks
 
+blueprint_extract_email = Blueprint("extract_email", __name__,
+                                    url_prefix='/extract_email')  # pylint: disable=invalid-name
 blueprint_extract_method = Blueprint("extract_method", __name__,
                                      url_prefix='/extract_method')  # pylint: disable=invalid-name
 blueprint_extract_id = Blueprint("extract_id", __name__,
@@ -16,6 +17,10 @@ blueprint_extract_search = Blueprint("extract_search", __name__,
                                      url_prefix='/extract_search')  # pylint: disable=invalid-name
 blueprint_extract_rep = Blueprint("extract_rep", __name__,
                                   url_prefix='/extract_rep')  # pylint: disable=invalid-name
+blueprint_detail_extract = Blueprint("detail_extract", __name__,
+                                     url_prefix='/detail_extract')  # pylint: disable=invalid-name
+blueprint_download_extract = Blueprint("download_extract", __name__,
+                                       url_prefix='/download_extract')  # pylint: disable=invalid-name
 
 
 class ValidationError(werkzeug.exceptions.BadRequest):
@@ -49,51 +54,64 @@ def validate_tweet_ids(tweet_ids: typing.Iterable[str]) -> typing.List[int]:
         raise ValidationError('Tweet IDs must be integers.') from exc
 
 
-@blueprint_extract_method.route('/', methods=['POST'])
-def select_method():
+@blueprint_extract_email.route('/', methods=['POST'])
+def extract_email():
+    """View to get the user email and create a uuid"""
+    extract = models.Extract(email=request.form['email'])
+    extract.save()
+    return redirect(url_for('extract_method.select_method', extract_uuid=extract.uuid))
+
+
+@blueprint_extract_method.route('/<uuid:extract_uuid>', methods=['GET', 'POST'])
+def select_method(extract_uuid):
     """View to select the extract method"""
-    extract_method_names = ['Search', 'ID', 'Replication']
     extract_methods = {
-        'Search': get_by_search,
-        'ID': request_extract,
-        'Replication': get_by_replication
+        'Search': 'extract_search.get_by_search',
+        'ID': 'extract_id.request_extract',
+        'Replication': 'extract_rep.get_by_replication'
     }
-    return redirect(extract_methods[request.form['method_select']].get_absolute_url())
+
+    if request.method == "POST":
+        selected = request.form.get('method_select')
+        return redirect(url_for(extract_methods[selected], extract_uuid=extract_uuid))
+    else:
+        return render_template('get_method.html', extract_methods=extract_methods, extract_uuid=extract_uuid)
 
 
-@blueprint_extract_rep.route('/', methods=['POST'])
-def get_by_replication():
-    ""
+@blueprint_extract_rep.route('/<uuid:extract_uuid>', methods=['POST'])
+def get_by_replication(extract_uuid):
+    """"""
     return None
 
 
-@blueprint_extract_search.route('/', methods=['POST'])
-def get_by_search():
+@blueprint_extract_search.route('/<uuid:extract_uuid>', methods=['POST'])
+def get_by_search(extract_uuid):
     # stuff
     return None
 
 
-@blueprint_extract_id.route('/', methods=['POST'])
-def request_extract():
+@blueprint_extract_id.route('/<uuid:extract_uuid>', methods=['GET', 'POST'])
+def request_extract(extract_uuid):
     """View to request a Twitter Extract Bundle."""
-    tweet_ids = request.form['tweet_ids'].splitlines()
-    tweet_ids = validate_tweet_ids(tweet_ids)
 
-    extract = models.Extract(email=request.form['email'])
-    extract.save()
+    if request.method == "POST":
+        extract = models.Extract.query.get(str(extract_uuid))
+        tweet_ids = request.form['tweet_ids'].splitlines()
+        tweet_ids = validate_tweet_ids(tweet_ids)
 
-    if current_app.config['CELERY_BROKER_URL']:
-        # Add job to task queue
-        tasks.build_extract.delay(extract.uuid, tweet_ids)
+        if current_app.config['CELERY_BROKER_URL']:
+            # Add job to task queue
+            tasks.build_extract.delay(extract.uuid, tweet_ids)
+        else:
+            # Build the extract now
+            extract.build(tweet_ids)
 
+        return redirect(extract.get_absolute_url())
     else:
-        # Build the extract now
-        extract.build(tweet_ids)
-
-    return redirect(extract.get_absolute_url())
+        return render_template('get_by_id.html', extract_uuid=extract_uuid)
 
 
-@blueprint_extract_id.route('/<uuid:extract_uuid>')
+@blueprint_detail_extract.route('/<uuid:extract_uuid>')
 def detail_extract(extract_uuid):
     """View displaying details of a Twitter Extract Bundle."""
     extract = models.Extract.query.get(str(extract_uuid))
@@ -101,7 +119,7 @@ def detail_extract(extract_uuid):
     return render_template('extract.html', extract=extract)
 
 
-@blueprint_extract_id.route('/<uuid:extract_uuid>/fetch')
+@blueprint_download_extract.route('/<uuid:extract_uuid>/fetch')
 def download_extract(extract_uuid):
     """View to download a Twitter Extract Bundle."""
     return send_from_directory(current_app.config['OUTPUT_DIR'],

@@ -27,7 +27,7 @@
 
 {% if extract.ready %}
     <a class="btn btn-primary btn-lg btn-block"
-       href="{{ url_for('extract.download_extract', extract_uuid=extract.uuid) }}">
+       href="{{ url_for('download_extract.download_extract', extract_uuid=extract.uuid) }}">
         Download
     </a>
 

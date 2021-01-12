@@ -2,26 +2,11 @@
 
 {% block content %}
 <h1>WDRA Extender</h1>
-<h2>Pick Tweet Input</h2>
-
-    <hr>
-
-<form action="{{ url_for('extract.select_method') }}" method="POST">
-    <!-- Leave this in case we want the email gathered on the landing page
+<form action="{{ url_for('extract_email.extract_email') }}" method="POST">
     <div class="input_group">
         <label for="field_email">Email address</label>
         <input type="email" class="form-control" id="field_email" name="email">
-    </div>-->
-
-    <div class="input_group mt-2">
-        <label for="method_select">Input Source</label>
-        <select name= "method_select" method="GET" action="/">
-            {% for method in extract_method_names %}
-            <option value="{{ method }}" selected>{{ method }}</option>
-            {% endfor %}
-        </select>
     </div>
-
-    <button class="btn btn-primary btn-lg btn-block mt-3" type="submit">Load Input Form</button>
+    <button class="btn btn-primary btn-lg btn-block mt-3" type="submit">Submit</button>
 </form>
 {% endblock %}
