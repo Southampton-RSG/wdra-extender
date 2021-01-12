@@ -44,6 +44,8 @@ class Extract(db.Model):
     #: Is the Bundle ready for pickup?
     ready = db.Column(db.Boolean, default=False, index=True, nullable=False)
 
+    extract_method = db.Column(db.String(254), default=None, index=True)
+
     def save(self) -> None:
         """Save this model to the database."""
         db.session.add(self)
@@ -57,7 +59,7 @@ class Extract(db.Model):
         :param tweet_ids: Tweet IDs to include within this Bundle.
         """
         logger.info('Processing Bundle %s', self.uuid)
-        tweets = get_tweets(
+        tweets = get_tweets(self.extract_method,
             tweet_ids, tweet_providers=current_app.config['TWEET_PROVIDERS'])
 
         try:

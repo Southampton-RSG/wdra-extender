@@ -109,14 +109,15 @@ def redis_provider(
     return found_tweet_ids, found_tweets
 
 
-def twarc_provider(
-    tweet_ids: typing.Iterable[int]
-) -> typing.Tuple[typing.Set[int], typing.List[typing.Mapping]]:
+def twarc_provider(extract_method: str,
+                   tweet_ids: typing.Iterable[int]=None,
+                   search_dict: dict = {}
+                   ) -> typing.Tuple[typing.Set[int], typing.List[typing.Mapping]]:
     """Get a list of Tweets from their IDs sourced from the Twitter API.
 
     Uses Twarc Twitter API connector - https://github.com/DocNow/twarc.
     """
-    logger.info('Fetching %d uncached Tweets', len(tweet_ids))
+
     # Twitter API consumer - handles rate limits for us
     t = Twarc(  # pylint: disable=invalid-name
         consumer_key=current_app.config['TWITTER_CONSUMER_KEY'],
@@ -124,8 +125,11 @@ def twarc_provider(
         access_token=current_app.config['TWITTER_ACCESS_TOKEN'],
         access_token_secret=current_app.config['TWITTER_ACCESS_TOKEN_SECRET'],
     )
-
-    found_tweets = list(t.hydrate(tweet_ids))
-    found_tweet_ids = {tweet['id'] for tweet in found_tweets}
-
+    if extract_method == 'ID':
+        logger.info('Fetching %d uncached Tweets', len(tweet_ids))
+        found_tweets = list(t.hydrate(tweet_ids))
+        found_tweet_ids = {tweet['id'] for tweet in found_tweets}
+    elif extract_method == 'Search':
+        api_query = ""
+        logger.info(f'Executing api query:\n{api_query}\n')
     return found_tweet_ids, found_tweets

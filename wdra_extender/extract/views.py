@@ -1,48 +1,15 @@
 """Module containing views related to Twitter Extract Bundles."""
 import pathlib
-import typing
 
 from flask import Blueprint, current_app, render_template, redirect, request, send_from_directory, url_for
-import werkzeug
 
-from . import models, tasks
-
-
-blueprint_extract = Blueprint("extract", __name__,
-                              url_prefix='/extract')
+from . import models, tasks, tools
 
 
-class ValidationError(werkzeug.exceptions.BadRequest):
-    """Error in validating user-provided data."""
-    code = 400
-    description = 'Invalid data provided.'
+blueprint_extract = Blueprint("extract", __name__, url_prefix='/extract')
 
 
-def cast_tweet_id(tweet_id: str) -> int:
-    """Cast a single Tweet ID to int.
-
-    They may be prefixed with 'ID:' so try to remove this.
-    """
-    if tweet_id.lower().startswith('id:'):
-        tweet_id = tweet_id.lower()[3:]
-
-    return int(tweet_id)
-
-
-def validate_tweet_ids(tweet_ids: typing.Iterable[str]) -> typing.List[int]:
-    """Cast Tweet IDs to integer or raise ValidationError."""
-
-    if not tweet_ids:
-        raise ValidationError('No Tweet IDs were found.')
-
-    try:
-        # Filter out blank lines and cast to int
-        return [cast_tweet_id(tweet_id) for tweet_id in tweet_ids if tweet_id.strip()]
-
-    except ValueError as exc:
-        raise ValidationError('Tweet IDs must be integers.') from exc
-
-
+# Methods for assigning a user ID and search parameters ================================================================
 @blueprint_extract.route('/', methods=['POST'])
 def extract_email():
     """View to get the user email and create a uuid"""
@@ -62,17 +29,15 @@ def select_method(extract_uuid):
 
     if request.method == "POST":
         selected = request.form.get('method_select')
+        extract = models.Extract.query.get(str(extract_uuid))
+        extract.extract_method = selected
         return redirect(url_for(extract_methods[selected], extract_uuid=extract_uuid))
     else:
         return render_template('get_method.html', extract_methods=extract_methods, extract_uuid=extract_uuid)
+# ======================================================================================================================
 
 
-@blueprint_extract.route('/method/replication/<uuid:extract_uuid>', methods=['POST'])
-def get_by_replication(extract_uuid):
-    """"""
-    return None
-
-
+# Methods for getting the twitter data =================================================================================
 @blueprint_extract.route('/method/search/<uuid:extract_uuid>', methods=['POST'])
 def get_by_search(extract_uuid):
     # stuff
@@ -86,7 +51,7 @@ def get_by_id(extract_uuid):
     if request.method == "POST":
         extract = models.Extract.query.get(str(extract_uuid))
         tweet_ids = request.form['tweet_ids'].splitlines()
-        tweet_ids = validate_tweet_ids(tweet_ids)
+        tweet_ids = tools.validate_tweet_ids(tweet_ids)
 
         if current_app.config['CELERY_BROKER_URL']:
             # Add job to task queue
@@ -100,6 +65,14 @@ def get_by_id(extract_uuid):
         return render_template('get_by_id.html', extract_uuid=extract_uuid)
 
 
+@blueprint_extract.route('/method/replication/<uuid:extract_uuid>', methods=['POST'])
+def get_by_replication(extract_uuid):
+    """"""
+    return None
+# ======================================================================================================================
+
+
+# Methods for managing the extract bundle once created==================================================================
 @blueprint_extract.route('/detail/<uuid:extract_uuid>')
 def detail_extract(extract_uuid):
     """View displaying details of a Twitter Extract Bundle."""
@@ -115,3 +88,4 @@ def download_extract(extract_uuid):
                                pathlib.Path(
                                    str(extract_uuid)).with_suffix('.zip'),
                                as_attachment=True)
+# ======================================================================================================================
