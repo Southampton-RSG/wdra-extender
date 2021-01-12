@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1>WDRA Extender</h1>
-<form action="{{ url_for('extract_email.extract_email') }}" method="POST">
+<form action="{{ url_for('extract.extract_email') }}" method="POST">
     <div class="input_group">
         <label for="field_email">Email address</label>
         <input type="email" class="form-control" id="field_email" name="email">

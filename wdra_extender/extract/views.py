@@ -7,20 +7,9 @@ import werkzeug
 
 from . import models, tasks
 
-blueprint_extract_email = Blueprint("extract_email", __name__,
-                                    url_prefix='/extract_email')  # pylint: disable=invalid-name
-blueprint_extract_method = Blueprint("extract_method", __name__,
-                                     url_prefix='/extract_method')  # pylint: disable=invalid-name
-blueprint_extract_id = Blueprint("extract_id", __name__,
-                                 url_prefix='/extract_ids')  # pylint: disable=invalid-name
-blueprint_extract_search = Blueprint("extract_search", __name__,
-                                     url_prefix='/extract_search')  # pylint: disable=invalid-name
-blueprint_extract_rep = Blueprint("extract_rep", __name__,
-                                  url_prefix='/extract_rep')  # pylint: disable=invalid-name
-blueprint_detail_extract = Blueprint("detail_extract", __name__,
-                                     url_prefix='/detail_extract')  # pylint: disable=invalid-name
-blueprint_download_extract = Blueprint("download_extract", __name__,
-                                       url_prefix='/download_extract')  # pylint: disable=invalid-name
+
+blueprint_extract = Blueprint("extract", __name__,
+                              url_prefix='/extract')
 
 
 class ValidationError(werkzeug.exceptions.BadRequest):
@@ -54,21 +43,21 @@ def validate_tweet_ids(tweet_ids: typing.Iterable[str]) -> typing.List[int]:
         raise ValidationError('Tweet IDs must be integers.') from exc
 
 
-@blueprint_extract_email.route('/', methods=['POST'])
+@blueprint_extract.route('/', methods=['POST'])
 def extract_email():
     """View to get the user email and create a uuid"""
     extract = models.Extract(email=request.form['email'])
     extract.save()
-    return redirect(url_for('extract_method.select_method', extract_uuid=extract.uuid))
+    return redirect(url_for('extract.select_method', extract_uuid=extract.uuid))
 
 
-@blueprint_extract_method.route('/<uuid:extract_uuid>', methods=['GET', 'POST'])
+@blueprint_extract.route('/method/<uuid:extract_uuid>', methods=['GET', 'POST'])
 def select_method(extract_uuid):
     """View to select the extract method"""
     extract_methods = {
-        'Search': 'extract_search.get_by_search',
-        'ID': 'extract_id.request_extract',
-        'Replication': 'extract_rep.get_by_replication'
+        'Search': 'extract.get_by_search',
+        'ID': 'extract.get_by_id',
+        'Replication': 'extract.get_by_replication'
     }
 
     if request.method == "POST":
@@ -78,20 +67,20 @@ def select_method(extract_uuid):
         return render_template('get_method.html', extract_methods=extract_methods, extract_uuid=extract_uuid)
 
 
-@blueprint_extract_rep.route('/<uuid:extract_uuid>', methods=['POST'])
+@blueprint_extract.route('/method/replication/<uuid:extract_uuid>', methods=['POST'])
 def get_by_replication(extract_uuid):
     """"""
     return None
 
 
-@blueprint_extract_search.route('/<uuid:extract_uuid>', methods=['POST'])
+@blueprint_extract.route('/method/search/<uuid:extract_uuid>', methods=['POST'])
 def get_by_search(extract_uuid):
     # stuff
     return None
 
 
-@blueprint_extract_id.route('/<uuid:extract_uuid>', methods=['GET', 'POST'])
-def request_extract(extract_uuid):
+@blueprint_extract.route('/method/id/<uuid:extract_uuid>', methods=['GET', 'POST'])
+def get_by_id(extract_uuid):
     """View to request a Twitter Extract Bundle."""
 
     if request.method == "POST":
@@ -111,7 +100,7 @@ def request_extract(extract_uuid):
         return render_template('get_by_id.html', extract_uuid=extract_uuid)
 
 
-@blueprint_detail_extract.route('/<uuid:extract_uuid>')
+@blueprint_extract.route('/detail/<uuid:extract_uuid>')
 def detail_extract(extract_uuid):
     """View displaying details of a Twitter Extract Bundle."""
     extract = models.Extract.query.get(str(extract_uuid))
@@ -119,7 +108,7 @@ def detail_extract(extract_uuid):
     return render_template('extract.html', extract=extract)
 
 
-@blueprint_download_extract.route('/<uuid:extract_uuid>/fetch')
+@blueprint_extract.route('/download/<uuid:extract_uuid>/fetch')
 def download_extract(extract_uuid):
     """View to download a Twitter Extract Bundle."""
     return send_from_directory(current_app.config['OUTPUT_DIR'],
