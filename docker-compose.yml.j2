@@ -11,6 +11,9 @@ services:
     volumes:
       - {{ project_dir }}/db.sqlite3:/var/www/wdrax/db.sqlite3:z
       - {{ project_dir }}/media:/var/www/wdrax/media:z,ro
+    depends_on:
+      - redis
+      - runner
 
   runner:
     build: .
@@ -26,6 +29,8 @@ services:
       - {{ project_dir }}/db.sqlite3:/var/www/wdrax/db.sqlite3:z
       - {{ project_dir }}/media:/var/www/wdrax/media:z
       - {{ project_dir }}/plugins:/var/www/wdrax/plugins:z,ro
+    depends_on:
+      - redis
 
   redis:
     image: redis
