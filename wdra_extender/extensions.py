@@ -30,7 +30,7 @@ class FlaskCelery(Celery):
 
     def patch_task(self):
         """Give Celery Task type access to the Flask context."""
-        TaskBase = self.Task
+        TaskBase = self.Task  # noqa
         _celery = self
 
         class ContextTask(TaskBase):  # pylint: disable=too-few-public-methods

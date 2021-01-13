@@ -95,7 +95,7 @@ def zip_directory(zip_path: pathlib.Path, dir_path: pathlib.Path):
         raise NotADirectoryError
 
     with zipfile.ZipFile(zip_path, 'w') as z:  # pylint: disable=invalid-name
-        for root, dirs, files in os.walk(dir_path):
+        for root, _, files in os.walk(dir_path):
             for f in files:  # pylint: disable=invalid-name
                 filepath = pathlib.Path(root, f)
                 z.write(filepath, arcname=filepath.relative_to(dir_path))

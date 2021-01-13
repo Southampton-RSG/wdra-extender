@@ -1,7 +1,6 @@
 import datetime
 import importlib
 import json
-import logging
 import typing
 
 from flask import current_app
