@@ -1,10 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block content %}
+<h1>WDRA Extender</h1>
+<h2>Basic Search</h2>
+<p>Inupt comma separated list of search terms.</p>
+
+{% if basic_form %}
+    <form action="{{ url_for('extract.get_by_search', extract_uuid=extract_uuid) }}" method="POST">
+        <div class="input_group">
+            <label for="field_search_terms">Search terms</label>
+            <textarea type="text" class="form-control" id="field_search_terms" name="search_terms"></textarea>
+        </div>
+        <div class="input_group">
+            <label for="field_exclude_terms">Exclude terms</label>
+            <textarea type="text" class="form-control" id="field_exclude_terms" name="exclude_terms"></textarea>
+        </div>
+        <button class="btn btn-primary btn-lg btn-block mt" type="submit">Submit</button>
+    </form>
+
+    <div>
+    <button class="btn btn-primary btn-lg btn-block mt" name="go_to_adv" type="button">Advanced Search</button>
+    </div>
+{% else %}
+    <div>
+    <button class="btn btn-primary btn-lg btn-block mt" name="go_to_basic" type="button">Back to Basic Search</button>
+    </div>
+    <form action="{{ url_for('extract.get_by_search', extract_uuid=extract_uuid) }}" method="POST">
+        <label><h3>Search Parameters</h3></label>
+        <table style="width:100%">
+            <tr>
+                <th></th>
+                <th>Text</th>
+                <th>Hashtag (#)</th>
+                <th></th>
+            </tr>
+            <tr>
+                <th><label for="include_terms">Include</label></th>
+                <th><input type="text" class="form-control" id="include_terms" name="include_hashtag_terms"></th>
+                <th><input type="text" class="form-control" id="include_terms" name="search_terms"></th>
+            </tr>
+            <tr>
+                <th><label for="exclude_terms">Exclude</label></th>
+                <th><input type="text" class="form-control" id="exclude_terms" name="search_terms"></th>
+                <th><input type="text" class="form-control" id="exclude_terms" name="search_terms"></th>
+            </tr>
+            <tr>
+                <th></th>
+                <th>From</th>
+                <th>To</th>
+            </tr>
+            <tr>
+                <th><label for="field_date">Date</label></th>
+                <th><input type="datetime-local" class="form-control" id="field_date" name="date_from"></th>
+                <th><input type="datetime-local" class="form-control" id="field_date" name="date_to"></th>
+            </tr>
+            <tr>
+                <th><label for="tweet_id">Tweet ID</label></th>
+                <th><input type="text" class="form-control" id="tweet_id" name="tweet_from">
+                    <label for="fm_inc">Inclusive</label>
+                    <input type="checkbox" class="form-control" id="fm_inc" name="from_inclusive"></th>
+                <th><input type="text" class="form-control" id="tweet_id" name="tweet_to">
+                    <label for="to_inc">Inclusive</label>
+                    <input type="checkbox" class="form-control" id="to_inc" name="to_inclusive"></th>
+            </tr>
+        </table>
+        <label><h3>Return Fields</h3></label>
+        <table>
+
+        </table>
+    </form>
+
+{% endif %}
+{% endblock %}

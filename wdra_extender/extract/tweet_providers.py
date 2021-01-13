@@ -134,3 +134,37 @@ def twarc_provider(extract_method: str,
         api_query = ""
         logger.info(f'Executing api query:\n{api_query}\n')
     return found_tweet_ids, found_tweets
+
+
+def searchtweets_provider(api_endpoint, request_arguments, **kwargs):
+    """ Download tweets via the searchtweets_v2 package for the TwitterV2 API.
+    https://github.com/twitterdev/search-tweets-python/tree/v2
+    """
+
+    # Note a future bug may appear here as and when the v2 branch is merged with the main branch
+    # and searchtweets will need to be reconfigured/reinstalled.
+
+    # api_endpoint via searchtweets is currently limited to search_tweets
+    # Search Tweets: developer.twitter.com/en/docs/twitter-api/tweets/search/api-reference/get-tweets-search-recent
+    # support for the additional methods and endpoints will be followed up later
+    # Tweet lookup by id: developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
+    # Tweets mentioning user: developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
+    # Tweets by user: developer.twitter.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-tweets
+    # The twitter stream, user lookup and features could also be considered.
+    # More info at dev portal: developer.twitter.com/en/portal/products
+    # Configure the searchtweets api
+
+    available_endpoints = {'search_tweets', }
+
+    assert api_endpoint in available_endpoints, f'api_endpoint must be in {available_endpoints} ' \
+                                                f'other endpoints not yet configured'
+
+    search_args = load_credentials(filename="./twitter_keys.yaml",
+                                   yaml_key=f"{api_endpoint}",
+                                   env_overwrite=False)
+
+    query = gen_request_parameters(**request_arguments)
+    rs = ResultStream(request_parameters=query,
+                      **search_args,
+                      **kwargs)
+

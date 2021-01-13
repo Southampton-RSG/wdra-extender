@@ -40,13 +40,14 @@ def select_method(extract_uuid):
 # Methods for getting the twitter data =================================================================================
 @blueprint_extract.route('/method/search/<uuid:extract_uuid>', methods=['POST'])
 def get_by_search(extract_uuid):
-    # stuff
+    """View to request a Twitter extract Bundle using search parameters"""
+
     return None
 
 
 @blueprint_extract.route('/method/id/<uuid:extract_uuid>', methods=['GET', 'POST'])
 def get_by_id(extract_uuid):
-    """View to request a Twitter Extract Bundle."""
+    """View to request a Twitter Extract Bundle using provided tweet IDs."""
 
     if request.method == "POST":
         extract = models.Extract.query.get(str(extract_uuid))
