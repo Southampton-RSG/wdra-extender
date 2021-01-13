@@ -1,6 +1,7 @@
 import datetime
 import importlib
 import json
+import logging
 import typing
 
 from flask import current_app
@@ -12,6 +13,27 @@ __all__ = [
     'redis_provider',
     'twarc_provider',
 ]
+
+
+class ContextProxyLogger(logging.Logger):
+    """Logger proxy for when we may be inside or outside of the Flask context.
+
+    If inside the Flask context, redirect to the Flask app logger.
+    If outside the Flask context, act as a default Python logger.
+    """
+    def __getattribute__(self, name: str) -> typing.Any:
+        try:
+            return current_app.logger.__getattribute__(name)
+
+        except RuntimeError as exc:
+            if 'outside of application context' in str(exc):
+                return super().__getattribute__(name)
+
+            raise
+
+
+# Logger safe for use inside or outside of Flask context
+logger = ContextProxyLogger(__name__)
 
 
 def import_object(name: str) -> object:
@@ -42,18 +64,20 @@ def get_tweets(
             provider_found_ids, provider_found_tweets = provider(tweet_ids)
 
         except ConnectionError as exc:
-            current_app.logger.error('Failed to execute Tweet provider: %s', exc)
+            logger.error('Failed to execute Tweet provider: %s', exc)
 
         else:
             found_tweets.extend(provider_found_tweets)
             tweet_ids -= provider_found_ids
-            current_app.logger.info(f'Found {len(provider_found_ids)} tweets using provider \'{provider.__name__}\'')
+            logger.info(
+                f'Found {len(provider_found_ids)} tweets using provider \'{provider.__name__}\''
+            )
 
         if tweet_ids:
-            current_app.logger.info(f'There are {len(tweet_ids)} tweets left to find')
+            logger.info(f'There are {len(tweet_ids)} tweets left to find')
 
         else:
-            current_app.logger.info('Found all tweets - skipping remaining providers')
+            logger.info('Found all tweets - skipping remaining providers')
             break
 
     return found_tweets
