@@ -1,5 +1,6 @@
 
 # IDEs
+/.idea/
 /.vscode/
 
 # Python
@@ -10,6 +11,7 @@
 *.sqlite3
 .lock
 /media/
+TWARC.log
 
 # Config
 /settings.ini
