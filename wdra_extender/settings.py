@@ -6,6 +6,7 @@ Gets settings from environment variables or .env/settings.ini file.
 import pathlib
 
 from decouple import AutoConfig
+import yaml
 
 BASE_DIR = pathlib.Path(__name__).absolute().parent
 config = AutoConfig(search_path=str(BASE_DIR))  # pylint: disable=invalid-name
@@ -41,5 +42,16 @@ TWITTER_CONSUMER_KEY = config('TWITTER_CONSUMER_KEY', default=None)
 TWITTER_CONSUMER_SECRET = config('TWITTER_CONSUMER_SECRET', default=None)
 TWITTER_ACCESS_TOKEN = config('TWITTER_ACCESS_TOKEN', default=None)
 TWITTER_ACCESS_TOKEN_SECRET = config('TWITTER_ACCESS_TOKEN_SECRET', default=None)
+BEARER_TOKEN = config('BEARER_TOKEN', default=None)
+
+# Make a yaml file for search_tweets_v2,
+# Docs to add extra config and endpoints https://github.com/twitterdev/search-tweets-python/tree/v2#yaml-method
+dict_file = [{'search_tweets_v2': {'endpoint': 'https://api.twitter.com/2/tweets/search/recent',
+                                   'consumer_key': f'{TWITTER_CONSUMER_KEY}',
+                                   'consumer_secret': f'{TWITTER_CONSUMER_SECRET}',
+                                   'bearer_token': f'{BEARER_TOKEN}'}}]
+
+with open(BASE_DIR.joinpath('.twitter_keys.yaml'), 'w') as file:
+    documents = yaml.dump(dict_file, file)
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
