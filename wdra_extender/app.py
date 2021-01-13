@@ -6,7 +6,6 @@ This is the entrypoint to WDRA-Extender.
 # pylint: disable=redefined-outer-name
 
 import importlib
-import logging.config
 
 from flask import Flask, render_template
 
@@ -18,8 +17,6 @@ __all__ = [
     'celery',
 ]
 
-logger = logging.getLogger(__name__)
-
 
 def create_app(config_module='wdra_extender.settings'):
     """App factory as in https://flask.palletsprojects.com/en/1.1.x/patterns/appfactories/.
@@ -30,6 +27,7 @@ def create_app(config_module='wdra_extender.settings'):
 
     app = Flask(__name__)
     app.config.from_object(config)
+    app.logger.setLevel(config.LOG_LEVEL)
 
     register_extensions(app)
     register_blueprints(app)
@@ -48,7 +46,7 @@ def register_extensions(app) -> None:
         celery.init_app(app)
 
     else:
-        logger.warning(
+        app.logger.warning(
             'Running without task queue - not suitable for production')
 
     db.init_app(app)

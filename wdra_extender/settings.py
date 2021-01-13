@@ -10,6 +10,8 @@ from decouple import AutoConfig
 BASE_DIR = pathlib.Path(__name__).absolute().parent
 config = AutoConfig(search_path=str(BASE_DIR))  # pylint: disable=invalid-name
 
+LOG_LEVEL = config('LOG_LEVEL', default='INFO')
+
 PLUGIN_DIR = config('PLUGIN_DIR',
                     cast=pathlib.Path,
                     default=BASE_DIR.joinpath('plugins'))

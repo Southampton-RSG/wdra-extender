@@ -1,6 +1,5 @@
 """Module containing the Extract model and supporting functionality."""
 
-import logging
 import json
 import os
 import pathlib
@@ -18,8 +17,6 @@ from .plugins import PluginCollection
 __all__ = [
     'Extract',
 ]
-
-logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 
 class Extract(db.Model):
@@ -56,7 +53,7 @@ class Extract(db.Model):
 
         :param tweet_ids: Tweet IDs to include within this Bundle.
         """
-        logger.info('Processing Bundle %s', self.uuid)
+        current_app.logger.info('Processing Bundle %s', self.uuid)
 
         tweets = get_tweets(
             tweet_ids, tweet_providers=current_app.config['TWEET_PROVIDERS'])
@@ -65,7 +62,7 @@ class Extract(db.Model):
             save_to_redis(tweets)
 
         except ConnectionError as exc:
-            logger.error('Failed to cache found Tweets: %s', exc)
+            current_app.logger.error('Failed to cache found Tweets: %s', exc)
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             work_dir = pathlib.Path(tmp_dir)
@@ -76,12 +73,12 @@ class Extract(db.Model):
 
             for plugin in get_plugins().values():
                 output = plugin(tweets_file, tmp_dir)
-                logger.info(output)
+                current_app.logger.info(f'Plugin output: {output}')
 
             zip_path = current_app.config['OUTPUT_DIR'].joinpath(
                 self.uuid).with_suffix('.zip')
             zip_directory(zip_path, work_dir)
-            logger.info('Zipped output files to %s', zip_path)
+            current_app.logger.info('Zipped output files to %s', zip_path)
 
         self.ready = True
         self.save()

@@ -14,8 +14,6 @@ __all__ = [
     'twarc_provider',
 ]
 
-logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
-
 
 def import_object(name: str) -> object:
     """Get a single object from a module."""
@@ -45,14 +43,18 @@ def get_tweets(
             provider_found_ids, provider_found_tweets = provider(tweet_ids)
 
         except ConnectionError as exc:
-            logger.error('Failed to execute Tweet provider: %s', exc)
+            current_app.logger.error('Failed to execute Tweet provider: %s', exc)
 
         else:
             found_tweets.extend(provider_found_tweets)
             tweet_ids -= provider_found_ids
+            current_app.logger.info(f'Found {len(provider_found_ids)} tweets using provider \'{provider.__name__}\'')
 
-        if not tweet_ids:
-            logger.info('Found all tweets - skipping remaining providers')
+        if tweet_ids:
+            current_app.logger.info(f'There are {len(tweet_ids)} tweets left to find')
+
+        else:
+            current_app.logger.info('Found all tweets - skipping remaining providers')
             break
 
     return found_tweets
@@ -108,8 +110,6 @@ def redis_provider(
             found_tweet_ids.add(tweet_id)
             found_tweets.append(json.loads(tweet_string))
 
-    logger.info('Found %d cached Tweets', len(found_tweet_ids))
-
     return found_tweet_ids, found_tweets
 
 
@@ -120,7 +120,6 @@ def twarc_provider(
 
     Uses Twarc Twitter API connector - https://github.com/DocNow/twarc.
     """
-    logger.info('Fetching %d uncached Tweets', len(tweet_ids))
     # Twitter API consumer - handles rate limits for us
     t = Twarc(  # pylint: disable=invalid-name
         consumer_key=current_app.config['TWITTER_CONSUMER_KEY'],
