@@ -74,6 +74,14 @@
           state: touch
           owner: '{{ wdrax_user }}'
 
+      - name: Build Docker image
+        docker_image:
+          build:
+            path: '{{ project_dir }}'
+            network: host
+          name: wdrax
+          tag: '{{ docker_tag }}'
+
       - name: Run containers with docker-compose
         docker_compose:
           project_src: '{{ project_dir }}'
@@ -82,7 +90,7 @@
       - name: Perform DB migrations
         docker_container:
           name: migrate
-          image: wdrax:dev
+          image: wdrax:{{ docker_tag }}
           command: python -m flask db upgrade
           state: started
           restart: yes
