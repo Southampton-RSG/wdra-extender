@@ -2,6 +2,12 @@
 - hosts: all
   become_method: sudo
 
+  vars:
+    ansible_python_interpreter: python2
+    project_dir: /home/{{ wdrax_user }}/wdra-extender
+    wdrax_user: wdrax
+    LOG_LEVEL: INFO  # Passed to web server via docker-compose.yml
+
   pre_tasks:
     - name: Install Ansible prerequisites
       yum:
@@ -85,8 +91,3 @@
 
       become_user: '{{ wdrax_user }}'
       become: yes
-
-  vars:
-    ansible_python_interpreter: python2
-    project_dir: /home/{{ wdrax_user }}/wdra-extender
-    wdrax_user: wdrax

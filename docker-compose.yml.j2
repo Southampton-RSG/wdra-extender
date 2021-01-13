@@ -5,6 +5,7 @@ services:
     environment:
       # Web server component never connects to Twitter API
       - REDIS_HOST=redis
+      - LOG_LEVEL={{ LOG_LEVEL }}
     image: wdrax:dev
     ports:
       - 8000:8000
@@ -23,6 +24,7 @@ services:
       - TWITTER_CONSUMER_SECRET={{ TWITTER_CONSUMER_SECRET }}
       - TWITTER_ACCESS_TOKEN={{ TWITTER_ACCESS_TOKEN }}
       - TWITTER_ACCESS_TOKEN_SECRET={{ TWITTER_ACCESS_TOKEN_SECRET }}
+      - LOG_LEVEL={{ LOG_LEVEL }}
     image: wdrax:dev
     command: celery -A wdra_extender.app:celery worker --loglevel=debug --concurrency=1
     volumes:
