@@ -2,11 +2,23 @@
 
 {% block content %}
 <h1>WDRA Extender</h1>
-<h2>Basic Search</h2>
-<p>Inupt comma separated list of search terms.</p>
 
-{% if basic_form %}
-    <form action="{{ url_for('extract.get_by_search', extract_uuid=extract_uuid) }}" method="POST">
+<div>
+    <form action="{{ url_for('extract.get_by_search', extract_uuid=extract_uuid, basic_form=basic_form) }}" method="POST">
+        <button class="btn btn-primary btn-lg btn-block mt" name="switch_form" type="submit">
+            {% if basic_form == "True" %}
+                Go to Advanced Search
+            {% else %}
+                Go to Basic Search
+            {% endif %}
+        </button>
+    </form>
+</div>
+
+{% if basic_form == "True" %}
+    <h2>Basic Search</h2>
+    <p>Inupt comma separated list of search terms.</p>
+    <form action="{{ url_for('extract.get_by_search', extract_uuid=extract_uuid, basic_form=basic_form) }}" method="POST">
         <div class="input_group">
             <label for="field_search_terms">Search terms</label>
             <textarea type="text" class="form-control" id="field_search_terms" name="search_terms"></textarea>
@@ -17,58 +29,126 @@
         </div>
         <button class="btn btn-primary btn-lg btn-block mt" type="submit">Submit</button>
     </form>
-
-    <div>
-    <button class="btn btn-primary btn-lg btn-block mt" name="go_to_adv" type="button">Advanced Search</button>
-    </div>
 {% else %}
-    <div>
-    <button class="btn btn-primary btn-lg btn-block mt" name="go_to_basic" type="button">Back to Basic Search</button>
-    </div>
-    <form action="{{ url_for('extract.get_by_search', extract_uuid=extract_uuid) }}" method="POST">
+    <h2>Advanced Search</h2>
+    <p>Include and exclude text, tags, and define timeframes.</p>
+    <form action="{{ url_for('extract.get_by_search', extract_uuid=extract_uuid, basic_form=basic_form) }}" method="POST">
         <label><h3>Search Parameters</h3></label>
         <table style="width:100%">
             <tr>
-                <th></th>
-                <th>Text</th>
-                <th>Hashtag (#)</th>
-                <th></th>
+                <td></td>
+                <td colspan="3">Text</td>
+                <td colspan="3">Hashtag (#)</td>
             </tr>
             <tr>
-                <th><label for="include_terms">Include</label></th>
-                <th><input type="text" class="form-control" id="include_terms" name="include_hashtag_terms"></th>
-                <th><input type="text" class="form-control" id="include_terms" name="search_terms"></th>
+                <td><label for="include_terms">Include</label></td>
+                <td colspan="3"><input type="text" class="form-control" id="include_terms" name="include_hashtag_terms" ></td>
+                <td colspan="3"><input type="text" class="form-control" id="include_terms" name="search_terms" ></td>
             </tr>
             <tr>
-                <th><label for="exclude_terms">Exclude</label></th>
-                <th><input type="text" class="form-control" id="exclude_terms" name="search_terms"></th>
-                <th><input type="text" class="form-control" id="exclude_terms" name="search_terms"></th>
+                <td><label for="exclude_terms">Exclude</label></td>
+                <td colspan="3"><input type="text" class="form-control" id="exclude_terms" name="search_terms" ></td>
+                <td colspan="3"><input type="text" class="form-control" id="exclude_terms" name="search_terms" ></td>
             </tr>
             <tr>
-                <th></th>
-                <th>From</th>
-                <th>To</th>
+                <td></td>
+                <td colspan="3">From</td>
+                <td colspan="3">To</td>
             </tr>
             <tr>
-                <th><label for="field_date">Date</label></th>
-                <th><input type="datetime-local" class="form-control" id="field_date" name="date_from"></th>
-                <th><input type="datetime-local" class="form-control" id="field_date" name="date_to"></th>
+                <td><label for="field_date">Date</label></td>
+                <td colspan="3"><input type="datetime-local" class="form-control" id="field_date" name="date_from" ></td>
+                <td colspan="3"><input type="datetime-local" class="form-control" id="field_date" name="date_to" ></td>
             </tr>
             <tr>
-                <th><label for="tweet_id">Tweet ID</label></th>
-                <th><input type="text" class="form-control" id="tweet_id" name="tweet_from">
-                    <label for="fm_inc">Inclusive</label>
-                    <input type="checkbox" class="form-control" id="fm_inc" name="from_inclusive"></th>
-                <th><input type="text" class="form-control" id="tweet_id" name="tweet_to">
-                    <label for="to_inc">Inclusive</label>
-                    <input type="checkbox" class="form-control" id="to_inc" name="to_inclusive"></th>
+                <td><label for="tweet_id">Tweet ID</label></td>
+                <td colspan="2"><input type="text" class="form-control" id="tweet_id" name="tweet_from"></td>
+                <td><label for="fm_inc">Inclusive</label>
+                    <input type="checkbox" class="form-control" id="fm_inc" name="from_inclusive"></td>
+                <td colspan="2"><input type="text" class="form-control" id="tweet_id" name="tweet_to"></td>
+                <td><label for="to_inc">Inclusive</label>
+                    <input type="checkbox" class="form-control" id="to_inc" name="to_inclusive"></td>
             </tr>
         </table>
         <label><h3>Return Fields</h3></label>
+        <p>Choose the return fields to retrieve from the api</p>
         <table>
-
+            <tr>
+                <td colspan="2">Field</td>
+                <td colspan="2">Include</td>
+            </tr>
+            {% for field in return_fields['standard_fields'] %}
+                {% if field in return_fields.keys() %}
+                    <tr>
+                        <td id="{{ field }}_cell1" rowspan="1" colspan="2">
+                            <label for="{{ field }}_check"> {{ field }}</label>
+                        </td>
+                        <td id="{{ field }}_cell2" rowspan="1" colspan="2">
+                            <input type="checkbox" class="form-control" id="{{ field }}_check" name="{{ field }}"
+                                   onclick="show_options('{{ field }}', {{ return_fields[field]|length }})">
+                        </td>
+                        <td id="{{ field }}_cell3" colspan="0" style="display:none">
+                            Extra Returns
+                        </td>
+                    </tr>
+                    {% if checkbox_getval(field) %}
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>SubField</td>
+                        <td>Include</td>
+                    </tr>
+                    {% for sub_field in return_fields[field] %}
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td><label for="{{ sub_field }}_check"> {{ sub_field }}</label></td>
+                            <td><input type="checkbox" class="form-control" id="{{ sub_field }}_check" name="{{ sub_field }}"></td>
+                        </tr>
+                    {% endfor %}
+                    {% endif %}
+                {% else %}
+                    <tr>
+                        <td colspan="2"><label for="{{ field }}_check"> {{ field }}</label></td>
+                        <td colspan="2"><input type="checkbox" class="form-control" id="{{ field }}_check" name="{{ field }}"></td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
         </table>
     </form>
 
 {% endif %}
+
+
+<script>
+    function checkbox_getval(field_name) {
+        var checkBox = document.getElementById("{{ field_name }}_check");
+        return checkBox.checked
+    }
+</script>
+
+<script>
+    function show_options(field_name, extra_field_length) {
+        var checkBox = document.getElementById(field_name+"_check");
+        var cell1 = document.getElementById(field_name+"_cell1");
+        var cell2 = document.getElementById(field_name+"_cell2");
+        var cell3 = document.getElementById(field_name+"_cell3");
+        if (checkBox.checked == true){
+            cell1.rowspan = extra_field_length
+            cell2.rowspan = extra_field_length
+            cell1.colspan = "1"
+            cell2.colspan = "1"
+            cell3.colspan = "2"
+            cell3.style.display = "block";
+        } else {
+            cell1.rowspan = "1"
+            cell2.rowspan = "1"
+            cell1.colspan = "1"
+            cell2.colspan = "1"
+            cell3.colspan = "0"
+            cell3.style.display = "none";
+        }
+    }
+</script>
+
 {% endblock %}

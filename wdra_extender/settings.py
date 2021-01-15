@@ -42,7 +42,7 @@ TWITTER_CONSUMER_KEY = config('TWITTER_CONSUMER_KEY', default=None)
 TWITTER_CONSUMER_SECRET = config('TWITTER_CONSUMER_SECRET', default=None)
 TWITTER_ACCESS_TOKEN = config('TWITTER_ACCESS_TOKEN', default=None)
 TWITTER_ACCESS_TOKEN_SECRET = config('TWITTER_ACCESS_TOKEN_SECRET', default=None)
-BEARER_TOKEN = config('BEARER_TOKEN', default=None)
+BEARER_TOKEN = config('BEARER_TOKEN', cast=str, default=None)
 
 # Make a yaml file for search_tweets_v2,
 # Docs to add extra config and endpoints https://github.com/twitterdev/search-tweets-python/tree/v2#yaml-method
@@ -67,5 +67,67 @@ dict_file = [{'get_tweets': {'endpoint': 'https://api.twitter.com/2/tweets/',
 
 with open(BASE_DIR.joinpath('.twitter_keys.yaml'), 'w') as file:
     documents = yaml.dump(dict_file, file)
+
+TWITTER_RETURN_DICT = {'standard_fields': ['attachments',
+                                           'author_id',
+                                           'context_annotations',
+                                           'conversation_id',
+                                           'created_at',
+                                           'entities',
+                                           'geo',
+                                           'id',
+                                           'in_reply_to_user_id',
+                                           'lang',
+                                           'non_public_metrics',
+                                           'public_metrics',
+                                           'organic_metrics',
+                                           'promoted_metrics',
+                                           'possibly_sensitive',
+                                           'referenced_tweets',
+                                           'reply_settings',
+                                           'source',
+                                           'text',
+                                           'withheld'],
+                       'media_fields': ['duration_ms',
+                                        'height',
+                                        'media_key',
+                                        'preview_image_url',
+                                        'type',
+                                        'url',
+                                        'width',
+                                        'public_metrics',
+                                        'non_public_metrics',
+                                        'organic_metrics',
+                                        'promoted_metrics'],
+                       'author_id':   ['created_at',
+                                       'description',
+                                       'entities',
+                                       'id',
+                                       'location',
+                                       'name',
+                                       'pinned_tweet_id',
+                                       'profile_image_url',
+                                       'protected',
+                                       'public_metrics',
+                                       'url',
+                                       'username',
+                                       'verified',
+                                       'withheld',
+                                       'poll_fields',
+                                       'media_fields'],
+                       'poll_fields': ['duration_minutes',
+                                       'end_datetime',
+                                       'id',
+                                       'options',
+                                       'voting_status'],
+                       'place_fields': ['contained_within',
+                                        'country',
+                                        'country_code',
+                                        'full_name',
+                                        'geo',
+                                        'id',
+                                        'name',
+                                        'place_type']
+                       }
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False

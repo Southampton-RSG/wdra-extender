@@ -31,18 +31,38 @@ def select_method(extract_uuid):
         selected = request.form.get('method_select')
         extract = models.Extract.query.get(str(extract_uuid))
         extract.extract_method = selected
-        return redirect(url_for(extract_methods[selected], extract_uuid=extract_uuid))
+        return redirect(url_for(extract_methods[selected], extract_uuid=extract_uuid, basic_form=True))
     else:
         return render_template('get_method.html', extract_methods=extract_methods, extract_uuid=extract_uuid)
 # ======================================================================================================================
 
 
 # Methods for getting the twitter data =================================================================================
-@blueprint_extract.route('/method/search/<uuid:extract_uuid>', methods=['POST'])
-def get_by_search(extract_uuid):
+@blueprint_extract.route('/method/search/<basic_form>/<uuid:extract_uuid>', methods=['GET', 'POST'])
+def get_by_search(extract_uuid, basic_form):
     """View to request a Twitter extract Bundle using search parameters"""
-
-    return None
+    if request.method == 'GET':
+        return render_template('get_by_search.html',
+                               extract_uuid=extract_uuid,
+                               basic_form=basic_form,
+                               return_fields=current_app.config['TWITTER_RETURN_DICT'])
+    if request.method == 'POST':
+        if 'switch_form' in request.form:
+            if basic_form == "True":
+                basic_form = "False"
+            else:
+                basic_form = "True"
+            return render_template('get_by_search.html',
+                                   extract_uuid=extract_uuid,
+                                   basic_form=basic_form,
+                                   return_fields=current_app.config['TWITTER_RETURN_DICT'])
+        if 'submit' in request.form:
+            if basic_form:
+                pass
+                # do stuff
+            else:
+                pass
+                # do more complicated stuff
 
 
 @blueprint_extract.route('/method/id/<uuid:extract_uuid>', methods=['GET', 'POST'])

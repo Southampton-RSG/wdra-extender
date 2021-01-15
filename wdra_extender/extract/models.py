@@ -44,7 +44,8 @@ class Extract(db.Model):
     #: Is the Bundle ready for pickup?
     ready = db.Column(db.Boolean, default=False, index=True, nullable=False)
 
-    extract_method = db.Column(db.String(254), default=None, index=True)
+    #: Details the method
+    extract_method = db.Column(db.String(254), default="", index=True, nullable=False)
 
     def save(self) -> None:
         """Save this model to the database."""
@@ -60,7 +61,8 @@ class Extract(db.Model):
         """
         logger.info('Processing Bundle %s', self.uuid)
         tweets = get_tweets(self.extract_method,
-            tweet_ids, tweet_providers=current_app.config['TWEET_PROVIDERS'])
+                            tweet_ids,
+                            tweet_providers=current_app.config['TWEET_PROVIDERS'])
 
         try:
             save_to_redis(tweets)
@@ -78,8 +80,7 @@ class Extract(db.Model):
                 output = plugin(tweets_file, tmp_dir)
                 logger.info(output)
 
-            zip_path = current_app.config['OUTPUT_DIR'].joinpath(
-                self.uuid).with_suffix('.zip')
+            zip_path = current_app.config['OUTPUT_DIR'].joinpath(self.uuid).with_suffix('.zip')
             zip_directory(zip_path, work_dir)
             logger.info('Zipped output files to %s', zip_path)
 
