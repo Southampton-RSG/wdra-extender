@@ -74,43 +74,45 @@
         <p>Choose the return fields to retrieve from the api</p>
         <table>
             <tr>
-                <td colspan="2">Field</td>
-                <td colspan="2">Include</td>
+                <td colspan="1">Field</td>
+                <td colspan="1">Include</td>
+                <td colspan="1"></td>
+                <td colspan="1" id="secret_col" style="display: none">Extra Args</td>
             </tr>
             {% for field in return_fields['standard_fields'] %}
                 {% if field in return_fields.keys() %}
                     <tr>
-                        <td id="{{ field }}_cell1" rowspan="1" colspan="2">
+                        <td id="{{ field }}_cell1" colspan="1">
                             <label for="{{ field }}_check"> {{ field }}</label>
                         </td>
-                        <td id="{{ field }}_cell2" rowspan="1" colspan="2">
+                        <td id="{{ field }}_cell2" colspan="1">
                             <input type="checkbox" class="form-control" id="{{ field }}_check" name="{{ field }}"
-                                   onclick="show_options('{{ field }}', {{ return_fields[field]|length }})">
+                                  onclick="show_options('{{ field }}')">
                         </td>
-                        <td id="{{ field }}_cell3" colspan="0" style="display:none">
-                            Extra Returns
+                        <td id="{{ field }}_cell3" colspan="2" >
+                            <table id="{{ field }}_subs" style="display: none">
+                                <tr>
+                                    <td>Extra Field</td>
+                                    <td>Include</td>
+                                </tr>
+                                {% for sub_field in return_fields[field] %}
+                                    <tr>
+                                        <td>
+                                            <label for="{{ sub_field }}_check">{{ sub_field }}</label>
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" class="form-control" id="{{ sub_field }}_check" name="{{ sub_field }}">
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
                         </td>
                     </tr>
-                    {% if checkbox_getval(field) %}
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td>SubField</td>
-                        <td>Include</td>
-                    </tr>
-                    {% for sub_field in return_fields[field] %}
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td><label for="{{ sub_field }}_check"> {{ sub_field }}</label></td>
-                            <td><input type="checkbox" class="form-control" id="{{ sub_field }}_check" name="{{ sub_field }}"></td>
-                        </tr>
-                    {% endfor %}
-                    {% endif %}
                 {% else %}
                     <tr>
-                        <td colspan="2"><label for="{{ field }}_check"> {{ field }}</label></td>
-                        <td colspan="2"><input type="checkbox" class="form-control" id="{{ field }}_check" name="{{ field }}"></td>
+                        <td colspan="1"><label for="{{ field }}_check"> {{ field }}</label></td>
+                        <td colspan="1"><input type="checkbox" class="form-control" id="{{ field }}_check" name="{{ field }}"></td>
+                        <td colspan="2"></td>
                     </tr>
                 {% endif %}
             {% endfor %}
@@ -119,34 +121,16 @@
 
 {% endif %}
 
-
 <script>
-    function checkbox_getval(field_name) {
-        var checkBox = document.getElementById("{{ field_name }}_check");
-        return checkBox.checked
-    }
-</script>
-
-<script>
-    function show_options(field_name, extra_field_length) {
+    function show_options(field_name) {
         var checkBox = document.getElementById(field_name+"_check");
-        var cell1 = document.getElementById(field_name+"_cell1");
-        var cell2 = document.getElementById(field_name+"_cell2");
-        var cell3 = document.getElementById(field_name+"_cell3");
+        var subtable = document.getElementById(field_name+"_subs");
+        var secretcol = document.getElementById("secret_col")
         if (checkBox.checked == true){
-            cell1.rowspan = extra_field_length
-            cell2.rowspan = extra_field_length
-            cell1.colspan = "1"
-            cell2.colspan = "1"
-            cell3.colspan = "2"
-            cell3.style.display = "block";
+            subtable.style.display = "block";
+            secretcol.style.display = "block";
         } else {
-            cell1.rowspan = "1"
-            cell2.rowspan = "1"
-            cell1.colspan = "1"
-            cell2.colspan = "1"
-            cell3.colspan = "0"
-            cell3.style.display = "none";
+            subtable.style.display = "none";
         }
     }
 </script>
