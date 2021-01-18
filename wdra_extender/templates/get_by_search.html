@@ -98,10 +98,10 @@
                                 {% for sub_field in return_fields[field] %}
                                     <tr>
                                         <td>
-                                            <label for="{{ sub_field }}_check">{{ sub_field }}</label>
+                                            <label for="{{ field }}_{{ sub_field }}_check">{{ sub_field }}</label>
                                         </td>
                                         <td>
-                                            <input type="checkbox" class="form-control" id="{{ sub_field }}_check" name="{{ sub_field }}">
+                                            <input type="checkbox" class="form-control" id="{{ field }}_{{ sub_field }}_check" name="{{ sub_field }}">
                                         </td>
                                     </tr>
                                 {% endfor %}
