@@ -57,9 +57,21 @@ def get_tweets_by_id(
     return found_tweets
 
 
-def get_tweets_by_search(query, additional_search_parameters):
-    #dostuff
+def get_tweets_by_search(query, additional_search_parameters,
+                         tweet_providers: typing.Iterable[str]) -> typing.List[typing.Mapping]:
+    found_tweets = []
+    for provider in map(import_object, tweet_providers):
+        try:
+            provider_found_ids, provider_found_tweets = provider('search_tweets', query, additional_search_parameters)
+        except ConnectionError as exc:
+            logger.error('Failed to execute Tweet provider: %s', exc)
+        else:
+            # TODO: Add an assert that if a tweet is in 'redis' we check the return fields match expected and if not
+            # TODO: get the full tweet from the provider and replace the one in redis.
+            # TODO: For tweets generated from redis check the tweet is still available via twitter (GDPR?)
+            found_tweets.extend(provider_found_tweets)
     return found_tweets
+
 
 def save_to_redis(
     tweets: typing.List[typing.Mapping],
@@ -140,7 +152,7 @@ def twarc_provider(extract_method: str,
     return found_tweet_ids, found_tweets
 
 
-def searchtweets_provider(api_endpoint, request_arguments, **kwargs):
+def searchtweets_provider(api_endpoint, request_arguments, additional_search_parameters):
     """ Download tweets via the searchtweets_v2 package for the TwitterV2 API.
     https://github.com/twitterdev/search-tweets-python/tree/v2
     """
@@ -167,8 +179,8 @@ def searchtweets_provider(api_endpoint, request_arguments, **kwargs):
                                    yaml_key=f"{api_endpoint}",
                                    env_overwrite=False)
 
-    query = gen_request_parameters(**request_arguments)
-    rs = ResultStream(request_parameters=query,
-                      **search_args,
-                      **kwargs)
-
+    query = gen_request_parameters(request_arguments, **additional_search_parameters)
+    rs = ResultStream(api_endpoint, request_parameters=query)
+    tweets = list(rs.stream())
+    tweet_ids = [tweet.id for tweet in tweets]
+    return tweet_ids, tweets

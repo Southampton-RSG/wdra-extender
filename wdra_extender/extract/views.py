@@ -56,23 +56,21 @@ def get_by_search(extract_uuid, basic_form):
                                    extract_uuid=extract_uuid,
                                    basic_form=basic_form,
                                    return_fields=current_app.config['TWITTER_RETURN_DICT'])
-        if 'submit' in request.form:
-            if basic_form:
-                inc_terms = str(request.form['search_terms']).split(sep=',')
-                exc_terms = str(request.form['exclude_terms']).split(sep=',')
-                query = ""
-                query += " ".join(inc_terms)
-                query += " -".join(exc_terms)
-            else:
-                pass
-                # do more complicated stuff
-            extract = models.Extract.query.get(str(extract_uuid))
-            if current_app.config['CELERY_BROKER_URL']:
-                # Add job to task queue
-                tasks.build_extract.delay(extract.uuid, query)
-            else:
-                # Build the extract now
-                extract.build(tweet_ids)
+        if 'submit_basic' in request.form:
+            inc_terms = str(request.form['search_terms']).split(sep=',')
+            exc_terms = str(request.form['exclude_terms']).split(sep=',')
+            query = ""
+            query += " ".join(inc_terms)
+            query += " -".join(exc_terms)
+        elif 'submit_adv' in request.form:
+            pass
+            # do more complicated stuff
+        extract = models.Extract.query.get(str(extract_uuid))
+        if current_app.config['CELERY_BROKER_URL']:
+            # Add job to task queue
+            tasks.build_extract.delay(extract.uuid, query)
+
+        return redirect(extract.get_absolute_url())
 
 
 @blueprint_extract.route('/method/id/<uuid:extract_uuid>', methods=['GET', 'POST'])

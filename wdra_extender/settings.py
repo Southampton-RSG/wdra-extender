@@ -38,6 +38,11 @@ TWEET_PROVIDERS = [
     'wdra_extender.extract.tweet_providers.twarc_provider',
 ]
 
+# Redis stores the tweet cache then one additional python->twitter API should be provided for getting new tweets
+TWEET_PROVIDERS_V2 = [
+    'wdra_extender.extract.tweet_providers.searchtweets_provider',
+]
+
 TWITTER_CONSUMER_KEY = config('TWITTER_CONSUMER_KEY', default=None)
 TWITTER_CONSUMER_SECRET = config('TWITTER_CONSUMER_SECRET', default=None)
 TWITTER_ACCESS_TOKEN = config('TWITTER_ACCESS_TOKEN', default=None)

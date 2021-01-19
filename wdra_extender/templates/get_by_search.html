@@ -21,15 +21,14 @@
     <form action="{{ url_for('extract.get_by_search', extract_uuid=extract_uuid, basic_form=basic_form) }}" method="POST">
         <div class="input_group">
             <label for="field_search_terms">Search terms</label>
-            <textarea type="text" class="form-control" id="field_search_terms" name="search_terms">
-            </textarea>
+            <textarea type="text" class="form-control" id="field_search_terms" name="search_terms"></textarea>
         </div>
         <div class="input_group">
             <label for="field_exclude_terms">Exclude terms</label>
             <textarea type="text" class="form-control" id="field_exclude_terms" name="exclude_terms">is:retweet,
             </textarea>
         </div>
-        <button class="btn btn-primary btn-lg btn-block mt" type="submit">Submit</button>
+        <button class="btn btn-primary btn-lg btn-block mt" name="submit_basic" type="submit">Submit</button>
     </form>
     <p>
         <a class="btn btn-primary" data-toggle="collapse" href="#search_hints" role="button" aria-expanded="false" aria-controls="collapseExample">
@@ -76,7 +75,7 @@
             </tr>
             <tr>
                 <td><label for="include_terms">Include</label></td>
-                <td colspan="6"><textarea type="text" class="form-control" id="include_terms" name="include__terms" ></textarea></td>
+                <td colspan="6"><textarea type="text" class="form-control" id="include_terms" name="include_terms" ></textarea></td>
             </tr>
             <tr>
                 <td><label for="exclude_terms">Exclude</label></td>
