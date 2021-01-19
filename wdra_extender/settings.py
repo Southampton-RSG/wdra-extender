@@ -46,7 +46,7 @@ BEARER_TOKEN = config('BEARER_TOKEN', cast=str, default=None)
 
 # Make a yaml file for search_tweets_v2,
 # Docs to add extra config and endpoints https://github.com/twitterdev/search-tweets-python/tree/v2#yaml-method
-dict_file = [{'get_tweets': {'endpoint': 'https://api.twitter.com/2/tweets/',
+dict_file = [{'get_tweets_by_id': {'endpoint': 'https://api.twitter.com/2/tweets/',
                              'consumer_key': f'{TWITTER_CONSUMER_KEY}',
                              'consumer_secret': f'{TWITTER_CONSUMER_SECRET}',
                              'bearer_token': f'{BEARER_TOKEN}'},

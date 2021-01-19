@@ -17,18 +17,53 @@
 
 {% if basic_form == "True" %}
     <h2>Basic Search</h2>
-    <p>Inupt comma separated list of search terms.</p>
+    <p>Input comma separated list of search terms.</p>
     <form action="{{ url_for('extract.get_by_search', extract_uuid=extract_uuid, basic_form=basic_form) }}" method="POST">
         <div class="input_group">
             <label for="field_search_terms">Search terms</label>
-            <textarea type="text" class="form-control" id="field_search_terms" name="search_terms"></textarea>
+            <textarea type="text" class="form-control" id="field_search_terms" name="search_terms">
+            </textarea>
         </div>
         <div class="input_group">
             <label for="field_exclude_terms">Exclude terms</label>
-            <textarea type="text" class="form-control" id="field_exclude_terms" name="exclude_terms"></textarea>
+            <textarea type="text" class="form-control" id="field_exclude_terms" name="exclude_terms">is:retweet,
+            </textarea>
         </div>
         <button class="btn btn-primary btn-lg btn-block mt" type="submit">Submit</button>
     </form>
+    <p>
+        <a class="btn btn-primary" data-toggle="collapse" href="#search_hints" role="button" aria-expanded="false" aria-controls="collapseExample">
+            Show search hints
+        </a>
+    <div class="collapse" id="search_hints">
+        <div class="card card-body">
+            This form provides a simple wrapper around the twitter recent search API endpoint:
+            <a href="url">https://developer.twitter.com/en/docs/twitter-api/tweets/search/integrate/build-a-rule</a>
+            For full examples see the docs, for more return objects or timeframe searches see the advanced search,
+            and for complete control use the direct input field (not yet implemented).
+
+            The words given in the 'Search terms' form will be split on commas and added to the search using AND logic,
+            i.e. the tweets returned must include all the search parameters. To implement OR logic, i.e. include tweets
+            that contain either search term, simply add OR with a space 'OR ' before your search term. Finally search
+            terms can be grouped using parentheses, using the AND and OR logic and parentheses search terms of high
+            complexity can be built.
+
+            The words in the 'Exclude terms' form will be implemented with NOT logic. Tweets with these terms will not
+            be returned in the search. Words in this list should be alone and not grouped in parentheses.
+
+            In addition we can search for a phrase using quotation marks, i.e. the search
+            <i>Black AND Lives AND Matter</i> may be better implemented as <i>"Black Lives Matter"</i>.
+
+            <b><u>Operators</u></b>
+            The full list of operators can be found by following the link above.
+
+            An operator can be used to increase the power of your search. We have discussed using quotes to switch from
+            keyword to phrase matching. Other operators include the hashtag # to match <i>exact</i> hashtags, the @ to
+            match usernames. Other operators can assert that tweets contain elements for example 'has:media' asserts
+            that tweets contain a media object. One of the most commonly used operators is '-is:retweet' that excludes
+            retweets from the search terms.
+        </div>
+    </div>
 {% else %}
     <h2>Advanced Search</h2>
     <p>Include and exclude text, tags, and define timeframes.</p>
@@ -37,18 +72,16 @@
         <table style="width:100%">
             <tr>
                 <td></td>
-                <td colspan="3">Text</td>
-                <td colspan="3">Hashtag (#)</td>
+                <td colspan="6">Text</td>
             </tr>
             <tr>
                 <td><label for="include_terms">Include</label></td>
-                <td colspan="3"><input type="text" class="form-control" id="include_terms" name="include_hashtag_terms" ></td>
-                <td colspan="3"><input type="text" class="form-control" id="include_terms" name="search_terms" ></td>
+                <td colspan="6"><textarea type="text" class="form-control" id="include_terms" name="include__terms" ></textarea></td>
             </tr>
             <tr>
                 <td><label for="exclude_terms">Exclude</label></td>
-                <td colspan="3"><input type="text" class="form-control" id="exclude_terms" name="search_terms" ></td>
-                <td colspan="3"><input type="text" class="form-control" id="exclude_terms" name="search_terms" ></td>
+                <td colspan="6"><textarea type="text" class="form-control" id="exclude_terms" name="exclude_terms" >is:retweet,
+                </textarea></td>
             </tr>
             <tr>
                 <td></td>

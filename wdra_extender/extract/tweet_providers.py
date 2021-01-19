@@ -10,7 +10,7 @@ from searchtweets import ResultStream, gen_request_parameters, load_credentials
 from twarc import Twarc
 
 __all__ = [
-    'get_tweets',
+    'get_tweets_by_id',
     'redis_provider',
     'twarc_provider',
 ]
@@ -26,7 +26,7 @@ def import_object(name: str) -> object:
     return getattr(module, object_name)
 
 
-def get_tweets(
+def get_tweets_by_id(
         tweet_ids: typing.Iterable[int],
         tweet_providers: typing.Iterable[str]) -> typing.List[typing.Mapping]:
     """Get a list of Tweets from their IDs.
@@ -56,6 +56,10 @@ def get_tweets(
 
     return found_tweets
 
+
+def get_tweets_by_search(query, additional_search_parameters):
+    #dostuff
+    return found_tweets
 
 def save_to_redis(
     tweets: typing.List[typing.Mapping],
@@ -156,7 +160,7 @@ def searchtweets_provider(api_endpoint, request_arguments, **kwargs):
 
     available_endpoints = {'search_tweets', }
 
-    assert api_endpoint in available_endpoints, f'api_endpoint must be in {available_endpoints} ' \
+    assert api_endpoint in available_endpoints, f'api_endpoint must be in\n\n {available_endpoints} \n\n' \
                                                 f'other endpoints not yet configured'
 
     search_args = load_credentials(filename="./twitter_keys.yaml",

@@ -10,9 +10,10 @@ from uuid import uuid4
 import zipfile
 
 from flask import current_app, url_for
+from searchtweets import convert_utc_time
 
 from ..extensions import db
-from .tweet_providers import get_tweets, save_to_redis
+from .tweet_providers import get_tweets_by_id, get_tweets_by_search, save_to_redis
 from .plugins import PluginCollection
 
 __all__ = [
@@ -52,17 +53,57 @@ class Extract(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def build(self, tweet_ids):
+    def build(self, query, **kwargs):
         """Build a requested Twitter extract.
 
         Called by `extract.tasks.build_extract` Celery task.
 
-        :param tweet_ids: Tweet IDs to include within this Bundle.
+        :param query: depending on the defined extract method this will contain:
+                      extract.method == ID: Tweet IDs to include within this Bundle.
+                      extract.method == Search: A search query string to be processed and **kwargs will be populated
+                      with keyword arguments
         """
-        logger.info('Processing Bundle %s', self.uuid)
-        tweets = get_tweets(self.extract_method,
-                            tweet_ids,
-                            tweet_providers=current_app.config['TWEET_PROVIDERS'])
+        logger.info(f'Processing Bundle {self.uuid}, using method {self.extract_method}')
+        if self.extract_method == "ID":
+            tweets = get_tweets_by_id(query,
+                                      tweet_providers=current_app.config['TWEET_PROVIDERS'])
+        elif self.extract_method == "Search":
+            additional_search_settings = {
+                'results_per_call': 50,
+                'start_time': convert_utc_time("1d"),
+                'end_time': convert_utc_time("10m"),
+                'since_id': None,
+                'until_id': None,
+                'tweet_fields': None,
+                'user_fields': None,
+                'media_fields': None,
+                'place_fields': None,
+                'poll_fields': None,
+                'expansions': None,
+                'stringify': True
+            }
+
+            for key in additional_search_settings.keys():
+                if key in kwargs:
+                    additional_search_settings[key] = kwargs[key]
+            # check there are not parameter conflicts
+            if additional_search_settings['since_id'] is not None:
+                assert additional_search_settings['start_time'] is None, \
+                    "'Tweet ID from' and 'Date from' cannot both be set"
+            if additional_search_settings['until_id'] is not None:
+                assert additional_search_settings['end_time'] is None, \
+                    "'Tweet ID to' and 'Date to' cannot both be set"
+            if (additional_search_settings['since_id'] is not None) \
+                and \
+                    (additional_search_settings['until_id'] is not None):
+                assert additional_search_settings['since_id'] < additional_search_settings['until_id'], \
+                    "'Tweet ID to' must be greater than 'Tweet ID from'"
+            if (additional_search_settings['start_time'] is not None) \
+                and \
+                    (additional_search_settings['end_time'] is not None):
+                assert additional_search_settings['start_time'] < additional_search_settings['end_time'], \
+                    "'Date to' must be after 'Date from'"
+            tweets = get_tweets_by_search(query, additional_search_settings)
 
         try:
             save_to_redis(tweets)
