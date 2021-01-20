@@ -51,10 +51,10 @@ BEARER_TOKEN = config('BEARER_TOKEN', cast=str, default=None)
 
 # Make a yaml file for search_tweets_v2,
 # Docs to add extra config and endpoints https://github.com/twitterdev/search-tweets-python/tree/v2#yaml-method
-dict_file = [{'get_tweets_by_id': {'endpoint': 'https://api.twitter.com/2/tweets/',
-                             'consumer_key': f'{TWITTER_CONSUMER_KEY}',
-                             'consumer_secret': f'{TWITTER_CONSUMER_SECRET}',
-                             'bearer_token': f'{BEARER_TOKEN}'},
+dict_file = {'get_tweets_by_id': {'endpoint': 'https://api.twitter.com/2/tweets/',
+                                   'consumer_key': f'{TWITTER_CONSUMER_KEY}',
+                                   'consumer_secret': f'{TWITTER_CONSUMER_SECRET}',
+                                   'bearer_token': f'{BEARER_TOKEN}'},
               'search_tweets': {'endpoint': 'https://api.twitter.com/2/tweets/search/recent',
                                 'consumer_key': f'{TWITTER_CONSUMER_KEY}',
                                 'consumer_secret': f'{TWITTER_CONSUMER_SECRET}',
@@ -68,10 +68,11 @@ dict_file = [{'get_tweets_by_id': {'endpoint': 'https://api.twitter.com/2/tweets
                               'consumer_secret': f'{TWITTER_CONSUMER_SECRET}',
                               'bearer_token': f'{BEARER_TOKEN}'},
               }
-             ]
 
 with open(BASE_DIR.joinpath('.twitter_keys.yaml'), 'w') as file:
     documents = yaml.dump(dict_file, file)
+
+TWITTER_CONF = BASE_DIR.joinpath('.twitter_keys.yaml')
 
 TWITTER_RETURN_DICT = {'standard_fields': ['attachments',
                                            'author_id',

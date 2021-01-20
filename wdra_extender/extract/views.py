@@ -62,7 +62,8 @@ def get_by_search(extract_uuid, basic_form):
             exc_terms = str(request.form['exclude_terms']).split(sep=',')
             query = ""
             query += " ".join(inc_terms)
-            query += " -".join(exc_terms)
+            if len(exc_terms) > 0:
+                query += " -" + " -".join(exc_terms)
         elif 'submit_adv' in request.form:
             pass
             # do more complicated stuff

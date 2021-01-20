@@ -1,5 +1,6 @@
 """Module containing the Extract model and supporting functionality."""
 
+from datetime import datetime
 import logging
 import json
 import os
@@ -69,9 +70,9 @@ class Extract(db.Model):
                                       tweet_providers=current_app.config['TWEET_PROVIDERS'])
         elif self.extract_method == "Search":
             additional_search_settings = {
-                'results_per_call': 3,
-                'start_time': convert_utc_time("1d"),
-                'end_time': convert_utc_time("10m"),
+                'results_per_call': 10,
+                'start_time': "1d",
+                'end_time': "10m",
                 'since_id': None,
                 'until_id': None,
                 'tweet_fields': None,
@@ -87,6 +88,8 @@ class Extract(db.Model):
                 if key in kwargs:
                     additional_search_settings[key] = kwargs[key]
             # check there are not parameter conflicts
+            assert additional_search_settings['results_per_call'] > 9,\
+                f"results_per_call (={additional_search_settings['results_per_call']})  must be >= 10"
             if additional_search_settings['since_id'] is not None:
                 assert additional_search_settings['start_time'] is None, \
                     "'Tweet ID from' and 'Date from' cannot both be set"
@@ -101,8 +104,9 @@ class Extract(db.Model):
             if (additional_search_settings['start_time'] is not None) \
                 and \
                     (additional_search_settings['end_time'] is not None):
-                assert additional_search_settings['start_time'] < additional_search_settings['end_time'], \
-                    "'Date to' must be after 'Date from'"
+                assert compare_time(additional_search_settings['start_time'],
+                                    additional_search_settings['end_time']), \
+                       "'Date to' must be after 'Date from'"
             tweets = get_tweets_by_search(query, additional_search_settings, current_app.config['TWEET_PROVIDERS_V2'])
 
         try:
@@ -152,3 +156,10 @@ def get_plugins() -> typing.Dict[pathlib.Path, typing.Callable]:
         current_app.config['PLUGIN_DIR'],
     ]
     return PluginCollection(plugin_directories).load_plugins()
+
+
+def compare_time(start, end):
+    """ Compute is end is after start from the time parameters to be passed to the twitter API by passing though UTC"""
+    start_utc = convert_utc_time(start)
+    end_utc = convert_utc_time(end)
+    return datetime.strptime(start_utc, '%Y-%m-%dT%H:%M:%SZ') < datetime.strptime(end_utc, '%Y-%m-%dT%H:%M:%SZ')

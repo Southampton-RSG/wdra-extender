@@ -2,6 +2,7 @@ import datetime
 import importlib
 import json
 import logging
+import pathlib
 import typing
 
 from flask import current_app
@@ -11,6 +12,8 @@ from twarc import Twarc
 
 __all__ = [
     'get_tweets_by_id',
+    'get_tweets_by_search',
+    'save_to_redis',
     'redis_provider',
     'twarc_provider',
 ]
@@ -174,13 +177,12 @@ def searchtweets_provider(api_endpoint, request_arguments, additional_search_par
 
     assert api_endpoint in available_endpoints, f'api_endpoint must be in\n\n {available_endpoints} \n\n' \
                                                 f'other endpoints not yet configured'
-
-    search_args = load_credentials(filename="./twitter_keys.yaml",
+    search_args = load_credentials(filename=current_app.config['TWITTER_CONF'],
                                    yaml_key=f"{api_endpoint}",
                                    env_overwrite=False)
 
     query = gen_request_parameters(request_arguments, **additional_search_parameters)
-    rs = ResultStream(api_endpoint, request_parameters=query, max_tweets=10)
-    tweets = list(rs.stream())
-    tweet_ids = [tweet.id for tweet in tweets]
+    rs = ResultStream(request_parameters=query, max_tweets=10, **search_args)
+    *tweets, metadata = list(rs.stream())
+    tweet_ids = [tweet["id"] for tweet in tweets]
     return tweet_ids, tweets
