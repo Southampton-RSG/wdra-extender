@@ -69,7 +69,7 @@ class Extract(db.Model):
                                       tweet_providers=current_app.config['TWEET_PROVIDERS'])
         elif self.extract_method == "Search":
             additional_search_settings = {
-                'results_per_call': 50,
+                'results_per_call': 3,
                 'start_time': convert_utc_time("1d"),
                 'end_time': convert_utc_time("10m"),
                 'since_id': None,
@@ -103,7 +103,7 @@ class Extract(db.Model):
                     (additional_search_settings['end_time'] is not None):
                 assert additional_search_settings['start_time'] < additional_search_settings['end_time'], \
                     "'Date to' must be after 'Date from'"
-            tweets = get_tweets_by_search(query, additional_search_settings)
+            tweets = get_tweets_by_search(query, additional_search_settings, current_app.config['TWEET_PROVIDERS_V2'])
 
         try:
             save_to_redis(tweets)

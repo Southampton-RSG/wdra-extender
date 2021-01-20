@@ -31,6 +31,7 @@ def select_method(extract_uuid):
         selected = request.form.get('method_select')
         extract = models.Extract.query.get(str(extract_uuid))
         extract.extract_method = selected
+        extract.save()
         return redirect(url_for(extract_methods[selected], extract_uuid=extract_uuid, basic_form=True))
     else:
         return render_template('get_method.html', extract_methods=extract_methods, extract_uuid=extract_uuid)

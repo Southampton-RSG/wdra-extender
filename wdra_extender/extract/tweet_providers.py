@@ -57,8 +57,7 @@ def get_tweets_by_id(
     return found_tweets
 
 
-def get_tweets_by_search(query, additional_search_parameters,
-                         tweet_providers: typing.Iterable[str]) -> typing.List[typing.Mapping]:
+def get_tweets_by_search(query, additional_search_parameters, tweet_providers) -> typing.List[typing.Mapping]:
     found_tweets = []
     for provider in map(import_object, tweet_providers):
         try:
@@ -70,6 +69,7 @@ def get_tweets_by_search(query, additional_search_parameters,
             # TODO: get the full tweet from the provider and replace the one in redis.
             # TODO: For tweets generated from redis check the tweet is still available via twitter (GDPR?)
             found_tweets.extend(provider_found_tweets)
+            logger.info(f'Found {len(found_tweets)} tweets from the API')
     return found_tweets
 
 
@@ -180,7 +180,7 @@ def searchtweets_provider(api_endpoint, request_arguments, additional_search_par
                                    env_overwrite=False)
 
     query = gen_request_parameters(request_arguments, **additional_search_parameters)
-    rs = ResultStream(api_endpoint, request_parameters=query)
+    rs = ResultStream(api_endpoint, request_parameters=query, max_tweets=10)
     tweets = list(rs.stream())
     tweet_ids = [tweet.id for tweet in tweets]
     return tweet_ids, tweets
