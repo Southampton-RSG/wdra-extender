@@ -15,40 +15,41 @@
     </form>
 </div>
 <div>
-    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#search_hints" role="button" aria-expanded="false" aria-controls="search_hints">
-        Show search hints
-    </button>
-</div>
-<div class="collapse" id="search_hints">
-    <div class="card card-body">
-        This form provides a simple wrapper around the twitter recent search API endpoint:
-        <a href="url">https://developer.twitter.com/en/docs/twitter-api/tweets/search/integrate/build-a-rule</a>
-        For full examples see the docs, for more return objects or timeframe searches see the advanced search,
-        and for complete control use the direct input field (not yet implemented).
+    <div>
+        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#searchHints" role="button" aria-expanded="false" aria-controls="search_hints">
+            Show search hints
+        </button>
+    </div>
+    <div class="collapse" id="searchHints">
+        <div class="card card-body">
+            This form provides a simple wrapper around the twitter recent search API endpoint:
+            <a href="url">https://developer.twitter.com/en/docs/twitter-api/tweets/search/integrate/build-a-rule</a>
+            For full examples see the docs, for more return objects or timeframe searches see the advanced search,
+            and for complete control use the direct input field (not yet implemented).
 
-        The words given in the 'Search terms' form will be split on commas and added to the search using AND logic,
-        i.e. the tweets returned must include all the search parameters. To implement OR logic, i.e. include tweets
-        that contain either search term, simply add OR with a space 'OR ' before your search term. Finally search
-        terms can be grouped using parentheses, using the AND and OR logic and parentheses search terms of high
-        complexity can be built.
+            The words given in the 'Search terms' form will be split on commas and added to the search using AND logic,
+            i.e. the tweets returned must include all the search parameters. To implement OR logic, i.e. include tweets
+            that contain either search term, simply add OR with a space 'OR ' before your search term. Finally search
+            terms can be grouped using parentheses, using the AND and OR logic and parentheses search terms of high
+            complexity can be built.
 
-        The words in the 'Exclude terms' form will be implemented with NOT logic. Tweets with these terms will not
-        be returned in the search. Words in this list should be alone and not grouped in parentheses.
+            The words in the 'Exclude terms' form will be implemented with NOT logic. Tweets with these terms will not
+            be returned in the search. Words in this list should be alone and not grouped in parentheses.
 
-        In addition we can search for a phrase using quotation marks, i.e. the search
-        <i>Black AND Lives AND Matter</i> may be better implemented as <i>"Black Lives Matter"</i>.
+            In addition we can search for a phrase using quotation marks, i.e. the search
+            <i>Black AND Lives AND Matter</i> may be better implemented as <i>"Black Lives Matter"</i>.
 
-        <b><u>Operators</u></b>
-        The full list of operators can be found by following the link above.
+            <b><u>Operators</u></b>
+            The full list of operators can be found by following the link above.
 
-        An operator can be used to increase the power of your search. We have discussed using quotes to switch from
-        keyword to phrase matching. Other operators include the hashtag # to match <i>exact</i> hashtags, the @ to
-        match usernames. Other operators can assert that tweets contain elements for example 'has:media' asserts
-        that tweets contain a media object. One of the most commonly used operators is '-is:retweet' that excludes
-        retweets from the search terms.
+            An operator can be used to increase the power of your search. We have discussed using quotes to switch from
+            keyword to phrase matching. Other operators include the hashtag # to match <i>exact</i> hashtags, the @ to
+            match usernames. Other operators can assert that tweets contain elements for example 'has:media' asserts
+            that tweets contain a media object. One of the most commonly used operators is '-is:retweet' that excludes
+            retweets from the search terms.
+        </div>
     </div>
 </div>
-
 {% if basic_form == "True" %}
     <h2>Basic Search</h2>
     <p>Input comma separated list of search terms.</p>
@@ -85,8 +86,12 @@
             </tr>
             <tr>
                 <td><label for="exclude_terms">Exclude</label></td>
-                <td colspan="6"><textarea type="text" class="form-control" id="exclude_terms" name="exclude_terms" >is:retweet,
+                <td colspan="6"><textarea type="text" class="form-control" id="exclude_terms" name="exclude_terms" >is:retweet
                 </textarea></td>
+            </tr>
+            <tr>
+                <td><label for="number_to_return">Results per call</label></td>
+                <td colspan="6"><input type="number" class="form-control" id="number_to_return" name="results_per_call" value="10"></td>
             </tr>
             <tr>
                 <td></td>
@@ -112,6 +117,15 @@
         <p>Choose the return fields to retrieve from the api</p>
         <table>
             <tr>
+                <td>
+                    <label for="allBox">Select All</label>
+                </td>
+                <td>
+                    <input type="checkbox" id="allBox" class="form-control" name="allBox"
+                           onclick="select_all('allBox', {{ return_fields['tweet_fields']|safe }})">
+                </td>
+            </tr>
+            <tr>
                 <td colspan="1">Field</td>
                 <td colspan="1">Include</td>
                 <td colspan="1"></td>
@@ -130,6 +144,15 @@
                         <td id="{{ field }}_cell3" colspan="2" >
                             <table id="{{ field }}_subs" style="display: none">
                                 <tr>
+                                    <td>
+                                        <label for="{{ field }}_allBox">Select All</label>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" id="{{ field }}_allBox" class="form-control" name="{{ field }}_allBox"
+                                               onclick="select_all('{{ field }}' + '_allBox', {{ return_fields[field]|safe }}, '{{ field }}')">
+                                    </td>
+                                </tr>
+                                <tr>
                                     <td>Extra Field</td>
                                     <td>Include</td>
                                 </tr>
@@ -139,7 +162,7 @@
                                             <label for="{{ field }}_{{ sub_field }}_check">{{ sub_field }}</label>
                                         </td>
                                         <td>
-                                            <input type="checkbox" class="form-control" id="{{ field }}_{{ sub_field }}_check" name="{{ sub_field }}">
+                                            <input type="checkbox" class="form-control" id="{{ field }}_{{ sub_field }}_check" name="_{{ sub_field }}">
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -155,6 +178,7 @@
                 {% endif %}
             {% endfor %}
         </table>
+        <button class="btn btn-primary btn-lg btn-block mt" name="submit_basic" type="submit">Submit</button>
     </form>
 
 {% endif %}
@@ -164,11 +188,30 @@
         var checkBox = document.getElementById(field_name+"_check");
         var subtable = document.getElementById(field_name+"_subs");
         var secretcol = document.getElementById("secret_col")
-        if (checkBox.checked == true){
+        if (checkBox.checked === true){
             subtable.style.display = "block";
             secretcol.style.display = "block";
         } else {
             subtable.style.display = "none";
+        }
+    }
+</script>
+
+<script>
+    function select_all(allBox_name, fields_to_check, main_field_name='false') {
+        var allBox = document.getElementById(allBox_name);
+        var box;
+        for (var field_name in fields_to_check.values) {
+            if (main_field_name === 'false') {
+                box = document.getElementById(field_name + "_check");
+            } else {
+                box = document.getElementById(main_field_name + "_" + field_name + "_check");
+            }
+            if (allBox.checked === true) {
+                box.checked = this.checked;
+            } else {
+                box.checked = false;
+            }
         }
     }
 </script>

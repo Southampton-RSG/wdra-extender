@@ -5,7 +5,7 @@ from .models import Extract
 
 
 @celery.task()
-def build_extract(uuid, query):
+def build_extract(uuid, query, **kwargs):
     """Begin the build of a requested Twitter Extract Bundle."""
     extract = Extract.query.get(uuid)
-    return extract.build(query)
+    return extract.build(query, **kwargs)
