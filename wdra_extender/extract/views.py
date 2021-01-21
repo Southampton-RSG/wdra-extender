@@ -57,20 +57,67 @@ def get_by_search(extract_uuid, basic_form):
                                    extract_uuid=extract_uuid,
                                    basic_form=basic_form,
                                    return_fields=current_app.config['TWITTER_RETURN_DICT'])
-        if 'submit_basic' in request.form:
-            inc_terms = str(request.form['search_terms']).split(sep=',')
+        if ('submit_basic' in request.form) or ('submit_adv' in request.form):
+            inc_terms = str(request.form['include_terms']).split(sep=',')
             exc_terms = str(request.form['exclude_terms']).split(sep=',')
+            results_per_call = request.form['results_per_call']
             query = ""
             query += " ".join(inc_terms)
             if len(exc_terms) > 0:
                 query += " -" + " -".join(exc_terms)
-        elif 'submit_adv' in request.form:
-            pass
-            # do more complicated stuff
+            if 'submit_adv' in request.form:
+                # get the additional constraints and return fields
+                adv_dict = {'tweet_fields': [],
+                            'user_fields': [],
+                            'media_fields': [],
+                            'place_fields': [],
+                            'poll_fields': [],
+                            'expansions': []}
+
+
+                for field in request.form.keys():
+                    if field in ['start_time', 'end_time', 'stringify']:
+                        adv_dict[field] = request.form[field]
+                    if field == 'since_id':
+                        if request.form['from_inclusive']:
+                            adv_dict[field] = request.form[field] - 1
+                        else:
+                            adv_dict[field] = request.form[field]
+                    if field == 'until_id':
+                        if request.form['to_inclusive']:
+                            adv_dict[field] = request.form[field] + 1
+                        else:
+                            adv_dict[field] = request.form[field]
+                    # Basic return fields
+                    if field in current_app.config['TWITTER_RETURN_DICT']['tweet_fields']:
+                        if field != "poll_fields":
+                            adv_dict['tweet_fields'] += [field,]
+                    # If checked then check for subfields
+                    if request.form['author_id']:
+                        if field in current_app.config['TWITTER_RETURN_DICT']['author_id']:
+                            adv_dict['user_fields'] += [field, ]
+                    if request.form['attachments']:
+                        if field in current_app.config['TWITTER_RETURN_DICT']['attachments']:
+                            adv_dict['media_fields'] += [field, ]
+                    if request.form['geo']:
+                        if field in current_app.config['TWITTER_RETURN_DICT']['place_fields']:
+                            adv_dict['place_fields'] += [field, ]
+                    if request.form['poll_fields']:
+                        if field in current_app.config['TWITTER_RETURN_DICT']['poll_fields']:
+                            adv_dict['poll_fields'] += [field, ]
+                    if request.form['id']:
+                        if field in current_app.config['TWITTER_RETURN_DICT']['id']:
+                            adv_dict['expansions'] += [field, ]
+                # If no subfields are selected change the value to none
+                for sub_field in ['user_fields', 'media_fields', 'place_fields', 'poll_fields', 'expansions']:
+                    if len(adv_dict[sub_field]) == 0:
+                        adv_dict[sub_field] = None
+
+
         extract = models.Extract.query.get(str(extract_uuid))
         if current_app.config['CELERY_BROKER_URL']:
             # Add job to task queue
-            tasks.build_extract.delay(extract.uuid, query)
+            tasks.build_extract.delay(extract.uuid, query, results_per_call=results_per_call)
 
         return redirect(extract.get_absolute_url())
 

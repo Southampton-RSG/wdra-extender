@@ -182,7 +182,7 @@ def searchtweets_provider(api_endpoint, request_arguments, additional_search_par
                                    env_overwrite=False)
 
     query = gen_request_parameters(request_arguments, **additional_search_parameters)
-    rs = ResultStream(request_parameters=query, max_tweets=10, **search_args)
+    rs = ResultStream(request_parameters=query, **search_args)
     *tweets, metadata = list(rs.stream())
     tweet_ids = [tweet["id"] for tweet in tweets]
     return tweet_ids, tweets

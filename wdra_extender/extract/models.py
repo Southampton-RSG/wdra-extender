@@ -71,6 +71,8 @@ class Extract(db.Model):
         elif self.extract_method == "Search":
             additional_search_settings = {
                 'results_per_call': 10,
+                'max_tweets': 10,
+                'max_requests': 1,
                 'start_time': "1d",
                 'end_time': "10m",
                 'since_id': None,
