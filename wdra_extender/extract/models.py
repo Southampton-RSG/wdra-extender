@@ -69,10 +69,9 @@ class Extract(db.Model):
             tweets = get_tweets_by_id(query,
                                       tweet_providers=current_app.config['TWEET_PROVIDERS'])
         elif self.extract_method == "Search":
+            logger.info(f"{kwargs}")
             additional_search_settings = {
                 'results_per_call': 10,
-                'max_tweets': 10,
-                'max_requests': 1,
                 'start_time': "1d",
                 'end_time': "10m",
                 'since_id': None,
@@ -86,11 +85,12 @@ class Extract(db.Model):
                 'stringify': True
             }
 
-            for key in additional_search_settings.keys():
-                if key in kwargs:
+            for key in kwargs.keys():
+                if key in list(additional_search_settings.keys()):
                     additional_search_settings[key] = kwargs[key]
+            logger.info(f"{additional_search_settings}")
             # check there are not parameter conflicts
-            assert additional_search_settings['results_per_call'] > 9,\
+            assert int(additional_search_settings['results_per_call']) > 9,\
                 f"results_per_call (={additional_search_settings['results_per_call']})  must be >= 10"
             if additional_search_settings['since_id'] is not None:
                 assert additional_search_settings['start_time'] is None, \

@@ -122,7 +122,7 @@
                 </td>
                 <td>
                     <input type="checkbox" id="allBox" class="form-control" name="allBox"
-                           onclick="select_all('allBox', {{ return_fields['tweet_fields']|safe }})">
+                           onclick="select_all('allBox', {{ return_fields['tweet_fields']|safe }}, 'false', {{ return_fields.keys()|list|safe }} )">
                 </td>
             </tr>
             <tr>
@@ -178,7 +178,7 @@
                 {% endif %}
             {% endfor %}
         </table>
-        <button class="btn btn-primary btn-lg btn-block mt" name="submit_basic" type="submit">Submit</button>
+        <button class="btn btn-primary btn-lg btn-block mt" name="submit_adv" type="submit">Submit</button>
     </form>
 
 {% endif %}
@@ -198,20 +198,23 @@
 </script>
 
 <script>
-    function select_all(allBox_name, fields_to_check, main_field_name='false') {
+    function select_all(allBox_name, fields_to_check, main_field_name='false', top_fields="['none']") {
         var allBox = document.getElementById(allBox_name);
         var box;
-        for (var field_name in fields_to_check.values) {
+        var field_name;
+        for (field_name in fields_to_check) {
             if (main_field_name === 'false') {
-                box = document.getElementById(field_name + "_check");
+                box = document.getElementById(fields_to_check[field_name] + "_check");
+                box.checked = allBox.checked === true;
+                if (top_fields.includes(fields_to_check[field_name])){
+                    show_options(fields_to_check[field_name])
+                }
             } else {
-                box = document.getElementById(main_field_name + "_" + field_name + "_check");
+                box = document.getElementById(main_field_name + "_" + fields_to_check[field_name] + "_check");
+                box.checked = allBox.checked === true
             }
-            if (allBox.checked === true) {
-                box.checked = this.checked;
-            } else {
-                box.checked = false;
-            }
+
+
         }
     }
 </script>

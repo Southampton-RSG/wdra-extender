@@ -64,60 +64,64 @@ def get_by_search(extract_uuid, basic_form):
             query += " ".join(inc_terms)
             if len(exc_terms) > 0:
                 query += " -" + " -".join(exc_terms)
+            # get the additional constraints and return fields
+            adv_dict = {'results_per_call': request.form['results_per_call'],
+                        'tweet_fields': ["id", "text"],
+                        'user_fields': [],
+                        'media_fields': [],
+                        'place_fields': [],
+                        'poll_fields': [],
+                        'expansions': []}
             if 'submit_adv' in request.form:
-                # get the additional constraints and return fields
-                adv_dict = {'results_per_call': request.form['results_per_call'],
-                            'tweet_fields': [],
-                            'user_fields': [],
-                            'media_fields': [],
-                            'place_fields': [],
-                            'poll_fields': [],
-                            'expansions': []}
-
                 for field in request.form.keys():
                     if field in ['start_time', 'end_time', 'stringify']:
                         adv_dict[field] = request.form[field]
                     if field == 'since_id':
-                        if request.form['from_inclusive']:
-                            adv_dict[field] = request.form[field] - 1
-                        else:
-                            adv_dict[field] = request.form[field]
+                        if request.form[field] != '':
+                            if request.form['from_inclusive']:
+                                adv_dict[field] = request.form[field] - 1
+                            else:
+                                adv_dict[field] = request.form[field]
                     if field == 'until_id':
-                        if request.form['to_inclusive']:
-                            adv_dict[field] = request.form[field] + 1
-                        else:
-                            adv_dict[field] = request.form[field]
+                        if request.form[field] != '':
+                            if request.form['to_inclusive']:
+                                adv_dict[field] = request.form[field] + 1
+                            else:
+                                adv_dict[field] = request.form[field]
                     # Basic return fields
                     if field in current_app.config['TWITTER_RETURN_DICT']['tweet_fields']:
-                        if field != "poll_fields":
-                            adv_dict['tweet_fields'] += [field, ]
+                        if field not in ["poll_fields", "id", "text"]:
+                            adv_dict['tweet_fields'] += [field]
                     # If checked then check for subfields
-                    if request.form['author_id']:
+                    if 'author_id' in request.form.keys():
                         if field[1:] in current_app.config['TWITTER_RETURN_DICT']['author_id']:
-                            adv_dict['user_fields'] += [field[1:], ]
-                    if request.form['attachments']:
+                            adv_dict['user_fields'] += [field[1:]]
+                    if 'attachments' in request.form.keys():
                         if field[1:] in current_app.config['TWITTER_RETURN_DICT']['attachments']:
-                            adv_dict['media_fields'] += [field[1:], ]
-                    if request.form['geo']:
-                        if field[1:] in current_app.config['TWITTER_RETURN_DICT']['place_fields']:
-                            adv_dict['place_fields'] += [field[1:], ]
-                    if request.form['poll_fields']:
+                            adv_dict['media_fields'] += [field[1:]]
+                    if 'geo' in request.form.keys():
+                        if field[1:] in current_app.config['TWITTER_RETURN_DICT']['geo']:
+                            adv_dict['place_fields'] += [field[1:]]
+                    if 'poll_fields' in request.form.keys():
                         if field[1:] in current_app.config['TWITTER_RETURN_DICT']['poll_fields']:
-                            adv_dict['poll_fields'] += [field[1:], ]
-                    if request.form['id']:
+                            adv_dict['poll_fields'] += [field[1:]]
+                    if 'id' in request.form.keys():
                         if field[1:] in current_app.config['TWITTER_RETURN_DICT']['id']:
-                            adv_dict['expansions'] += [field[1:], ]
-                # If no subfields are selected change the value to none
-                for sub_field in ['user_fields', 'media_fields', 'place_fields', 'poll_fields', 'expansions']:
-                    if len(adv_dict[sub_field]) == 0:
-                        adv_dict[sub_field] = None
+                            adv_dict['expansions'] += [field[1:]]
+            # If no subfields are selected change the value to none
+            for key in ['tweet_fields', 'user_fields', 'media_fields',
+                        'place_fields', 'poll_fields', 'expansions']:
+                if len(adv_dict[key]) == 0:
+                    adv_dict[key] = None
+                else:
+                    adv_dict[key] = ",".join(adv_dict[key])
 
-        extract = models.Extract.query.get(str(extract_uuid))
-        if current_app.config['CELERY_BROKER_URL']:
-            # Add job to task queue
-            tasks.build_extract.delay(extract.uuid, query, **adv_dict)
+            extract = models.Extract.query.get(str(extract_uuid))
+            if current_app.config['CELERY_BROKER_URL']:
+                # Add job to task queue
+                tasks.build_extract.delay(extract.uuid, query, **adv_dict)
 
-        return redirect(extract.get_absolute_url())
+            return redirect(extract.get_absolute_url())
 
 
 @blueprint_extract.route('/method/id/<uuid:extract_uuid>', methods=['GET', 'POST'])
