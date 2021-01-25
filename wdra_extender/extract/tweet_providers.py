@@ -173,16 +173,21 @@ def searchtweets_provider(api_endpoint, request_arguments, additional_search_par
     # More info at dev portal: developer.twitter.com/en/portal/products
     # Configure the searchtweets api
 
+    logger.info(f"req_args\n {request_arguments}")
+
+    logger.info(f"add_sch_par\n {additional_search_parameters}")
+
     available_endpoints = {'search_tweets', }
 
     assert api_endpoint in available_endpoints, f'api_endpoint must be in\n\n {available_endpoints} \n\n' \
                                                 f'other endpoints not yet configured'
-    search_args = load_credentials(filename=current_app.config['TWITTER_CONF'],
-                                   yaml_key=f"{api_endpoint}",
-                                   env_overwrite=False)
-
+    search_creds = load_credentials(filename=current_app.config['TWITTER_CONF'],
+                                    yaml_key=f"{api_endpoint}",
+                                    env_overwrite=False)
+    max_results = int(additional_search_parameters.pop('max_results'))
+    logger.info(f"max_results set to: {max_results}")
     query = gen_request_parameters(request_arguments, **additional_search_parameters)
-    rs = ResultStream(request_parameters=query, **search_args)
+    rs = ResultStream(request_parameters=query, max_tweets=max_results, **search_creds)
     tweets = list(rs.stream())
     logger.info(f"{tweets}")
     tweet_ids, tweets = [[row[i] for row in

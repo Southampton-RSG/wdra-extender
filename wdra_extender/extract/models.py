@@ -72,6 +72,7 @@ class Extract(db.Model):
             logger.info(f"{kwargs}")
             additional_search_settings = {
                 'results_per_call': 10,
+                'max_results': 10,
                 'start_time': "1d",
                 'end_time': "10m",
                 'since_id': None,

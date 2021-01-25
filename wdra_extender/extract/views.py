@@ -64,14 +64,20 @@ def get_by_search(extract_uuid, basic_form):
             query += " ".join(inc_terms)
             if len(exc_terms) > 0:
                 query += " -" + " -".join(exc_terms)
+            query += ''
             # get the additional constraints and return fields
-            adv_dict = {'results_per_call': request.form['results_per_call'],
+            adv_dict = {'results_per_call': 10,
+                        'max_results': 10,
                         'tweet_fields': ["id", "text"],
                         'user_fields': [],
                         'media_fields': [],
                         'place_fields': [],
                         'poll_fields': [],
                         'expansions': []}
+            if 'max_results' in request.form:
+                adv_dict['max_results'] = request.form['max_results']
+            if 'results_per_call' in request.form:
+                adv_dict['results_per_call'] = request.form['results_per_call']
             if 'submit_adv' in request.form:
                 for field in request.form.keys():
                     if field in ['start_time', 'end_time', 'stringify']:

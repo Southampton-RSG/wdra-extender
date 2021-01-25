@@ -16,38 +16,36 @@
 </div>
 <div>
     <div>
-        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#searchHints" role="button" aria-expanded="false" aria-controls="search_hints">
+        <button onclick="show_hints()">
             Show search hints
         </button>
     </div>
-    <div class="collapse" id="searchHints">
-        <div class="card card-body">
-            This form provides a simple wrapper around the twitter recent search API endpoint:
-            <a href="url">https://developer.twitter.com/en/docs/twitter-api/tweets/search/integrate/build-a-rule</a>
-            For full examples see the docs, for more return objects or timeframe searches see the advanced search,
-            and for complete control use the direct input field (not yet implemented).
+    <div id="hints" style="display: none" class="card card-body">
+        This form provides a simple wrapper around the twitter recent search API endpoint:
+        <a href="url">https://developer.twitter.com/en/docs/twitter-api/tweets/search/integrate/build-a-rule</a>
+        For full examples see the docs, for more return objects or timeframe searches see the advanced search,
+        and for complete control use the direct input field (not yet implemented).
 
-            The words given in the 'Search terms' form will be split on commas and added to the search using AND logic,
-            i.e. the tweets returned must include all the search parameters. To implement OR logic, i.e. include tweets
-            that contain either search term, simply add OR with a space 'OR ' before your search term. Finally search
-            terms can be grouped using parentheses, using the AND and OR logic and parentheses search terms of high
-            complexity can be built.
+        The words given in the 'Search terms' form will be split on commas and added to the search using AND logic,
+        i.e. the tweets returned must include all the search parameters. To implement OR logic, i.e. include tweets
+        that contain either search term, simply add OR with a space 'OR ' before your search term. Finally search
+        terms can be grouped using parentheses, using the AND and OR logic and parentheses search terms of high
+        complexity can be built.
 
-            The words in the 'Exclude terms' form will be implemented with NOT logic. Tweets with these terms will not
-            be returned in the search. Words in this list should be alone and not grouped in parentheses.
+        The words in the 'Exclude terms' form will be implemented with NOT logic. Tweets with these terms will not
+        be returned in the search. Words in this list should be alone and not grouped in parentheses.
 
-            In addition we can search for a phrase using quotation marks, i.e. the search
-            <i>Black AND Lives AND Matter</i> may be better implemented as <i>"Black Lives Matter"</i>.
+        In addition we can search for a phrase using quotation marks, i.e. the search
+        <i>Black AND Lives AND Matter</i> may be better implemented as <i>"Black Lives Matter"</i>.
 
-            <b><u>Operators</u></b>
-            The full list of operators can be found by following the link above.
+        <b><u>Operators</u></b>
+        The full list of operators can be found by following the link above.
 
-            An operator can be used to increase the power of your search. We have discussed using quotes to switch from
-            keyword to phrase matching. Other operators include the hashtag # to match <i>exact</i> hashtags, the @ to
-            match usernames. Other operators can assert that tweets contain elements for example 'has:media' asserts
-            that tweets contain a media object. One of the most commonly used operators is '-is:retweet' that excludes
-            retweets from the search terms.
-        </div>
+        An operator can be used to increase the power of your search. We have discussed using quotes to switch from
+        keyword to phrase matching. Other operators include the hashtag # to match <i>exact</i> hashtags, the @ to
+        match usernames. Other operators can assert that tweets contain elements for example 'has:media' asserts
+        that tweets contain a media object. One of the most commonly used operators is '-is:retweet' that excludes
+        retweets from the search terms.
     </div>
 </div>
 {% if basic_form == "True" %}
@@ -64,7 +62,11 @@
             </textarea>
         </div>
         <div>
-            <label for="number_to_return">Results per call (i.e. number of tweets to get, must be greater than 10)</label>
+            <label for="max_results">Number of tweets to get in total, collected in batches specified below</label>
+            <input type="number" class="form-control" id="max_results" name="max_results" value="10">
+        </div>
+        <div>
+            <label for="number_to_return">Results per call (i.e. number of tweets to get per API call, must be greater than 10)</label>
             <input type="number" class="form-control" id="number_to_return" name="results_per_call" value="10">
         </div>
         <button class="btn btn-primary btn-lg btn-block mt" name="submit_basic" type="submit">Submit</button>
@@ -90,8 +92,10 @@
                 </textarea></td>
             </tr>
             <tr>
-                <td><label for="number_to_return">Results per call</label></td>
-                <td colspan="6"><input type="number" class="form-control" id="number_to_return" name="results_per_call" value="10"></td>
+                <td><label for="number_to_return">Results total</label></td>
+                <td colspan="3"><input type="number" class="form-control" id="number_to_return" name="max_results" value="10"></td>
+                <td><label for="results_per_call">Results per call</label></td>
+                <td colspan="3"><input type="number" class="form-control" id="results_per_call" name="results_per_call" value="10"></td>
             </tr>
             <tr>
                 <td></td>
@@ -183,8 +187,17 @@
 
 {% endif %}
 
-<script>
-    function show_options(field_name) {
+<script>function show_hints() {
+    var card = document.getElementById("hints")
+    if (card.style.display === "none"){
+        card.style.display = "block"
+    }
+    else{
+        card.style.display = "none"
+    }
+}
+
+function show_options(field_name) {
         var checkBox = document.getElementById(field_name+"_check");
         var subtable = document.getElementById(field_name+"_subs");
         var secretcol = document.getElementById("secret_col")
