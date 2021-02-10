@@ -5,11 +5,13 @@ from celery import Celery
 import flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
 
 __all__ = [
     'celery',
     'db',
     'migrate',
+    'login_manager',
 ]
 
 
@@ -61,3 +63,4 @@ class FlaskCelery(Celery):
 celery = FlaskCelery()  # pylint: disable=invalid-name
 db = SQLAlchemy()  # pylint: disable=invalid-name
 migrate = Migrate()  # pylint: disable=invalid-name
+login_manager = LoginManager()  # pylint: disable=invalid-name

@@ -2,7 +2,7 @@
 
 Gets settings from environment variables or .env/settings.ini file.
 """
-
+import os
 import pathlib
 
 from decouple import AutoConfig
@@ -10,6 +10,8 @@ import yaml
 
 BASE_DIR = pathlib.Path(__name__).absolute().parent
 config = AutoConfig(search_path=str(BASE_DIR))  # pylint: disable=invalid-name
+
+SECRET_KEY = os.urandom(16)
 
 PLUGIN_DIR = config('PLUGIN_DIR',
                     cast=pathlib.Path,

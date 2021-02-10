@@ -1,7 +1,7 @@
 """Module containing views related to Twitter Extract Bundles."""
 import pathlib
 
-from flask import Blueprint, current_app, render_template, redirect, request, send_from_directory, url_for
+from flask import Blueprint, current_app, render_template, redirect, request, send_from_directory, url_for, session
 
 from . import models, tasks, tools
 
@@ -9,32 +9,78 @@ from . import models, tasks, tools
 blueprint_extract = Blueprint("extract", __name__, url_prefix='/extract')
 
 
-# Methods for assigning a user ID and search parameters ================================================================
-@blueprint_extract.route('/', methods=['POST'])
-def extract_email():
+def get_from_session():
+    rich_dict = {}
+    if 'extract' in session.keys():
+        rich_dict['extract'] = models.Extract.query.get(session['extract'])
+    if 'user' in session.keys():
+        rich_dict['user'] = models.load_user(user_id=session['user'])
+    return rich_dict
+
+
+@blueprint_extract.route('/', methods=['POST', 'GET'])
+def check_email():
     """View to get the user email and create a uuid"""
-    extract = models.Extract(email=request.form['email'])
-    extract.save()
-    return redirect(url_for('extract.select_method', extract_uuid=extract.uuid))
+    if request.method == 'GET':
+        return render_template('index.html')
+    if request.method == 'POST':
+        user_email = request.form['email']
+        user = models.load_user(user_email=user_email)
+        if user is not None:
+            # authenticate user here
+            session['user'] = user.id
+            return redirect(url_for('extract.login'))
+        elif user is None:
+            session['new_user_email'] = user_email
+            return redirect(url_for('extract.new_user'))
 
 
-@blueprint_extract.route('/method/<uuid:extract_uuid>', methods=['GET', 'POST'])
-def select_method(extract_uuid):
+@blueprint_extract.route('/login/', methods=['POST', 'GET'])
+def login():
+    if request.method == 'GET':
+        return render_template('index.html', user_email=session['user'].user_email, auth_fail=False)
+    elif request.method == 'POST':
+        #Auth user here
+        if False:
+            return redirect(url_for('extract.method_select'))
+        else:
+            return render_template('login.html', user_email=session['user'].user_email, auth_fail=True)
+
+
+@blueprint_extract.route('/new_user/', methods=['POST', 'GET'])
+def new_user():
+    rich_session = get_from_session()
+    if request.method == 'GET':
+        email = session['new_user_email']
+        return render_template('new_user.html', user_email=session['new_user_email'])
+    elif request.method == 'POST':
+        for attribute in rich_session['user'].__dict__.keys():
+            if attribute in request.form:
+                rich_session['user'][attribute] = request.form[attribute]
+        rich_session['user'].save()
+        return redirect(url_for('extract.method_select'))
+
+
+# Methods for selecting search parameters ==============================================================================
+@blueprint_extract.route('/method/', methods=['GET', 'POST'])
+def select_method():
     """View to select the extract method"""
     extract_methods = {
         'Search': 'extract.get_by_search',
         'ID': 'extract.get_by_id',
         'Replication': 'extract.get_by_replication'
     }
-
+    rich_session = get_from_session()
     if request.method == "POST":
         selected = request.form.get('method_select')
-        extract = models.Extract.query.get(str(extract_uuid))
-        extract.extract_method = selected
-        extract.save()
-        return redirect(url_for(extract_methods[selected], extract_uuid=extract_uuid, basic_form=True))
+        # Create a new extract to handle the users next request
+        rich_session['extract'] = models.Extract(user_id=session['user'].get_id())
+        session['extract'] = rich_session['extract'].uuid
+        rich_session['extract'].extract_method = selected
+        rich_session['extract'].save()
+        return redirect(url_for(extract_methods[selected], basic_form=True, extract_uuid=rich_session['extract']['uuid']))
     else:
-        return render_template('get_method.html', extract_methods=extract_methods, extract_uuid=extract_uuid)
+        return render_template('get_method.html')
 # ======================================================================================================================
 
 
