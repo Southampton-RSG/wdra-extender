@@ -1,15 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Index Page</h1>
+<h1>WDRA Extender</h1>
+
+<hr>
 
 <form action="{{ url_for('extract.request_extract') }}" method="POST">
-    <label for="field_email">Email address</label>
-    <input type="email" id="field_email" name="email">
+    <div class="input_group">
+        <label for="field_email">Email address</label>
+        <input type="email" class="form-control" id="field_email" name="email">
+    </div>
 
-    <label for="field_tweet_ids">Tweet IDs</label>
-    <textarea type="text" id="field_tweet_ids" name="tweet_ids"></textarea>
+    <div class="input_group mt-2">
+        <label for="field_tweet_ids">Tweet IDs</label>
+        <textarea type="text" class="form-control" id="field_tweet_ids" name="tweet_ids"></textarea>
+    </div>
 
-    <button type="submit">Submit</button>
+    <button class="btn btn-primary btn-lg btn-block mt-3" type="submit">Submit</button>
 </form>
 {% endblock %}

@@ -1,22 +1,22 @@
 """Module containing the Extract model and supporting functionality."""
 
-import datetime
-import logging
 import json
-import time
+import os
+import pathlib
+import tempfile
+import typing
 from uuid import uuid4
+import zipfile
 
 from flask import current_app, url_for
-from twarc import Twarc
-import redis
 
 from ..extensions import db
+from .tweet_providers import get_tweets, save_to_redis
+from .plugins import PluginCollection
 
 __all__ = [
     'Extract',
 ]
-
-logger = logging.getLogger(__name__)
 
 
 class Extract(db.Model):
@@ -53,47 +53,32 @@ class Extract(db.Model):
 
         :param tweet_ids: Tweet IDs to include within this Bundle.
         """
-        logger.info('Processing Bundle %s', self.uuid)
+        current_app.logger.info('Processing Bundle %s', self.uuid)
 
-        config = current_app.config
-        r = redis.Redis(  # pylint: disable=invalid-name
-            host=config['REDIS_HOST'],
-            port=config['REDIS_PORT'],
-            db=config['REDIS_DB'])
+        tweets = get_tweets(
+            tweet_ids, tweet_providers=current_app.config['TWEET_PROVIDERS'])
 
-        uncached_tweet_ids = []
-        cached_tweets = []
+        try:
+            save_to_redis(tweets)
 
-        # Attempt to get all Tweets from cache
-        get_redis_key = lambda i: f'tweet_hydrated:{i}'
-        for tweet_id, tweet_string in zip(
-                tweet_ids, r.mget(map(get_redis_key, tweet_ids))):
+        except ConnectionError as exc:
+            current_app.logger.error('Failed to cache found Tweets: %s', exc)
 
-            if tweet_string is None:
-                uncached_tweet_ids.append(tweet_id)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            work_dir = pathlib.Path(tmp_dir)
+            tweets_file = work_dir.joinpath('tweets.json')
 
-            else:
-                cached_tweets.append(json.loads(tweet_string))
+            with open(tweets_file, mode='w', encoding='utf-8') as json_out:
+                json.dump(tweets, json_out, ensure_ascii=False, indent=4)
 
-        logger.info('Found %d cached Tweets', len(cached_tweets))
+            for plugin in get_plugins().values():
+                output = plugin(tweets_file, tmp_dir)
+                current_app.logger.info(f'Plugin output: {output}')
 
-        if uncached_tweet_ids:
-            logger.info('Fetching %d uncached Tweets', len(uncached_tweet_ids))
-            # Twitter API consumer - handles rate limits for us
-            t = Twarc(  # pylint: disable=invalid-name
-                current_app.config['TWITTER_CONSUMER_KEY'],
-                current_app.config['TWITTER_CONSUMER_SECRET'])
-
-            time.sleep(10)
-
-            # Get data for Tweets not in cache
-            # Then put them in the cache for one day
-            for tweet in t.hydrate(uncached_tweet_ids):
-                redis_key = get_redis_key(tweet['id'])
-                redis_value = json.dumps(tweet)
-                r.setex(redis_key, datetime.timedelta(days=1), redis_value)
-
-                cached_tweets.append(tweet)
+            zip_path = current_app.config['OUTPUT_DIR'].joinpath(
+                self.uuid).with_suffix('.zip')
+            zip_directory(zip_path, work_dir)
+            current_app.logger.info('Zipped output files to %s', zip_path)
 
         self.ready = True
         self.save()
@@ -101,4 +86,24 @@ class Extract(db.Model):
 
     def get_absolute_url(self):
         """Get the URL for this object's detail view."""
-        return url_for('extract.download_extract', extract_uuid=self.uuid)
+        return url_for('extract.detail_extract', extract_uuid=self.uuid)
+
+
+def zip_directory(zip_path: pathlib.Path, dir_path: pathlib.Path):
+    """Create a zipfile from a directory."""
+    if not dir_path.is_dir():
+        raise NotADirectoryError
+
+    with zipfile.ZipFile(zip_path, 'w') as z:  # pylint: disable=invalid-name
+        for root, _, files in os.walk(dir_path):
+            for f in files:  # pylint: disable=invalid-name
+                filepath = pathlib.Path(root, f)
+                z.write(filepath, arcname=filepath.relative_to(dir_path))
+
+
+def get_plugins() -> typing.Dict[pathlib.Path, typing.Callable]:
+    """Get list of plugin classes."""
+    plugin_directories = [
+        current_app.config['PLUGIN_DIR'],
+    ]
+    return PluginCollection(plugin_directories).load_plugins()

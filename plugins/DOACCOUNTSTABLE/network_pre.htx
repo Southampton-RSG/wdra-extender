@@ -1,0 +1,171 @@
+<html>
+<meta charset="utf-8">
+<script src="https://d3js.org/d3-force.v1.min.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-color.v1.min.js"></script>
+<script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script type="text/javascript" src="http://simba.ecs.soton.ac.uk/~lac/WDRAX.d/jLouvain.js"></script>
+
+
+<style>
+body {overflow:hidden;}
+
+.edge{
+  stroke: white;
+  stroke-width: 1;
+}
+.graphSVG{
+  background-color: black;
+}
+
+div.container {
+  width: 100%;
+  border: 1px solid gray;
+}
+div.tooltip {
+  position: absolute;
+  text-align: center;
+  width: 180px;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+  opacity:0;
+}
+</style>
+
+<style>
+th {text-transform:capitalize}
+td {vertical-align: top; font-size:small}
+tbody {
+    display:block;
+    height:500px;
+    overflow:auto;
+}
+thead, tbody tr {
+    display:table;
+    width:100%;
+    table-layout:fixed;/* even columns width , fix width of table too*/
+}
+</style>
+
+<style>
+.spinner { margin: 100px auto; width: 50px; height: 40px; text-align: center; font-size: 10px; } 
+.spinner > div { background-color: #333; height: 100%; width: 6px;
+  display: inline-block;
+  -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+  animation: sk-stretchdelay 1.2s infinite ease-in-out;
+}
+
+.spinner .rect2 {
+  -webkit-animation-delay: -1.1s;
+  animation-delay: -1.1s;
+}
+
+.spinner .rect3 {
+  -webkit-animation-delay: -1.0s;
+  animation-delay: -1.0s;
+}
+
+.spinner .rect4 {
+  -webkit-animation-delay: -0.9s;
+  animation-delay: -0.9s;
+}
+
+.spinner .rect5 {
+  -webkit-animation-delay: -0.8s;
+  animation-delay: -0.8s;
+}
+
+@-webkit-keyframes sk-stretchdelay {
+  0%, 40%, 100% { -webkit-transform: scaleY(0.4) }  
+  20% { -webkit-transform: scaleY(1.0) }
+}
+
+@keyframes sk-stretchdelay {
+  0%, 40%, 100% { 
+    transform: scaleY(0.4);
+    -webkit-transform: scaleY(0.4);
+  }  20% { 
+    transform: scaleY(1.0);
+    -webkit-transform: scaleY(1.0);
+  }
+}
+
+</style>
+
+<style>
+div.search {position: fixed; top: 10px; right:10px;}
+div.choose {position: fixed; top: 40px; right:10px;}
+div.intro {position: fixed; top: 60px; right:10px; width:20%; font-family: sans-serif;}
+</style>
+
+<body>
+  <div class="tooltip"></div>
+  <div class="spinner"> <div class="rect1"></div> <div class="rect2"></div> <div class="rect3"></div> <div class="rect4"></div> <div class="rect5"></div> </div>
+
+<div class="search">
+  <input id="searchBox" type="search" placeholder="Search..." onchange="doSearchBtn" size="20" /> 
+</div>
+<div class="choose">
+  <!-- <label for="graph-select">Choose a graph:</label> -->
+  <select name="graphs" id="graph-select">
+    <option value="full">All tweeters plus mentioned accounts</option>
+    <option value="tweets">All tweeting accounts</option>
+    <option selected value="conversational">Conversational accounts</option>
+    <option value="significant">Accounts with highly retweeted and liked tweets</option>
+    <option value="user">Accounts selected by user</option>
+  </select>
+</div>
+<div class="intro">
+<h2>Twitter Network</h2>
+<ul style="margin-left: 0; padding-left: 0;">
+<li><b>Pan and zoom</b> around the network using the trackpad. Hover over a node to see its details.</li>
+<li>Choose a different <b>graph type</b> with the menu. Conversational graphs are the smallest and most focused. Full graphs may take tens of seconds to draw if showing 20,000+ accounts.</li>
+<li>Nodes are <b>coloured by network clique</b> (accounts most closely associated together within the conversation). Click a node to display table of all the members of its network clique. The initial table shows the biggest network clique. In the table, click a node name to display that node.</li>
+<li><b>Search for invidual nodes</b> in the search box. Search results will appear in the table and be highlighted in yellow in the network.</li>
+</ul>
+<div id="graphStats"></div>
+</div>
+
+  <div id="graphDiv"></div>
+
+  <table></table>
+
+
+<script>
+
+var height = window.innerHeight*0.75;
+var graphWidth =  window.innerWidth*0.75;
+var mx=graphWidth/2, my=height/2
+
+var graphCanvas
+var context
+
+var div
+var simulation 
+var transform 
+var theDATA=evaluateDATA() , data = {nodes:[], edges:[]}
+var popularCliques;
+var mostTweets 
+var closeNode=null, lastCloseID=null
+var SIGLIMIT=10
+var modMetric=-1
+
+const HIGHLIGHT='#555555' // this is terrible practice - a distinguished value for the colour palette lookup that returns a DARKGREY
+//const HIGHLIGHT='#ff0' // this is terrible practice - a distinguished value for the colour palette lookup that returns a BRIGHTYELLOW
+var searchResults=[]
+
+setupOnce()
+doGraph("conversational")
+
+//capture the conversational accounts and store them as the default "user" choice of accounts to make the UX /UI easier
+var userList=theDATA[0].map(x=>x.name)
+
+//this function create a new shallow copy of the data each time, so that it is clean from the d3.force processing
+function evaluateDATA(){ return Object.assign( new Object(),
+// ================ INSERT DATA HERE ||||| ========= [[...nodes...],[...links...]] ======================
+// ================ INSERT DATA HERE VVVVV 

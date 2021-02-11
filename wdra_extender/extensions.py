@@ -29,8 +29,8 @@ class FlaskCelery(Celery):
         self.autodiscover_tasks(['wdra_extender.extract'])
 
     def patch_task(self):
-        """Replace Celery Task type with one that has access to the Flask context."""
-        TaskBase = self.Task
+        """Give Celery Task type access to the Flask context."""
+        TaskBase = self.Task  # noqa
         _celery = self
 
         class ContextTask(TaskBase):  # pylint: disable=too-few-public-methods
@@ -58,6 +58,6 @@ class FlaskCelery(Celery):
         self.config_from_object(get_celery_keys(app.config))
 
 
-celery = FlaskCelery()
-db = SQLAlchemy()
-migrate = Migrate()
+celery = FlaskCelery()  # pylint: disable=invalid-name
+db = SQLAlchemy()  # pylint: disable=invalid-name
+migrate = Migrate()  # pylint: disable=invalid-name

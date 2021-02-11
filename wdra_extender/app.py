@@ -5,10 +5,9 @@ This is the entrypoint to WDRA-Extender.
 
 # pylint: disable=redefined-outer-name
 
-import logging
-import sys
+import importlib
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 from wdra_extender import extract
 from wdra_extender.extensions import celery, db, migrate
@@ -19,13 +18,18 @@ __all__ = [
 ]
 
 
-def create_app(config_object='wdra_extender.settings'):
+def create_app(config_module='wdra_extender.settings'):
     """App factory as in https://flask.palletsprojects.com/en/1.1.x/patterns/appfactories/.
 
     :param config_object: Configuration object to use.
     """
+    config = importlib.import_module(config_module)
+
     app = Flask(__name__)
-    app.config.from_object(config_object)
+    app.config.from_object(config)
+    app.logger.setLevel(config.LOG_LEVEL)
+
+    app.logger.debug('Logger initialised')
 
     register_extensions(app)
     register_blueprints(app)
@@ -40,7 +44,13 @@ def register_extensions(app) -> None:
 
     :param app: Flask App which extensions should be initialised to.
     """
-    celery.init_app(app)
+    if app.config['CELERY_BROKER_URL']:
+        celery.init_app(app)
+
+    else:
+        app.logger.warning(
+            'Running without task queue - not suitable for production')
+
     db.init_app(app)
     migrate.init_app(app, db)
 
@@ -53,18 +63,13 @@ def register_blueprints(app) -> None:
     app.register_blueprint(extract.views.blueprint)
 
 
-def configure_logger(app) -> None:
-    """Send logging to stdout.
-
-    :param app: Flask App for which logging is being handled.
-    """
-    handler = logging.StreamHandler(sys.stdout)
-
-    if not app.logger.handlers:
-        app.logger.addHandler(handler)
+app = create_app()  # pylint: disable=invalid-name
 
 
-app = create_app()
+@app.before_request
+def log_request():
+    """Log each request received."""
+    app.logger.debug(repr(request))
 
 
 @app.route('/')

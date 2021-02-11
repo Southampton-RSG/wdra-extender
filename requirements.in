@@ -3,4 +3,6 @@ celery[redis]
 flask
 flask-migrate
 flask-sqlalchemy
+python-decouple
 twarc
+wordcloud

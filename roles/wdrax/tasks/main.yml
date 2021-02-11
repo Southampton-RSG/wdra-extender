@@ -1,0 +1,91 @@
+---
+
+- block:
+  - name: Create WDRAX user
+    user:
+      name: '{{ wdrax_user }}'
+      groups:
+        - docker
+      append: yes
+
+  - name: Switch to Python2 interpreter for following tasks
+    set_fact:
+      ansible_python_interpreter: python2
+
+  - name: Enable EPEL
+    yum:
+      name: epel-release
+      state: latest
+
+  - name: Install Redis
+    yum:
+      name: redis
+      state: latest
+
+  - name: Switch back to Python3 interpreter
+    set_fact:
+      ansible_python_interpreter: python3
+
+  - name: Start Redis service
+    systemd:
+      name: redis
+      state: started
+      enabled: yes
+
+  become_user: root
+  become: yes
+
+- block:
+  - name: Clone / update from source repo
+    git:
+      repo: 'https://github.com/Southampton-RSG/wdra-extender.git'
+      dest: '{{ project_dir }}'
+      version: '{{ git_branch | default ("master") }}'
+      accept_hostkey: yes
+
+  - name: Install docker-compose
+    pip:
+      name:
+        - docker
+        - docker-compose
+      state: latest
+      extra_args: --user
+
+  - name: Populate docker-compose template
+    template:
+      src: 'docker-compose.yml.j2'
+      dest: '{{ project_dir }}/docker-compose.yml'
+      force: yes
+
+  - name: Touch database file
+    file:
+      path: '{{ project_dir }}/db.sqlite3'
+      state: touch
+      owner: '{{ wdrax_user }}'
+
+  - name: Build Docker image
+    docker_image:
+      build:
+        path: '{{ project_dir }}'
+        network: host
+      name: wdrax
+      tag: '{{ docker_tag }}'
+
+  - name: Run containers with docker-compose
+    docker_compose:
+      project_src: '{{ project_dir }}'
+      state: present
+      recreate: smart
+
+  - name: Perform DB migrations
+    docker_container:
+      name: migrate
+      image: wdrax:{{ docker_tag }}
+      command: python -m flask db upgrade
+      state: started
+      restart: yes
+      volumes:
+        - '{{ project_dir }}/db.sqlite3:/var/www/wdrax/db.sqlite3:z'
+
+  become_user: '{{ wdrax_user }}'
+  become: yes

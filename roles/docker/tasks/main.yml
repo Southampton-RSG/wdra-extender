@@ -1,0 +1,49 @@
+---
+
+- block:
+  - name: Add Docker repo to yum
+    get_url:
+      url: https://download.docker.com/linux/centos/docker-ce.repo
+      dest: /etc/yum.repos.d/docker-ce.repo
+
+  - name: Fix repo link for RHEL7
+    ini_file:
+      dest: /etc/yum.repos.d/docker-ce.repo
+      section: docker-ce-stable
+      option: baseurl
+      value: https://download.docker.com/linux/centos/7/$basearch/stable
+
+  - name: Switch to Python2 interpreter for following tasks
+    set_fact:
+      ansible_python_interpreter: python2
+
+  - name: Install Docker
+    yum:
+      name: '{{ packages }}'
+      state: latest
+      update_cache: yes
+    vars:
+      packages:
+        - git
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+
+  - name: Switch back to Python3 interpreter
+    set_fact:
+      ansible_python_interpreter: python3
+
+  - name: Start Docker service
+    systemd:
+      name: docker
+      state: started
+      enabled: yes
+
+  - name: Install docker-compose
+    get_url:
+      url: https://github.com/docker/compose/releases/download/1.27.4/docker-compose-Linux-x86_64
+      dest: /usr/bin/docker-compose
+      mode: a+x
+
+  become_user: root
+  become: yes

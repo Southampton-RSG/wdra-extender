@@ -1,0 +1,36 @@
+---
+- hosts: all
+  become_method: sudo
+
+  vars:
+    project_dir: /home/{{ wdrax_user }}/wdra-extender
+    wdrax_user: wdrax
+    LOG_LEVEL: INFO  # Passed to web server via docker-compose.yml
+
+  pre_tasks:
+    - name: Switch to Python2 interpreter for following tasks
+      set_fact:
+        ansible_python_interpreter: python2
+
+    - name: Install Ansible prerequisites
+      yum:
+        name: '{{ packages }}'
+        state: latest
+        update_cache: yes
+      vars:
+        packages:
+          - python
+          - python3
+          - python3-setuptools
+          - python3-pip
+          - libselinux-python3
+      become_user: root
+      become: yes
+
+    - name: Switch back to Python3 interpreter
+      set_fact:
+        ansible_python_interpreter: python3
+
+  roles:
+    - docker
+    - wdrax

@@ -1,5 +1,6 @@
 
 # IDEs
+/.idea/
 /.vscode/
 
 # Python
@@ -9,10 +10,17 @@
 # Data
 *.sqlite3
 .lock
+/media/
+TWARC.log
 
 # Config
 /settings.ini
+/docker-compose.yml
+inventory.yml
+vagrant_extra_vars.yml
 
 # Misc
 /notes/
 twarc.log
+.vagrant/
+WDRAX.d/
