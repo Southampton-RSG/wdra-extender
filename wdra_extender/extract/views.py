@@ -47,13 +47,16 @@ def request_extract():
     """View to request a Twitter Extract Bundle."""
     tweet_ids = request.form['tweet_ids'].splitlines()
     tweet_ids = validate_tweet_ids(tweet_ids)
+    current_app.logger.debug(f'Validated {len(tweet_ids)} Tweet IDs')
 
     extract = models.Extract(email=request.form['email'])
     extract.save()
 
     if current_app.config['CELERY_BROKER_URL']:
         # Add job to task queue
+        current_app.logger.debug(f'Handing extract {extract.uuid} to queue')
         tasks.build_extract.delay(extract.uuid, tweet_ids)
+        current_app.logger.debug(f'Handed extract {extract.uuid} to queue')
 
     else:
         # Build the extract now

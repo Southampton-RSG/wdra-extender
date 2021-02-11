@@ -30,6 +30,11 @@ CELERY_BROKER_URL = config(
     default=(None if REDIS_HOST is None else
              f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'))
 
+CELERY_RESULT_BACKEND = config(
+    'CELERY_RESULT_BACKEND',
+    default=CELERY_BROKER_URL
+)
+
 SQLALCHEMY_DATABASE_URI = config(
     'SQLALCHEMY_DATABASE_URI',
     default=f'sqlite:///{BASE_DIR.joinpath("db.sqlite3")}')

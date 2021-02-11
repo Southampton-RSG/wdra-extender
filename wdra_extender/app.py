@@ -7,7 +7,7 @@ This is the entrypoint to WDRA-Extender.
 
 import importlib
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 from wdra_extender import extract
 from wdra_extender.extensions import celery, db, migrate
@@ -28,6 +28,8 @@ def create_app(config_module='wdra_extender.settings'):
     app = Flask(__name__)
     app.config.from_object(config)
     app.logger.setLevel(config.LOG_LEVEL)
+
+    app.logger.debug('Logger initialised')
 
     register_extensions(app)
     register_blueprints(app)
@@ -62,6 +64,12 @@ def register_blueprints(app) -> None:
 
 
 app = create_app()  # pylint: disable=invalid-name
+
+
+@app.before_request
+def log_request():
+    """Log each request received."""
+    app.logger.debug(repr(request))
 
 
 @app.route('/')
