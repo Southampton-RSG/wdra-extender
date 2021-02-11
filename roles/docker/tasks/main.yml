@@ -13,6 +13,10 @@
       option: baseurl
       value: https://download.docker.com/linux/centos/7/$basearch/stable
 
+  - name: Switch to Python2 interpreter for following tasks
+    set_fact:
+      ansible_python_interpreter: python2
+
   - name: Install Docker
     yum:
       name: '{{ packages }}'
@@ -24,6 +28,10 @@
         - docker-ce
         - docker-ce-cli
         - containerd.io
+
+  - name: Switch back to Python3 interpreter
+    set_fact:
+      ansible_python_interpreter: python3
 
   - name: Start Docker service
     systemd:
