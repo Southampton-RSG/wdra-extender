@@ -3,6 +3,7 @@
 from datetime import datetime
 import logging
 import json
+import hashlib
 import os
 import pathlib
 import tempfile
@@ -11,10 +12,10 @@ from uuid import uuid4, UUID
 import zipfile
 
 from flask import current_app, url_for
-from flask_login import UserMixin
+
 from searchtweets import convert_utc_time
 
-from ..extensions import db, login_manager
+from ..extensions import db
 from .tweet_providers import get_tweets_by_id, get_tweets_by_search, save_to_redis
 from .plugins import PluginCollection
 
@@ -143,50 +144,6 @@ class Extract(db.Model):
     def get_absolute_url(self):
         """Get the URL for this object's detail view."""
         return url_for('extract.detail_extract', extract_uuid=self.uuid)
-
-
-class User(UserMixin, db.Model):
-    #: Email address and id of user
-    user_email = db.Column(db.String(254), index=True, nullable=False, unique=True)
-    # assign a temporary ID to deprecate with one generated from email
-    id = db.Column(db.Unicode(16),
-                   default=lambda: str(uuid4()),
-                   index=True,
-                   nullable=False,
-                   primary_key=True,
-                   unique=True)
-    id_set = db.Column(db.Boolean, default=False)
-    twitter_keys = {
-        'consumer_key': db.Column(db.String(), nullable=True),
-        'consumer_secret': db.Column(db.String(), nullable=True),
-        'access_token': db.Column(db.String(), nullable=True),
-        'access_secret': db.Column(db.String(), nullable=True),
-        'barer_token': db.Column(db.String(), nullable=True),
-    }
-
-    def make_id(self):
-        if not self.id_set:
-            # TODO: make this better; currently in the unlikely event two emails have the first 16 characters the same
-            #       the user id will be identical and this will result in rejection due to a non unique key.
-            self.id = str(UUID(bytes=bytes(self.user_email[:16].rjust(16, 'p'), encoding='utf8')))
-
-    def save(self) -> None:
-        """Save this model to the database."""
-        self.make_id()
-        db.session.add(self)
-        db.session.commit()
-
-
-@login_manager.user_loader
-def load_user(user_id=None, user_email=None):
-    if user_email is not None:
-        # TODO: see above
-        user_id = str(UUID(bytes=bytes(user_email[:16].rjust(16, 'p'), encoding='utf8')))
-    try:
-        return User.get_id(user_id)
-    except NotImplementedError as e:
-        logger.info(f"User with {f'id: {user_id}' if user_id is not None else f'email: {user_email}'} not found.")
-        return None
 
 
 def zip_directory(zip_path: pathlib.Path, dir_path: pathlib.Path):

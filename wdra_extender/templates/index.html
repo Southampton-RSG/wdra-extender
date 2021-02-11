@@ -1,12 +1,11 @@
-{% extends 'base.html' %}
+
+{% extends "base.html" %}
 
 {% block content %}
-<h1>WDRA Extender</h1>
-<form action="{{ url_for('extract.check_email') }}" method="POST">
-    <div class="input_group">
-        <label for="field_email">Email address</label>
-        <input type="email" class="form-control" id="field_email" name="email">
-    </div>
-    <button class="btn btn-primary btn-lg btn-block mt-3" type="submit">Submit</button>
-</form>
+<h1 class="title">
+  Flask Login Example
+</h1>
+<h2 class="subtitle">
+  Easy authentication and authorization in Flask.
+</h2>
 {% endblock %}

@@ -10,6 +10,7 @@ import logging.config
 
 from flask import Flask, render_template
 
+from wdra_extender import user
 from wdra_extender import extract
 from wdra_extender.extensions import celery, db, migrate, login_manager
 
@@ -34,6 +35,10 @@ def create_app(config_module='wdra_extender.settings'):
     register_extensions(app)
     register_blueprints(app)
 
+    @login_manager.user_loader
+    def load_user(user_id):
+        # since the user_id is just the primary key of our user table, use it in the query for the user
+        return user.models.User.query.get(int(user_id))
     return app
 
 
@@ -62,6 +67,7 @@ def register_blueprints(app) -> None:
     :param app: Flask App which views should be registered to.
     """
     app.register_blueprint(extract.views.blueprint_extract)
+    app.register_blueprint(user.auth.blueprint_auth)
 
 
 app = create_app()  # pylint: disable=invalid-name

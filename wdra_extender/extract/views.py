@@ -2,6 +2,7 @@
 import pathlib
 
 from flask import Blueprint, current_app, render_template, redirect, request, send_from_directory, url_for, session
+from flask_login import login_required, current_user
 
 from . import models, tasks, tools
 
@@ -17,48 +18,19 @@ def get_from_session():
         rich_dict['user'] = models.load_user(user_id=session['user'])
     return rich_dict
 
-
-@blueprint_extract.route('/', methods=['POST', 'GET'])
-def check_email():
-    """View to get the user email and create a uuid"""
-    if request.method == 'GET':
-        return render_template('index.html')
-    if request.method == 'POST':
-        user_email = request.form['email']
-        user = models.load_user(user_email=user_email)
-        if user is not None:
-            # authenticate user here
-            session['user'] = user.id
-            return redirect(url_for('extract.login'))
-        elif user is None:
-            session['new_user_email'] = user_email
-            return redirect(url_for('extract.new_user'))
+# ======================================================================================================================
+@blueprint_extract.route('/')
+def index():
+    return render_template('index.html')
+# ======================================================================================================================
 
 
-@blueprint_extract.route('/login/', methods=['POST', 'GET'])
-def login():
-    if request.method == 'GET':
-        return render_template('index.html', user_email=session['user'].user_email, auth_fail=False)
-    elif request.method == 'POST':
-        #Auth user here
-        if False:
-            return redirect(url_for('extract.method_select'))
-        else:
-            return render_template('login.html', user_email=session['user'].user_email, auth_fail=True)
-
-
-@blueprint_extract.route('/new_user/', methods=['POST', 'GET'])
-def new_user():
-    rich_session = get_from_session()
-    if request.method == 'GET':
-        email = session['new_user_email']
-        return render_template('new_user.html', user_email=session['new_user_email'])
-    elif request.method == 'POST':
-        for attribute in rich_session['user'].__dict__.keys():
-            if attribute in request.form:
-                rich_session['user'][attribute] = request.form[attribute]
-        rich_session['user'].save()
-        return redirect(url_for('extract.method_select'))
+# User view ============================================================================================================
+@blueprint_extract.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html', name=current_user.name)
+# ======================================================================================================================
 
 
 # Methods for selecting search parameters ==============================================================================
