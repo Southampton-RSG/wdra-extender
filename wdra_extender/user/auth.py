@@ -33,7 +33,7 @@ def login_post():
 
     # if the above check passes, then we know the user has the right credentials
     login_user(user, remember=remember)
-    return redirect(url_for('.extract.profile'))
+    return redirect(url_for('extract.profile'))
 
 
 @blueprint_auth.route('/signup', methods=['POST'])
@@ -42,8 +42,8 @@ def signup_post():
     name = request.form.get('name')
     password = request.form.get('password')
 
-    user = User.query.filter_by(
-        email=email).first()  # if this returns a user, then the email already exists in database
+    # if this returns a user, then the email already exists in database
+    user = User.query.filter_by(email=email).first()
 
     if user:  # if a user is found, we want to redirect back to signup page so user can try again
         flash('Email address already exists')
