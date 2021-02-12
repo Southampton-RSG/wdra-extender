@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>WDRA Extender</h1>
+<h2>Input Twitter API Keys</h2>
+
+<form action="{{ url_for('auth.get_keys_post') }}" method="POST">
+    <div class="input_group">
+        <label for="bearer_token">Bearer Token</label>
+        <textarea type="text" class="form-control" id="bearer_token" name="include_terms"></textarea>
+        <label for="consumer_key">Consumer Key</label>
+        <textarea type="text" class="form-control" id="consumer_key" name="include_terms"></textarea>
+        <label for="consumer_secret">Consumer Key Secret</label>
+        <textarea type="text" class="form-control" id="consumer_secret" name="include_terms"></textarea>
+        <label for="access_token">Access Token</label>
+        <textarea type="text" class="form-control" id="access_token" name="include_terms"></textarea>
+        <label for="access_token_secret">Access Token Secret</label>
+        <textarea type="text" class="form-control" id="access_token_secret" name="include_terms"></textarea>
+    </div>
+    <div>
+        <input class="button1" type="submit" value="Submit">
+    </div>
+</form>
+{% endblock %}

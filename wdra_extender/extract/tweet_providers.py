@@ -2,10 +2,12 @@ import datetime
 import importlib
 import json
 import logging
+import os
 import pathlib
 import typing
 
 from flask import current_app
+from flask_login import current_user
 import redis
 from searchtweets import ResultStream, gen_request_parameters, load_credentials
 from twarc import Twarc
@@ -140,10 +142,10 @@ def twarc_provider(extract_method: str,
 
     # Twitter API consumer - handles rate limits for us
     t = Twarc(  # pylint: disable=invalid-name
-        consumer_key=current_app.config['TWITTER_CONSUMER_KEY'],
-        consumer_secret=current_app.config['TWITTER_CONSUMER_SECRET'],
-        access_token=current_app.config['TWITTER_ACCESS_TOKEN'],
-        access_token_secret=current_app.config['TWITTER_ACCESS_TOKEN_SECRET'],
+        consumer_key=current_user.consumer_key,
+        consumer_secret=current_user.consumer_key_secret,
+        access_token=current_user.access_token,
+        access_token_secret=current_user.access_token_secret,
     )
     if extract_method == 'ID':
         logger.info('Fetching %d uncached Tweets', len(tweet_ids))
@@ -179,11 +181,18 @@ def searchtweets_provider(api_endpoint, request_arguments, additional_search_par
 
     available_endpoints = {'search_tweets', }
 
-    assert api_endpoint in available_endpoints, f'api_endpoint must be in\n\n {available_endpoints} \n\n' \
-                                                f'other endpoints not yet configured'
-    search_creds = load_credentials(filename=current_app.config['TWITTER_CONF'],
-                                    yaml_key=f"{api_endpoint}",
-                                    env_overwrite=False)
+    twitter_creds = current_user.twitter_key_dict()
+
+    assert api_endpoint in twitter_creds.keys(), f'api_endpoint must be in\n\n {available_endpoints} \n\n' \
+                                                 f'other endpoints not yet configured'
+
+    os.environ["SEARCHTWEETS_BEARER_TOKEN"] = twitter_creds[api_endpoint]['barer_token']
+    os.environ["SEARCHTWEETS_ENDPOINT"] = twitter_creds[api_endpoint]['endpoint']
+    os.environ["SEARCHTWEETS_CONSUMER_KEY"] = twitter_creds[api_endpoint]['consumer_key']
+    os.environ["SEARCHTWEETS_CONSUMER_SECRET"] = twitter_creds[api_endpoint]['consumer_secret']
+
+    search_creds = load_credentials(env_overwrite=False)
+
     max_results = int(additional_search_parameters.pop('max_results'))
     logger.info(f"max_results set to: {max_results}")
     query = gen_request_parameters(request_arguments, **additional_search_parameters)

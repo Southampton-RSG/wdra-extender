@@ -1,7 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="title">
-  Welcome, {{ name }}!
-</h1>
+    <h1>WDRA Extender</h1>
+    <h2 class="title">Welcome, {{ name }}!</h2>
+    <form action="{{ url_for('extract.profile', basic_form=basic_form) }}" method="POST">
+        <button class="btn btn-primary btn-lg btn-block mt" name="select_method" type="submit">
+            Select twitter extract method
+        </button>
+        <button class="btn btn-primary btn-lg btn-block mt" name="change_api" type="submit">
+            Change API keys
+        </button>
+    </form>
 {% endblock %}

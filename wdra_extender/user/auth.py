@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
-from flask_login import login_user, logout_user, login_required
+from flask import Blueprint, current_app, render_template, redirect, request, url_for, request, flash, session
+from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from .models import User
 from wdra_extender.extensions import db
@@ -15,6 +15,19 @@ def login():
 @blueprint_auth.route('/signup')
 def signup():
     return render_template('signup.html')
+
+
+@blueprint_auth.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('extract.index'))
+
+
+@blueprint_auth.route('/get_keys')
+@login_required
+def get_keys():
+    return render_template('get_keys.html')
 
 
 @blueprint_auth.route('/login', methods=['POST'])
@@ -33,7 +46,10 @@ def login_post():
 
     # if the above check passes, then we know the user has the right credentials
     login_user(user, remember=remember)
-    return redirect(url_for('extract.profile'))
+    if current_user.twitter_keys_set:
+        return redirect(url_for('extract.profile'))
+    else:
+        return redirect(url_for('auth.get_keys'))
 
 
 @blueprint_auth.route('/signup', methods=['POST'])
@@ -58,8 +74,17 @@ def signup_post():
     return redirect(url_for('auth.login'))
 
 
-@blueprint_auth.route('/logout')
+@blueprint_auth.route('/get_keys', methods=['POST'])
 @login_required
-def logout():
-    logout_user()
-    return redirect(url_for('extract.index'))
+def get_keys_post():
+    current_user.bearer_token = request.form.get('bearer_token')
+    current_user.consumer_key = request.form.get('consumer_key')
+    current_user.consumer_secret = request.form.get('consumer_secret')
+    current_user.access_token = request.form.get('access_token')
+    current_user.access_token_secret = request.form.get('access_token_secret')
+
+    current_user.twitter_keys_set = True
+    current_user.save()
+    return redirect(url_for('extract.profile'))
+
+

@@ -18,18 +18,35 @@ def get_from_session():
         rich_dict['user'] = models.load_user(user_id=session['user'])
     return rich_dict
 
+
 # ======================================================================================================================
-@blueprint_extract.route('/')
+@blueprint_extract.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html')
+    if request.method == 'POST':
+        if 'login' in request.form:
+            return redirect(url_for('auth.login'))
+        if 'sign_up' in request.form:
+            return redirect(url_for('auth.signup'))
+    elif request.method == 'GET':
+        return render_template('index.html')
 # ======================================================================================================================
 
 
 # User view ============================================================================================================
-@blueprint_extract.route('/profile')
+@blueprint_extract.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    return render_template('profile.html', name=current_user.name)
+    # This is the landing page where users should be able to navigate to the following
+    # - Make a new extract bundle
+    # - Alter their API keys
+    # - Anything else we add later
+    if request.method == 'POST':
+        if 'select_method' in request.form:
+            return redirect(url_for('extract.select_method'))
+        if 'change_api' in request.form:
+            return redirect(url_for('auth.get_keys'))
+    elif request.method == 'GET':
+        return render_template('profile.html', name=current_user.name)
 # ======================================================================================================================
 
 
@@ -46,13 +63,13 @@ def select_method():
     if request.method == "POST":
         selected = request.form.get('method_select')
         # Create a new extract to handle the users next request
-        rich_session['extract'] = models.Extract(user_id=session['user'].get_id())
+        rich_session['extract'] = models.Extract(user_id=current_user.get_id())
         session['extract'] = rich_session['extract'].uuid
         rich_session['extract'].extract_method = selected
         rich_session['extract'].save()
-        return redirect(url_for(extract_methods[selected], basic_form=True, extract_uuid=rich_session['extract']['uuid']))
+        return redirect(url_for(extract_methods[selected], basic_form=True, extract_uuid=rich_session['extract'].uuid))
     else:
-        return render_template('get_method.html')
+        return render_template('get_method.html', extract_methods=extract_methods)
 # ======================================================================================================================
 
 

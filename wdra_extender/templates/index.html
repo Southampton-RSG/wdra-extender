@@ -1,11 +1,13 @@
-
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="title">
-  Flask Login Example
-</h1>
-<h2 class="subtitle">
-  Easy authentication and authorization in Flask.
-</h2>
+<h1>WDRA Extender</h1>
+    <form action="{{ url_for('extract.index', basic_form=basic_form) }}" method="POST">
+    <button class="btn btn-primary btn-lg btn-block mt" name="login" type="submit">
+        Login
+    </button>
+    <button class="btn btn-primary btn-lg btn-block mt" name="sign_up" type="submit">
+        Sign Up
+    </button>
+    </form>
 {% endblock %}
