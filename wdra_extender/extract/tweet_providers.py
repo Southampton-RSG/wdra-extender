@@ -5,7 +5,7 @@ import os
 import typing
 
 from flask import current_app
-from flask_login import current_user
+from flask_login import current_user, login_required
 import redis
 from searchtweets import ResultStream, gen_request_parameters, load_credentials
 from twarc import Twarc
@@ -69,6 +69,7 @@ def get_tweets_by_id(
     return found_tweets
 
 
+@login_required
 def get_tweets_by_search(query, additional_search_parameters, tweet_providers) -> typing.List[typing.Mapping]:
     found_tweets = []
     for provider in map(import_object, tweet_providers):
