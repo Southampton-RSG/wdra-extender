@@ -9,8 +9,9 @@ import importlib
 
 from flask import Flask, render_template, request
 
+from wdra_extender import user
 from wdra_extender import extract
-from wdra_extender.extensions import celery, db, migrate
+from wdra_extender.extensions import celery, db, migrate, login_manager
 
 __all__ = [
     'app',
@@ -21,7 +22,7 @@ __all__ = [
 def create_app(config_module='wdra_extender.settings'):
     """App factory as in https://flask.palletsprojects.com/en/1.1.x/patterns/appfactories/.
 
-    :param config_object: Configuration object to use.
+    :param config_module: Configuration object to use.
     """
     config = importlib.import_module(config_module)
 
@@ -34,6 +35,10 @@ def create_app(config_module='wdra_extender.settings'):
     register_extensions(app)
     register_blueprints(app)
 
+    @login_manager.user_loader
+    def load_user(user_id):
+        # since the user_id is just the primary key of our user table, use it in the query for the user
+        return user.models.User.query.get(int(user_id))
     return app
 
 
@@ -53,6 +58,7 @@ def register_extensions(app) -> None:
 
     db.init_app(app)
     migrate.init_app(app, db)
+    login_manager.init_app(app)
 
 
 def register_blueprints(app) -> None:
@@ -60,7 +66,8 @@ def register_blueprints(app) -> None:
 
     :param app: Flask App which views should be registered to.
     """
-    app.register_blueprint(extract.views.blueprint)
+    app.register_blueprint(extract.views.blueprint_extract)
+    app.register_blueprint(user.auth.blueprint_auth)
 
 
 app = create_app()  # pylint: disable=invalid-name

@@ -18,6 +18,9 @@ TWARC.log
 /docker-compose.yml
 inventory.yml
 vagrant_extra_vars.yml
+.twitter_keys.yaml
+.idea/
+.DS_Store
 
 # Misc
 /notes/

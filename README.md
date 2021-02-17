@@ -28,7 +28,6 @@ The method used to get these configuration values into WDRAX is different in eac
 
 To run a local version of WDRAX for testing purposes there are a number of options described below.
 
-
 #### Using Flask Directly
 
 For development and initial testing, it's useful to run WDRAX with a minimum of additional infrastructure.
@@ -36,10 +35,13 @@ Flask provides a minimal web server which we can use for this.
 
 This method uses a `settings.ini` file to provide configuration - copy the `settings.ini.j2` template and fill in the missing values.
 
+First a redis (https://redis.io/download) data store is required. Install and launch for your system. (MacOS use brew or source)
+
 ```
 $ python3 -m venv venv
 $ source venv/bin/activate
 $ pip install -r requirements.txt
+$ celery -A wdra_extender.app:celery worker --loglevel=info --concurrency=1
 $ export FLASK_APP="wdra_extender/app.py"
 $ python -m flask db upgrade
 $ python -m flask run

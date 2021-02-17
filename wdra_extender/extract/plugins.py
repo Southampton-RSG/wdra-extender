@@ -90,9 +90,7 @@ def executable_plugin(filepath) -> typing.Callable:
             # Process returned non-zero status
             current_app.logger.error('Plugin failed: %s', filepath.parent.name)
             log_proc_output(proc, level=logging.ERROR)
-
             raise
-
         else:
             log_proc_output(proc, level=logging.DEBUG)
 
@@ -123,8 +121,9 @@ class PluginCollection:
 
         if len(main_files) > 1:
             raise IOError('Plugin has more than one main.* file')
-
+        
         raise IOError('Plugin has no main.* file')
+
 
     def load_plugins(self) -> typing.Dict[pathlib.Path, typing.Callable]:
         """Load plugins from the specified directories."""
@@ -139,8 +138,7 @@ class PluginCollection:
                     plugin_path = self.get_main_file(dir_path)
 
                 except IOError as exc:
-                    current_app.logger.error('Error loading plugin %s: %s',
-                                             dir_path, str(exc))
+                    current_app.logger.error('Error loading plugin %s: %s', dir_path, str(exc))
                     continue
 
                 current_app.logger.info('Loaded executable plugin: %s',
