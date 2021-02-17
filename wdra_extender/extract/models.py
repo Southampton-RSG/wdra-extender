@@ -23,8 +23,6 @@ __all__ = [
     'Extract',
 ]
 
-logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
-
 
 class Extract(db.Model):
     """A Twitter Extract Bundle.
@@ -69,6 +67,7 @@ class Extract(db.Model):
                       extract.method == Search: A search query string to be processed and **kwargs will be populated
                       with keyword arguments
         """
+
         logger.info(f'Processing Bundle {self.uuid}, using method {self.extract_method}')
         if self.extract_method == "ID":
             tweets = get_tweets_by_id(query,
@@ -120,7 +119,7 @@ class Extract(db.Model):
         try:
             save_to_redis(tweets)
         except ConnectionError as exc:
-            logger.error('Failed to cache found Tweets: %s', exc)
+            current_app.logger.error('Failed to cache found Tweets: %s', exc)
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             work_dir = pathlib.Path(tmp_dir)
@@ -131,11 +130,11 @@ class Extract(db.Model):
 
             for plugin in get_plugins().values():
                 output = plugin(tweets_file, tmp_dir)
-                logger.info(output)
+                current_app.logger.info(f'Plugin output: {output}')
 
             zip_path = current_app.config['OUTPUT_DIR'].joinpath(self.uuid).with_suffix('.zip')
             zip_directory(zip_path, work_dir)
-            logger.info('Zipped output files to %s', zip_path)
+            current_app.logger.info('Zipped output files to %s', zip_path)
 
         self.ready = True
         self.save()
@@ -152,7 +151,7 @@ def zip_directory(zip_path: pathlib.Path, dir_path: pathlib.Path):
         raise NotADirectoryError
 
     with zipfile.ZipFile(zip_path, 'w') as z:  # pylint: disable=invalid-name
-        for root, dirs, files in os.walk(dir_path):
+        for root, _, files in os.walk(dir_path):
             for f in files:  # pylint: disable=invalid-name
                 filepath = pathlib.Path(root, f)
                 z.write(filepath, arcname=filepath.relative_to(dir_path))

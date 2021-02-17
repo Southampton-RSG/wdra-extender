@@ -20,7 +20,26 @@ __all__ = [
     'twarc_provider',
 ]
 
-logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
+
+class ContextProxyLogger(logging.Logger):
+    """Logger proxy for when we may be inside or outside of the Flask context.
+
+    If inside the Flask context, redirect to the Flask app logger.
+    If outside the Flask context, act as a default Python logger.
+    """
+    def __getattribute__(self, name: str) -> typing.Any:
+        try:
+            return current_app.logger.__getattribute__(name)
+
+        except RuntimeError as exc:
+            if 'outside of application context' in str(exc):
+                return super().__getattribute__(name)
+
+            raise
+
+
+# Logger safe for use inside or outside of Flask context
+logger = ContextProxyLogger(__name__)
 
 
 def import_object(name: str) -> object:
@@ -54,8 +73,14 @@ def get_tweets_by_id(
         else:
             found_tweets.extend(provider_found_tweets)
             tweet_ids -= provider_found_ids
+            logger.info(
+                f'Found {len(provider_found_ids)} tweets using provider \'{provider.__name__}\''
+            )
 
-        if not tweet_ids:
+        if tweet_ids:
+            logger.info(f'There are {len(tweet_ids)} tweets left to find')
+
+        else:
             logger.info('Found all tweets - skipping remaining providers')
             break
 
@@ -126,8 +151,6 @@ def redis_provider(
             found_tweet_ids.add(tweet_id)
             found_tweets.append(json.loads(tweet_string))
 
-    logger.info('Found %d cached Tweets', len(found_tweet_ids))
-
     return found_tweet_ids, found_tweets
 
 
@@ -139,6 +162,7 @@ def twarc_provider(extract_method: str,
 
     Uses Twarc Twitter API connector - https://github.com/DocNow/twarc.
     """
+
 
     # Twitter API consumer - handles rate limits for us
     t = Twarc(  # pylint: disable=invalid-name

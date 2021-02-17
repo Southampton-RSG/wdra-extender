@@ -119,17 +119,18 @@ class PluginCollection:
 
             raise IOError('Plugin main.* file is not executable')
 
-        elif len(main_files) > 1:
+        if len(main_files) > 1:
             raise IOError('Plugin has more than one main.* file')
+        
+        raise IOError('Plugin has no main.* file')
 
-        else:
-            raise IOError('Plugin has no main.* file')
 
     def load_plugins(self) -> typing.Dict[pathlib.Path, typing.Callable]:
         """Load plugins from the specified directories."""
         # Load executable files as plugins
         for directory in self.plugin_directories:
-            current_app.logger.info('Loading plugins from directory: %s', directory)
+            current_app.logger.info('Loading plugins from directory: %s',
+                                    directory)
 
             subdirs = sorted(p for p in directory.iterdir() if p.is_dir())
             for dir_path in subdirs:
@@ -140,7 +141,8 @@ class PluginCollection:
                     current_app.logger.error('Error loading plugin %s: %s', dir_path, str(exc))
                     continue
 
-                current_app.logger.info('Loaded executable plugin: %s', dir_path.name)
+                current_app.logger.info('Loaded executable plugin: %s',
+                                        dir_path.name)
                 self.plugins[dir_path] = executable_plugin(plugin_path)
 
         return self.plugins

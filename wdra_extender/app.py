@@ -6,9 +6,8 @@ This is the entrypoint to WDRA-Extender.
 # pylint: disable=redefined-outer-name
 
 import importlib
-import logging.config
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 from wdra_extender import user
 from wdra_extender import extract
@@ -18,8 +17,6 @@ __all__ = [
     'app',
     'celery',
 ]
-
-logger = logging.getLogger(__name__)
 
 
 def create_app(config_module='wdra_extender.settings'):
@@ -31,6 +28,9 @@ def create_app(config_module='wdra_extender.settings'):
 
     app = Flask(__name__)
     app.config.from_object(config)
+    app.logger.setLevel(config.LOG_LEVEL)
+
+    app.logger.debug('Logger initialised')
 
     register_extensions(app)
     register_blueprints(app)
@@ -53,7 +53,7 @@ def register_extensions(app) -> None:
         celery.init_app(app)
 
     else:
-        logger.warning(
+        app.logger.warning(
             'Running without task queue - not suitable for production')
 
     db.init_app(app)
@@ -71,6 +71,12 @@ def register_blueprints(app) -> None:
 
 
 app = create_app()  # pylint: disable=invalid-name
+
+
+@app.before_request
+def log_request():
+    """Log each request received."""
+    app.logger.debug(repr(request))
 
 
 @app.route('/')

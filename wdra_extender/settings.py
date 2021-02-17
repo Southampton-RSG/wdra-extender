@@ -11,6 +11,7 @@ import yaml
 BASE_DIR = pathlib.Path(__name__).absolute().parent
 config = AutoConfig(search_path=str(BASE_DIR))  # pylint: disable=invalid-name
 
+LOG_LEVEL = config('LOG_LEVEL', default='INFO')
 SECRET_KEY = os.urandom(16)
 
 PLUGIN_DIR = config('PLUGIN_DIR',
@@ -30,6 +31,11 @@ CELERY_BROKER_URL = config(
     'CELERY_BROKER_URL',
     default=(None if REDIS_HOST is None else
              f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'))
+
+CELERY_RESULT_BACKEND = config(
+    'CELERY_RESULT_BACKEND',
+    default=CELERY_BROKER_URL
+)
 
 SQLALCHEMY_DATABASE_URI = config(
     'SQLALCHEMY_DATABASE_URI',
