@@ -5,6 +5,6 @@ flask-migrate
 flask-sqlalchemy
 flask-login
 python-decouple
-searchtweets
+searchtweets-v2
 twarc
 wordcloud
