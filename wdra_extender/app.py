@@ -16,6 +16,7 @@ from wdra_extender.extensions import celery, db, migrate, login_manager
 __all__ = [
     'app',
     'celery',
+    'create_app',
 ]
 
 
@@ -26,48 +27,48 @@ def create_app(config_module='wdra_extender.settings'):
     """
     config = importlib.import_module(config_module)
 
-    app = Flask(__name__)
-    app.config.from_object(config)
-    app.logger.setLevel(config.LOG_LEVEL)
+    _app = Flask(__name__)
+    _app.config.from_object(config)
+    _app.logger.setLevel(config.LOG_LEVEL)
 
-    app.logger.debug('Logger initialised')
+    _app.logger.debug('Logger initialised')
 
-    register_extensions(app)
-    register_blueprints(app)
+    register_extensions(_app)
+    register_blueprints(_app)
 
     @login_manager.user_loader
     def load_user(user_id):
         # since the user_id is just the primary key of our user table, use it in the query for the user
         return user.models.User.query.get(int(user_id))
-    return app
+    return _app
 
 
-def register_extensions(app) -> None:
+def register_extensions(_app) -> None:
     """Initialise all Flask extensions.
 
     This populates settings and gives them access to the Flask context.
 
-    :param app: Flask App which extensions should be initialised to.
+    :param _app: Flask App which extensions should be initialised to.
     """
-    if app.config['CELERY_BROKER_URL']:
-        celery.init_app(app)
+    if _app.config['CELERY_BROKER_URL']:
+        celery.init_app(_app)
 
     else:
-        app.logger.warning(
+        _app.logger.warning(
             'Running without task queue - not suitable for production')
 
-    db.init_app(app)
-    migrate.init_app(app, db)
-    login_manager.init_app(app)
+    db.init_app(_app)
+    migrate.init_app(_app, db)
+    login_manager.init_app(_app)
 
 
-def register_blueprints(app) -> None:
+def register_blueprints(_app) -> None:
     """Register all views with the Flask controller.
 
-    :param app: Flask App which views should be registered to.
+    :param _app: Flask App which views should be registered to.
     """
-    app.register_blueprint(extract.views.blueprint_extract)
-    app.register_blueprint(user.auth.blueprint_auth)
+    _app.register_blueprint(extract.views.blueprint_extract)
+    _app.register_blueprint(user.auth.blueprint_auth)
 
 
 app = create_app()  # pylint: disable=invalid-name

@@ -155,14 +155,13 @@ def redis_provider(
 
 
 def twarc_provider(extract_method: str,
-                   tweet_ids: typing.Iterable[int]=None,
+                   tweet_ids: typing.Iterable[int] = None,
                    search_dict: dict = {}
                    ) -> typing.Tuple[typing.Set[int], typing.List[typing.Mapping]]:
     """Get a list of Tweets from their IDs sourced from the Twitter API.
 
     Uses Twarc Twitter API connector - https://github.com/DocNow/twarc.
     """
-
 
     # Twitter API consumer - handles rate limits for us
     t = Twarc(  # pylint: disable=invalid-name
