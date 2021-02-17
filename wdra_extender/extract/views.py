@@ -8,6 +8,9 @@ from . import models, tasks, tools
 
 blueprint_extract = Blueprint("extract", __name__, url_prefix='/extract')
 
+# Logger safe for use inside or outside of Flask context
+logger = tools.ContextProxyLogger(__name__)
+
 
 def get_from_session():
     rich_dict = {}

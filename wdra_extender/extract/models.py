@@ -1,14 +1,12 @@
 """Module containing the Extract model and supporting functionality."""
 
 from datetime import datetime
-import logging
 import json
-import hashlib
 import os
 import pathlib
 import tempfile
 import typing
-from uuid import uuid4, UUID
+from uuid import uuid4
 import zipfile
 
 from flask import current_app, url_for
@@ -18,6 +16,12 @@ from searchtweets import convert_utc_time
 from ..extensions import db
 from .tweet_providers import get_tweets_by_id, get_tweets_by_search, save_to_redis
 from .plugins import PluginCollection
+from .tools import ContextProxyLogger
+
+
+# Logger safe for use inside or outside of Flask context
+logger = ContextProxyLogger(__name__)
+
 
 __all__ = [
     'Extract',

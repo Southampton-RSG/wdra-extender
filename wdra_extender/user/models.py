@@ -1,6 +1,10 @@
 from flask_login import UserMixin
 from ..extensions import db
 
+from ..extract.tools import ContextProxyLogger
+# Logger safe for use inside or outside of Flask context
+logger = ContextProxyLogger(__name__)
+
 __all__ = [
     'User',
 ]

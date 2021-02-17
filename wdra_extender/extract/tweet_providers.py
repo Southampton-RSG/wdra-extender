@@ -1,7 +1,6 @@
 import datetime
 import importlib
 import json
-import logging
 import os
 import typing
 
@@ -10,6 +9,11 @@ from flask_login import current_user
 import redis
 from searchtweets import ResultStream, gen_request_parameters, load_credentials
 from twarc import Twarc
+
+from .tools import ContextProxyLogger
+# Logger safe for use inside or outside of Flask context
+logger = ContextProxyLogger(__name__)
+
 
 __all__ = [
     'get_tweets_by_id',
@@ -20,25 +24,7 @@ __all__ = [
 ]
 
 
-class ContextProxyLogger(logging.Logger):
-    """Logger proxy for when we may be inside or outside of the Flask context.
 
-    If inside the Flask context, redirect to the Flask app logger.
-    If outside the Flask context, act as a default Python logger.
-    """
-    def __getattribute__(self, name: str) -> typing.Any:
-        try:
-            return current_app.logger.__getattribute__(name)
-
-        except RuntimeError as exc:
-            if 'outside of application context' in str(exc):
-                return super().__getattribute__(name)
-
-            raise
-
-
-# Logger safe for use inside or outside of Flask context
-logger = ContextProxyLogger(__name__)
 
 
 def import_object(name: str) -> object:

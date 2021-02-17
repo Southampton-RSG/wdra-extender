@@ -4,6 +4,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from .models import User
 from wdra_extender.extensions import db
 
+from ..extract.tools import ContextProxyLogger
+# Logger safe for use inside or outside of Flask context
+logger = ContextProxyLogger(__name__)
+
 blueprint_auth = Blueprint('auth', __name__)
 
 
