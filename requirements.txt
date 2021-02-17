@@ -22,6 +22,8 @@ click==7.1.2
     # via flask
 cycler==0.10.0
     # via matplotlib
+flask-login==0.5.0
+    # via -r requirements.in
 flask-migrate==2.5.3
     # via -r requirements.in
 flask-sqlalchemy==2.4.1
@@ -31,6 +33,7 @@ flask-sqlalchemy==2.4.1
 flask==1.1.2
     # via
     #   -r requirements.in
+    #   flask-login
     #   flask-migrate
     #   flask-sqlalchemy
 idna==2.9
