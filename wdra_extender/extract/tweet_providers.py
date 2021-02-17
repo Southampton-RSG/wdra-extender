@@ -24,9 +24,6 @@ __all__ = [
 ]
 
 
-
-
-
 def import_object(name: str) -> object:
     """Get a single object from a module."""
     module_name, object_name = name.rsplit('.', 1)
