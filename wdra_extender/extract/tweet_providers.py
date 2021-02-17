@@ -3,7 +3,6 @@ import importlib
 import json
 import logging
 import os
-import pathlib
 import typing
 
 from flask import current_app
