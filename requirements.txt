@@ -89,12 +89,18 @@ python-editor==1.0.4
     # via alembic
 pytz==2020.1
     # via celery
+pyyaml==5.4.1
+    # via searchtweets
 redis==3.5.2
     # via celery
 requests-oauthlib==1.3.0
     # via twarc
 requests==2.23.0
-    # via requests-oauthlib
+    # via
+    #   requests-oauthlib
+    #   searchtweets
+searchtweets==1.7.6
+    # via -r requirements.in
 six==1.15.0
     # via
     #   cycler
@@ -106,6 +112,8 @@ sqlalchemy==1.3.17
     #   flask-sqlalchemy
 twarc==1.8.3
     # via -r requirements.in
+tweet-parser==1.13.2
+    # via searchtweets
 urllib3==1.25.9
     # via requests
 vine==1.3.0
