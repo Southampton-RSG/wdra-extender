@@ -11,7 +11,7 @@ from flask import Flask, render_template, request
 
 from wdra_extender import user
 from wdra_extender import extract
-from wdra_extender.extensions import celery, db, migrate, login_manager
+from wdra_extender.extensions import make_celery, db, migrate, login_manager
 
 __all__ = [
     'app',
@@ -33,17 +33,17 @@ def create_app(config_module='wdra_extender.settings'):
 
     _app.logger.debug('Logger initialised')
 
-    register_extensions(_app)
+    _celery = register_extensions(_app)
     register_blueprints(_app)
 
     @login_manager.user_loader
     def load_user(user_id):
         # since the user_id is just the primary key of our user table, use it in the query for the user
         return user.models.User.query.get(int(user_id))
-    return _app
+    return _app, _celery
 
 
-def register_extensions(_app) -> None:
+def register_extensions(_app):
     """Initialise all Flask extensions.
 
     This populates settings and gives them access to the Flask context.
@@ -51,7 +51,7 @@ def register_extensions(_app) -> None:
     :param _app: Flask App which extensions should be initialised to.
     """
     if _app.config['CELERY_BROKER_URL']:
-        celery.init_app(_app)
+        _celery = make_celery(_app)
 
     else:
         _app.logger.warning(
@@ -60,6 +60,7 @@ def register_extensions(_app) -> None:
     db.init_app(_app)
     migrate.init_app(_app, db)
     login_manager.init_app(_app)
+    return _celery
 
 
 def register_blueprints(_app) -> None:
@@ -71,7 +72,7 @@ def register_blueprints(_app) -> None:
     _app.register_blueprint(user.auth.blueprint_auth)
 
 
-app = create_app()  # pylint: disable=invalid-name
+app, celery = create_app()  # pylint: disable=invalid-name
 
 
 @app.before_request

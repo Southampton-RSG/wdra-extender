@@ -10,6 +10,7 @@ from uuid import uuid4
 import zipfile
 
 from flask import current_app, url_for
+from flask_login import login_required
 
 from searchtweets import convert_utc_time
 
@@ -61,6 +62,7 @@ class Extract(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    @login_required
     def build(self, query, **kwargs):
         """Build a requested Twitter extract.
 
@@ -131,6 +133,7 @@ class Extract(db.Model):
 
             with open(tweets_file, mode='w', encoding='utf-8') as json_out:
                 json.dump(tweets, json_out, ensure_ascii=False, indent=4)
+                current_app.logger.info(f'Tweets saved to json')
 
             for plugin in get_plugins().values():
                 output = plugin(tweets_file, tmp_dir)

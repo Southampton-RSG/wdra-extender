@@ -81,12 +81,10 @@ def signup_post():
 @blueprint_auth.route('/get_keys', methods=['POST'])
 @login_required
 def get_keys_post():
-    current_user.bearer_token = request.form.get('bearer_token')
+    """current_user.bearer_token = request.form.get('bearer_token')
     current_user.consumer_key = request.form.get('consumer_key')
     current_user.consumer_secret = request.form.get('consumer_secret')
     current_user.access_token = request.form.get('access_token')
-    current_user.access_token_secret = request.form.get('access_token_secret')
-
-    current_user.twitter_keys_set = True
-    current_user.save()
+    current_user.access_token_secret = request.form.get('access_token_secret')"""
+    current_user.set_keys(request.form)
     return redirect(url_for('extract.profile'))

@@ -77,6 +77,7 @@ def select_method():
 
 # Methods for getting the twitter data =================================================================================
 @blueprint_extract.route('/method/search/<basic_form>/<uuid:extract_uuid>', methods=['GET', 'POST'])
+@login_required
 def get_by_search(extract_uuid, basic_form):
     """View to request a Twitter extract Bundle using search parameters"""
     if request.method == 'GET':
@@ -162,7 +163,7 @@ def get_by_search(extract_uuid, basic_form):
             extract = models.Extract.query.get(str(extract_uuid))
             if current_app.config['CELERY_BROKER_URL']:
                 # Add job to task queue
-                tasks.build_extract.delay(extract.uuid, query, **adv_dict)
+                tasks.build_extract(extract.uuid, query, **adv_dict)
 
             return redirect(extract.get_absolute_url())
 

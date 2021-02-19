@@ -18,16 +18,28 @@ class User(UserMixin, db.Model):
 
     # these keys may need to be adjusted if in the future different keys are required for different endpoints
     twitter_keys_set = db.Column(db.Boolean, default=False)
-    barer_token = db.Column(db.String(), nullable=True)
+    bearer_token = db.Column(db.String(), nullable=True)
     consumer_key = db.Column(db.String(), nullable=True)
     consumer_secret = db.Column(db.String(), nullable=True)
     access_token = db.Column(db.String(), nullable=True)
     access_token_secret = db.Column(db.String(), nullable=True)
 
+    def set_keys(self, form):
+        self.bearer_token = form.get('bearer_token')
+        self.consumer_key = form.get('consumer_key')
+        self.consumer_secret = form.get('consumer_secret')
+        self.access_token = form.get('access_token')
+        self.access_token_secret = form.get('access_token_secret')
+        self.twitter_keys_set = True
+        self.save()
+
+    def get_key(self, key: str):
+        return self.__getattribute__(key)
+
     def twitter_key_dict(self):
         twitter_keys = {endpoint_name:
                         {
-                            'barer_token': self.barer_token,
+                            'bearer_token': self.bearer_token,
                             'consumer_key': self.consumer_key,
                             'consumer_secret': self.consumer_secret,
                             'endpoint': f'https://api.twitter.com/2/{endpoint_str}'

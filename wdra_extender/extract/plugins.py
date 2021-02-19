@@ -8,6 +8,7 @@ import subprocess
 import typing
 
 from flask import current_app
+from flask_login import login_required, current_user
 
 
 class PluginBase(metaclass=abc.ABCMeta):
@@ -54,7 +55,7 @@ def log_proc_output(proc: subprocess.CompletedProcess,
         log(line)
     log('-- End plugin STDERR')
 
-
+@login_required
 def executable_plugin(filepath) -> typing.Callable:
     """Factory to construct an Executable Plugin from a filepath.
 
@@ -75,10 +76,11 @@ def executable_plugin(filepath) -> typing.Callable:
                 'TWITTER_CONSUMER_KEY', 'TWITTER_CONSUMER_SECRET',
                 'TWITTER_ACCESS_TOKEN', 'TWITTER_ACCESS_TOKEN_SECRET'
         }:
-            env[key.replace('TWITTER_', '')] = current_app.config[key]
+            env[key.replace('TWITTER_', '')] = current_user.get_key(key[8:].lower())
 
-        current_app.logger.info('Executing plugin: %s', filepath.parent.name)
+        current_app.logger.info(f'Executing plugin: {filepath.parent.name}')
         try:
+            current_app.logger.debug(f'{filepath}, {tweets_file}')
             proc = subprocess.run([filepath, tweets_file],
                                   cwd=work_dir,
                                   check=True,
@@ -123,7 +125,6 @@ class PluginCollection:
             raise IOError('Plugin has more than one main.* file')
         
         raise IOError('Plugin has no main.* file')
-
 
     def load_plugins(self) -> typing.Dict[pathlib.Path, typing.Callable]:
         """Load plugins from the specified directories."""

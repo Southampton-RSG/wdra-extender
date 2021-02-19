@@ -163,6 +163,7 @@ def twarc_provider(extract_method: str,
     return found_tweet_ids, found_tweets
 
 
+@login_required
 def searchtweets_provider(api_endpoint, request_arguments, additional_search_parameters):
     """ Download tweets via the searchtweets_v2 package for the TwitterV2 API.
     https://github.com/twitterdev/search-tweets-python/tree/v2
@@ -192,7 +193,7 @@ def searchtweets_provider(api_endpoint, request_arguments, additional_search_par
     assert api_endpoint in twitter_creds.keys(), f'api_endpoint must be in\n\n {available_endpoints} \n\n' \
                                                  f'other endpoints not yet configured'
 
-    os.environ["SEARCHTWEETS_BEARER_TOKEN"] = twitter_creds[api_endpoint]['barer_token']
+    os.environ["SEARCHTWEETS_BEARER_TOKEN"] = twitter_creds[api_endpoint]['bearer_token']
     os.environ["SEARCHTWEETS_ENDPOINT"] = twitter_creds[api_endpoint]['endpoint']
     os.environ["SEARCHTWEETS_CONSUMER_KEY"] = twitter_creds[api_endpoint]['consumer_key']
     os.environ["SEARCHTWEETS_CONSUMER_SECRET"] = twitter_creds[api_endpoint]['consumer_secret']
