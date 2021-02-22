@@ -8,7 +8,6 @@ import subprocess
 import typing
 
 from flask import current_app
-from flask_login import login_required, current_user
 
 
 class PluginBase(metaclass=abc.ABCMeta):
@@ -55,7 +54,7 @@ def log_proc_output(proc: subprocess.CompletedProcess,
         log(line)
     log('-- End plugin STDERR')
 
-@login_required
+
 def executable_plugin(filepath) -> typing.Callable:
     """Factory to construct an Executable Plugin from a filepath.
 
@@ -63,7 +62,7 @@ def executable_plugin(filepath) -> typing.Callable:
     the tweet data provided by it to WDRAX and produces a number
     of output files in the specified working directory.
     """
-    def run(tweets_file: pathlib.Path = None, work_dir: pathlib.Path = None):
+    def run(tweets_file: pathlib.Path = None, work_dir: pathlib.Path = None, twitter_key_dict: dict = None):
         """Run an executable file as a WDRAX plugin.
 
         The file is expected to save files in the working directory
@@ -76,13 +75,13 @@ def executable_plugin(filepath) -> typing.Callable:
                 'TWITTER_CONSUMER_KEY', 'TWITTER_CONSUMER_SECRET',
                 'TWITTER_ACCESS_TOKEN', 'TWITTER_ACCESS_TOKEN_SECRET'
         }:
-            env[key.replace('TWITTER_', '')] = current_user.get_key(key[8:].lower())
+            env[key.replace('TWITTER_', '')] = twitter_key_dict['search_tweets'][key[8:].lower()]
 
         current_app.logger.info(f'Executing plugin: {filepath.parent.name}')
         try:
             current_app.logger.debug(f'{filepath}, {tweets_file}')
-            proc = subprocess.run([filepath, tweets_file],
-                                  cwd=work_dir,
+            proc = subprocess.run([str(filepath), str(tweets_file)],
+                                  cwd=str(work_dir),
                                   check=True,
                                   capture_output=True,
                                   env=env,

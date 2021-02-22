@@ -62,8 +62,7 @@ class Extract(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    @login_required
-    def build(self, query, **kwargs):
+    def build(self, query, twitter_key_dict, **kwargs):
         """Build a requested Twitter extract.
 
         Called by `extract.tasks.build_extract` Celery task.
@@ -77,6 +76,7 @@ class Extract(db.Model):
         logger.info(f'Processing Bundle {self.uuid}, using method {self.extract_method}')
         if self.extract_method == "ID":
             tweets = get_tweets_by_id(query,
+                                      twitter_key_dict=twitter_key_dict,
                                       tweet_providers=current_app.config['TWEET_PROVIDERS'])
         elif self.extract_method == "Search":
             logger.info(f"{kwargs}")
@@ -120,8 +120,10 @@ class Extract(db.Model):
                 assert compare_time(additional_search_settings['start_time'],
                                     additional_search_settings['end_time']), \
                        "'Date to' must be after 'Date from'"
-            tweets = get_tweets_by_search(query, additional_search_settings, current_app.config['TWEET_PROVIDERS_V2'])
-
+            tweets = get_tweets_by_search(query,
+                                          twitter_key_dict,
+                                          additional_search_settings,
+                                          current_app.config['TWEET_PROVIDERS_V2'])
         try:
             save_to_redis(tweets)
         except ConnectionError as exc:
@@ -136,7 +138,7 @@ class Extract(db.Model):
                 current_app.logger.info(f'Tweets saved to json')
 
             for plugin in get_plugins().values():
-                output = plugin(tweets_file, tmp_dir)
+                output = plugin(tweets_file, tmp_dir, twitter_key_dict)
                 current_app.logger.info(f'Plugin output: {output}')
 
             zip_path = current_app.config['OUTPUT_DIR'].joinpath(self.uuid).with_suffix('.zip')

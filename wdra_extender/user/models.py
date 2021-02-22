@@ -39,6 +39,8 @@ class User(UserMixin, db.Model):
     def twitter_key_dict(self):
         twitter_keys = {endpoint_name:
                         {
+                            'access_token': self.access_token,
+                            'access_token_secret': self.access_token_secret,
                             'bearer_token': self.bearer_token,
                             'consumer_key': self.consumer_key,
                             'consumer_secret': self.consumer_secret,

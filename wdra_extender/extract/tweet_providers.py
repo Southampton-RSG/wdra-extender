@@ -69,12 +69,13 @@ def get_tweets_by_id(
     return found_tweets
 
 
-@login_required
-def get_tweets_by_search(query, additional_search_parameters, tweet_providers) -> typing.List[typing.Mapping]:
+def get_tweets_by_search(query, twitter_key_dict,
+                         additional_search_parameters, tweet_providers) -> typing.List[typing.Mapping]:
     found_tweets = []
     for provider in map(import_object, tweet_providers):
         try:
-            provider_found_ids, provider_found_tweets = provider('search_tweets', query, additional_search_parameters)
+            provider_found_ids, provider_found_tweets = provider('search_tweets', twitter_key_dict,
+                                                                 query, additional_search_parameters)
         except ConnectionError as exc:
             logger.error('Failed to execute Tweet provider: %s', exc)
         else:
@@ -138,6 +139,7 @@ def redis_provider(
 
 
 def twarc_provider(extract_method: str,
+                   twitter_key_dict: dict,
                    tweet_ids: typing.Iterable[int] = None,
                    search_dict: dict = {}
                    ) -> typing.Tuple[typing.Set[int], typing.List[typing.Mapping]]:
@@ -148,10 +150,10 @@ def twarc_provider(extract_method: str,
 
     # Twitter API consumer - handles rate limits for us
     t = Twarc(  # pylint: disable=invalid-name
-        consumer_key=current_user.consumer_key,
-        consumer_secret=current_user.consumer_key_secret,
-        access_token=current_user.access_token,
-        access_token_secret=current_user.access_token_secret,
+        consumer_key=twitter_key_dict['consumer_key'],
+        consumer_secret=twitter_key_dict['consumer_key_secret'],
+        access_token=twitter_key_dict['access_token'],
+        access_token_secret=twitter_key_dict['access_token_secret'],
     )
     if extract_method == 'ID':
         logger.info('Fetching %d uncached Tweets', len(tweet_ids))
@@ -163,8 +165,7 @@ def twarc_provider(extract_method: str,
     return found_tweet_ids, found_tweets
 
 
-@login_required
-def searchtweets_provider(api_endpoint, request_arguments, additional_search_parameters):
+def searchtweets_provider(api_endpoint, twitter_key_dict, request_arguments, additional_search_parameters):
     """ Download tweets via the searchtweets_v2 package for the TwitterV2 API.
     https://github.com/twitterdev/search-tweets-python/tree/v2
     """
@@ -188,15 +189,13 @@ def searchtweets_provider(api_endpoint, request_arguments, additional_search_par
 
     available_endpoints = {'search_tweets', }
 
-    twitter_creds = current_user.twitter_key_dict()
+    assert api_endpoint in twitter_key_dict.keys(), f'api_endpoint must be in\n\n {available_endpoints} \n\n' \
+                                                    f'other endpoints not yet configured'
 
-    assert api_endpoint in twitter_creds.keys(), f'api_endpoint must be in\n\n {available_endpoints} \n\n' \
-                                                 f'other endpoints not yet configured'
-
-    os.environ["SEARCHTWEETS_BEARER_TOKEN"] = twitter_creds[api_endpoint]['bearer_token']
-    os.environ["SEARCHTWEETS_ENDPOINT"] = twitter_creds[api_endpoint]['endpoint']
-    os.environ["SEARCHTWEETS_CONSUMER_KEY"] = twitter_creds[api_endpoint]['consumer_key']
-    os.environ["SEARCHTWEETS_CONSUMER_SECRET"] = twitter_creds[api_endpoint]['consumer_secret']
+    os.environ["SEARCHTWEETS_BEARER_TOKEN"] = twitter_key_dict[api_endpoint]['bearer_token']
+    os.environ["SEARCHTWEETS_ENDPOINT"] = twitter_key_dict[api_endpoint]['endpoint']
+    os.environ["SEARCHTWEETS_CONSUMER_KEY"] = twitter_key_dict[api_endpoint]['consumer_key']
+    os.environ["SEARCHTWEETS_CONSUMER_SECRET"] = twitter_key_dict[api_endpoint]['consumer_secret']
 
     search_creds = load_credentials(env_overwrite=False)
 

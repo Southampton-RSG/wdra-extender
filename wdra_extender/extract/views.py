@@ -3,8 +3,7 @@ import pathlib
 
 from flask import Blueprint, current_app, render_template, redirect, request, send_from_directory, url_for, session
 from flask_login import login_required, current_user
-
-from . import models, tasks, tools
+from . import models, tools
 
 blueprint_extract = Blueprint("extract", __name__, url_prefix='/extract')
 
@@ -22,7 +21,7 @@ def get_from_session():
 
 
 # ======================================================================================================================
-@blueprint_extract.route('/', methods=['GET', 'POST'])
+@blueprint_extract.route('/index', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         if 'login' in request.form:
@@ -163,7 +162,8 @@ def get_by_search(extract_uuid, basic_form):
             extract = models.Extract.query.get(str(extract_uuid))
             if current_app.config['CELERY_BROKER_URL']:
                 # Add job to task queue
-                tasks.build_extract(extract.uuid, query, **adv_dict)
+                from ..tasks import build_extract
+                build_extract.delay(extract.uuid, query, **adv_dict)
 
             return redirect(extract.get_absolute_url())
 
@@ -180,11 +180,12 @@ def get_by_id(extract_uuid):
         if current_app.config['CELERY_BROKER_URL']:
             # Add job to task queue
             current_app.logger.debug(f'Handing extract {extract.uuid} to queue')
-            tasks.build_extract.delay(extract.uuid, tweet_ids)
+            from ..tasks import build_extract
+            build_extract(extract.uuid, tweet_ids)
             current_app.logger.debug(f'Handed extract {extract.uuid} to queue')
         else:
             # Build the extract now
-            extract.build(tweet_ids)
+            extract.build.delay(tweet_ids)
 
         return redirect(extract.get_absolute_url())
     else:

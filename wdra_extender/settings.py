@@ -37,6 +37,11 @@ CELERY_RESULT_BACKEND = config(
     default=CELERY_BROKER_URL
 )
 
+CELERY_IMPORTS = config(
+    'CELERY_IMPORTS',
+    default=("wdra_extender.tasks", )
+)
+
 SQLALCHEMY_DATABASE_URI = config(
     'SQLALCHEMY_DATABASE_URI',
     default=f'sqlite:///{BASE_DIR.joinpath("db.sqlite3")}')

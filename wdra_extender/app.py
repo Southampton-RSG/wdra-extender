@@ -9,9 +9,8 @@ import importlib
 
 from flask import Flask, render_template, request
 
-from wdra_extender import user
-from wdra_extender import extract
-from wdra_extender.extensions import make_celery, db, migrate, login_manager
+from wdra_extender import user, extract
+from wdra_extender.extensions import db, migrate, login_manager, make_celery
 
 __all__ = [
     'app',
@@ -33,14 +32,14 @@ def create_app(config_module='wdra_extender.settings'):
 
     _app.logger.debug('Logger initialised')
 
-    _celery = register_extensions(_app)
+    register_extensions(_app)
     register_blueprints(_app)
 
     @login_manager.user_loader
     def load_user(user_id):
         # since the user_id is just the primary key of our user table, use it in the query for the user
         return user.models.User.query.get(int(user_id))
-    return _app, _celery
+    return _app
 
 
 def register_extensions(_app):
@@ -50,17 +49,10 @@ def register_extensions(_app):
 
     :param _app: Flask App which extensions should be initialised to.
     """
-    if _app.config['CELERY_BROKER_URL']:
-        _celery = make_celery(_app)
-
-    else:
-        _app.logger.warning(
-            'Running without task queue - not suitable for production')
 
     db.init_app(_app)
     migrate.init_app(_app, db)
     login_manager.init_app(_app)
-    return _celery
 
 
 def register_blueprints(_app) -> None:
@@ -72,7 +64,8 @@ def register_blueprints(_app) -> None:
     _app.register_blueprint(user.auth.blueprint_auth)
 
 
-app, celery = create_app()  # pylint: disable=invalid-name
+app = create_app()  # pylint: disable=invalid-name
+celery = make_celery(app)
 
 
 @app.before_request
@@ -81,7 +74,7 @@ def log_request():
     app.logger.debug(repr(request))
 
 
-@app.route('/')
+@app.route('/index')
 def index():
     """Static page where users will land when first accessing WDRA-Extender."""
     return render_template('index.html')

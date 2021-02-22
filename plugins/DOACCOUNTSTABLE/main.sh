@@ -64,7 +64,7 @@ echo "Account	Author	Author+Retweets	Mentions	Mentions+Retweets	Name	Description
   sed -e '/^[^	]*	|/s/|/		/' -e 's/|//' -e 's/$/		/' |
   cut -f 1-5 > $TABL
 
-# TABL just recreates the data that we had in the original javasceript client software.
+# TABL just recreates the data that we had in the original javascript client software.
 # now we want to get all the supplementary data about all the accounts - authors or mentioned
 # technically, we could get most of it for the authors from the original TWARC tweet data
 # but not for the non-authors. So we're getting all the data for all the accounts from scratch
