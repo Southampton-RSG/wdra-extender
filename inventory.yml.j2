@@ -3,12 +3,7 @@ all:
     {{ deployment_host }}:
 
   vars:
-    git_branch: master
-    docker_tag: master
-
-    TWITTER_ACCESS_TOKEN: {{ TWITTER_ACCESS_TOKEN }}
-    TWITTER_ACCESS_TOKEN_SECRET: {{ TWITTER_ACCESS_TOKEN_SECRET }}
-    TWITTER_CONSUMER_KEY: {{ TWITTER_CONSUMER_KEY }}
-    TWITTER_CONSUMER_SECRET: {{ TWITTER_CONSUMER_SECRET }}
+    git_branch: dev
+    docker_tag: dev
 
     LOG_LEVEL: INFO

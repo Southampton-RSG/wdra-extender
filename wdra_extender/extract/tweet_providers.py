@@ -150,10 +150,10 @@ def twarc_provider(extract_method: str,
 
     # Twitter API consumer - handles rate limits for us
     t = Twarc(  # pylint: disable=invalid-name
-        consumer_key=twitter_key_dict['consumer_key'],
-        consumer_secret=twitter_key_dict['consumer_key_secret'],
-        access_token=twitter_key_dict['access_token'],
-        access_token_secret=twitter_key_dict['access_token_secret'],
+        consumer_key=twitter_key_dict['search_tweets']['consumer_key'],
+        consumer_secret=twitter_key_dict['search_tweets']['consumer_key_secret'],
+        access_token=twitter_key_dict['search_tweets']['access_token'],
+        access_token_secret=twitter_key_dict['search_tweets']['access_token_secret'],
     )
     if extract_method == 'ID':
         logger.info('Fetching %d uncached Tweets', len(tweet_ids))
