@@ -1,16 +1,15 @@
 ---
-- hosts: all
+# file: playbook.yml
+- hosts: dev
   become_method: sudo
 
   vars:
     project_dir: /home/{{ wdrax_user }}/wdra-extender
     wdrax_user: wdrax
-    LOG_LEVEL: INFO  # Passed to web server via docker-compose.yml
+    deploy_type: dev
+    LOG_LEVEL: DEBUG  # Passed to web server via docker-compose.yml
 
   pre_tasks:
-    - name: Switch to Python2 interpreter for following tasks
-      set_fact:
-        ansible_python_interpreter: python2
 
     - name: Install Ansible prerequisites
       yum:

@@ -51,7 +51,7 @@ WDRAX will be accessible on localhost using port 8000.
 
 #### Using Docker
 
-Docker with `docker-compose` allows us to split the application into multiple independent components and run these together.
+Docker with `docker-compose` (easy install via pip3) allows us to split the application into multiple independent components and run these together.
 Since this is how we'll be running in production, it can be useful to test this locally as well.
 
 This method embeds the configuration in a `docker-compose.yml` file - copy the `docker-compose.yml.j2` template and fill in the missing values.

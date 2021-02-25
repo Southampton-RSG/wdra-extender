@@ -1,21 +1,17 @@
 ---
-
+# file: roles/docker/tasks/main.yml
 - block:
-  - name: Add Docker repo to yum
+  - name: CentOS-8
     get_url:
       url: https://download.docker.com/linux/centos/docker-ce.repo
       dest: /etc/yum.repos.d/docker-ce.repo
-
-  - name: Fix repo link for RHEL7
-    ini_file:
+    when: "'dev' in inventory_hostname"
+  # RHEL-8
+  - name: RHEL-8
+    get_url:
+      url: https://download.docker.com/linux/rhel/docker-ce.repo
       dest: /etc/yum.repos.d/docker-ce.repo
-      section: docker-ce-stable
-      option: baseurl
-      value: https://download.docker.com/linux/centos/7/$basearch/stable
-
-  - name: Switch to Python2 interpreter for following tasks
-    set_fact:
-      ansible_python_interpreter: python2
+    when: "'deploy_pp' in inventory_hostname"
 
   - name: Install Docker
     yum:
@@ -28,10 +24,6 @@
         - docker-ce
         - docker-ce-cli
         - containerd.io
-
-  - name: Switch back to Python3 interpreter
-    set_fact:
-      ansible_python_interpreter: python3
 
   - name: Start Docker service
     systemd:

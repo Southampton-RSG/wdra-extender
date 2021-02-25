@@ -1,11 +1,11 @@
 version: "3.8"
 services:
   wdrax:
-    build:
+    build: .
     environment:
       # Web server component never connects to Twitter API
       - REDIS_HOST=redis
-      - LOG_LEVEL={{ LOG_LEVEL }}
+      - LOG_LEVEL={{ LOG_LE_tag=VEL }}
     image: wdrax:{{ docker_tag }}
     ports:
       - 8000:8000
