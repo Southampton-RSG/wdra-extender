@@ -18,6 +18,7 @@
       name: '{{ packages }}'
       state: latest
       update_cache: yes
+      enablerepo: /etc/yum.repos.d/docker-ce.repo
     vars:
       packages:
         - git
