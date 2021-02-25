@@ -2,29 +2,26 @@
 # file: roles/docker/tasks/main.yml
 - block:
   - name: CentOS-8
-    get_url:
-      url: https://download.docker.com/linux/centos/docker-ce.repo
-      dest: /etc/yum.repos.d/docker-ce.repo
-    when: "'dev' in inventory_hostname"
+    dnf:
+      enablerepo: https://download.docker.com/linux/centos/docker-ce.repo
+    when: vars.deploy_type == 0
   # RHEL-8
   - name: RHEL-8
-    get_url:
-      url: https://download.docker.com/linux/rhel/docker-ce.repo
-      dest: /etc/yum.repos.d/docker-ce.repo
-    when: "'deploy_pp' in inventory_hostname"
+    dnf:
+      enablerepo: https://download.docker.com/linux/rhel/docker-ce.repo
+    when: vars.deploy_type == 1
 
   - name: Install Docker
-    yum:
+    dnf:
       name: '{{ packages }}'
       state: latest
       update_cache: yes
-      enablerepo: /etc/yum.repos.d/docker-ce.repo
     vars:
       packages:
-        - git
         - docker-ce
         - docker-ce-cli
         - containerd.io
+        - git
 
   - name: Start Docker service
     systemd:
@@ -34,7 +31,7 @@
 
   - name: Install docker-compose
     get_url:
-      url: https://github.com/docker/compose/releases/download/1.27.4/docker-compose-Linux-x86_64
+      url: https://github.com/docker/compose/releases/download/1.28.4/docker-compose-Linux-x86_64
       dest: /usr/bin/docker-compose
       mode: a+x
 

@@ -65,6 +65,7 @@
           network: host
         name: wdrax
         tag: '{{ docker_tag }}'
+        source: build
 
     - name: Run containers with docker-compose
       docker_compose:

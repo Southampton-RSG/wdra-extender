@@ -18,10 +18,6 @@ services:
     build: .
     environment:
       - REDIS_HOST=localhost  # This is on the host machine
-      - TWITTER_CONSUMER_KEY={{ TWITTER_CONSUMER_KEY }}
-      - TWITTER_CONSUMER_SECRET={{ TWITTER_CONSUMER_SECRET }}
-      - TWITTER_ACCESS_TOKEN={{ TWITTER_ACCESS_TOKEN }}
-      - TWITTER_ACCESS_TOKEN_SECRET={{ TWITTER_ACCESS_TOKEN_SECRET }}
       - LOG_LEVEL={{ LOG_LEVEL }}
     image: wdrax:{{ docker_tag }}
     command: celery -A wdra_extender.app:celery worker --loglevel=debug --concurrency=1

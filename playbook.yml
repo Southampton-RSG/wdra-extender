@@ -2,17 +2,14 @@
 # file: playbook.yml
 - hosts: dev
   become_method: sudo
-
   vars:
     project_dir: /home/{{ wdrax_user }}/wdra-extender
     wdrax_user: wdrax
-    deploy_type: dev
     LOG_LEVEL: DEBUG  # Passed to web server via docker-compose.yml
 
   pre_tasks:
-
     - name: Install Ansible prerequisites
-      yum:
+      dnf:
         name: '{{ packages }}'
         state: latest
         update_cache: yes
@@ -23,6 +20,7 @@
           - python3-pip
           - libselinux-python3
           - yum-utils
+          - git
       become_user: root
       become: yes
 
