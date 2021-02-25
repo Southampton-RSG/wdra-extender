@@ -25,10 +25,6 @@
       become_user: root
       become: yes
 
-    - name: Switch back to Python3 interpreter
-      set_fact:
-        ansible_python_interpreter: python3
-
   roles:
     - docker
     - wdrax
