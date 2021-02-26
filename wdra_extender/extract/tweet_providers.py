@@ -5,7 +5,6 @@ import os
 import typing
 
 from flask import current_app
-from flask_login import current_user, login_required
 import redis
 from searchtweets import ResultStream, gen_request_parameters, load_credentials
 from twarc import Twarc
@@ -112,9 +111,7 @@ def save_to_redis(
         raise ConnectionError from exc
 
 
-def redis_provider(
-    tweet_ids: typing.Iterable[int]
-) -> typing.Tuple[typing.List[int], typing.List[typing.Mapping]]:
+def redis_provider(tweet_ids: typing.Iterable[int]):
     config = current_app.config
     r = redis.Redis(  # pylint: disable=invalid-name
         host=config['REDIS_HOST'],
