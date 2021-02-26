@@ -16,7 +16,6 @@ TWARC.log
 # Config
 /settings.ini
 /docker-compose.yml
-inventory.yml
 vagrant_extra_vars.yml
 .twitter_keys.yaml
 .idea/

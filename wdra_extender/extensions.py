@@ -24,7 +24,7 @@ def make_celery(_app):
         broker='redis://localhost:6379/0'
     )
     celery.conf.update(_app.config)
-    TaskBase = celery.Task
+    TaskBase = celery.Task  # pylint: disable=invalid-name
 
     class ContextTask(TaskBase):
         abstract = True

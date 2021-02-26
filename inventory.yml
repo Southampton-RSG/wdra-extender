@@ -1,0 +1,22 @@
+---
+# file: inventory.yml
+all:
+    children:
+      dev:
+        hosts:
+          192.168.98.10
+        vars:
+          deploy_type: 0
+          git_branch: dev
+          docker_tag: dev
+
+          LOG_LEVEL: DEBUG
+      deploy_pp:
+        hosts:
+          # 192.168.175.15 # MR VM
+        vars:
+          deploy_type: 1
+          git_branch: deploy_pp
+          docker_tag: seploy_pp
+
+          LOG_LEVEL: INFO

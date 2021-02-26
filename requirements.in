@@ -1,5 +1,6 @@
 # Generate requirements.txt using pip-tools
 celery[redis]
+python-decouple
 flask
 flask-migrate
 flask-sqlalchemy
