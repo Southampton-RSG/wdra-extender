@@ -1,4 +1,3 @@
-import typing
 import unittest
 
 from wdra_extender.extract import tweet_providers

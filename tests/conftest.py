@@ -21,9 +21,26 @@ def client():
 
     with wdrax.app.test_client() as client:
         with wdrax.app.app_context():
-            # wdrax.register_extensions()
-            pass
+            wdrax.register_extensions()
         yield client
 
     os.close(db_fd)
     os.unlink(wdrax.app.config['DATABASE'])
+
+
+def test_empty_db(client):
+    """Start with a blank database."""
+
+    rv = client.get('/')
+    assert b'No entries here so far' in rv.data
+
+
+def login(client, username, password):
+    return client.post('/login', data=dict(
+        username=username,
+        password=password
+    ), follow_redirects=True)
+
+
+def logout(client):
+    return client.get('/logout', follow_redirects=True)

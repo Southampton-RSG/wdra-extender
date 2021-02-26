@@ -1,5 +1,6 @@
 """Module containing the Extract model and supporting functionality."""
 
+import csv
 from datetime import datetime
 import json
 import os
@@ -130,15 +131,23 @@ class Extract(db.Model):
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             work_dir = pathlib.Path(tmp_dir)
-            tweets_file = work_dir.joinpath('tweets.json')
+            tweets_file_json = work_dir.joinpath('tweets.json')
+            tweets_file_csv = work_dir.joinpath('tweets.csv')
 
-            with open(tweets_file, mode='w', encoding='utf-8') as json_out:
+            with open(tweets_file_json, mode='w', encoding='utf-8') as json_out:
                 json.dump(tweets, json_out, ensure_ascii=False, indent=4)
                 current_app.logger.info(f'Tweets saved to json')
+            with open(tweets_file_csv, mode='w', encoding='utf-8') as csv_out:
+                csv_writer = csv.writer(csv_out)
+                header = tweets[0].keys()
+                csv_writer.writerow(header)
+                for tweet in tweets:
+                    csv_writer.writerow(tweet.values())
+                current_app.logger.info(f'Tweets saved to json')
 
-            for plugin in get_plugins().values():
-                output = plugin(tweets_file, tmp_dir, twitter_key_dict)
-                current_app.logger.info(f'Plugin output: {output}')
+            """for plugin in get_plugins().values():
+                output = plugin(tweets_file_json, tmp_dir, twitter_key_dict)
+                current_app.logger.info(f'Plugin output: {output}')"""
 
             zip_path = current_app.config['OUTPUT_DIR'].joinpath(self.uuid).with_suffix('.zip')
             zip_directory(zip_path, work_dir)
