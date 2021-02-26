@@ -1,7 +1,7 @@
 """Module containing setup code for Flask extensions."""
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, login_required
+from flask_login import LoginManager
 from celery import Celery
 
 __all__ = [

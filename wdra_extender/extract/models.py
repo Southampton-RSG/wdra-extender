@@ -10,7 +10,6 @@ from uuid import uuid4
 import zipfile
 
 from flask import current_app, url_for
-from flask_login import login_required
 
 from searchtweets import convert_utc_time
 
