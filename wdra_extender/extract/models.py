@@ -137,13 +137,22 @@ class Extract(db.Model):
             with open(tweets_file_json, mode='w', encoding='utf-8') as json_out:
                 json.dump(tweets, json_out, ensure_ascii=False, indent=4)
                 current_app.logger.info(f'Tweets saved to json')
-            with open(tweets_file_csv, mode='w', encoding='utf-8') as csv_out:
-                csv_writer = csv.writer(csv_out)
-                header = tweets[0].keys()
-                csv_writer.writerow(header)
+            with open(tweets_file_csv, mode='w', newline='') as csv_out:
+                fieldnames = tweets[0].keys()
+                csv_writer = csv.DictWriter(csv_out, fieldnames=fieldnames)
+                csv_writer.writeheader()
                 for tweet in tweets:
-                    csv_writer.writerow(tweet.values())
+                    csv_writer.writerow(tweet)
                 current_app.logger.info(f'Tweets saved to json')
+
+            with open('names.csv', 'w', newline='') as csvfile:
+                fieldnames = ['first_name', 'last_name']
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+                writer.writeheader()
+                writer.writerow({'first_name': 'Baked', 'last_name': 'Beans'})
+                writer.writerow({'first_name': 'Lovely', 'last_name': 'Spam'})
+                writer.writerow({'first_name': 'Wonderful', 'last_name': 'Spam'})
 
             """for plugin in get_plugins().values():
                 output = plugin(tweets_file_json, tmp_dir, twitter_key_dict)
