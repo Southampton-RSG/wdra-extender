@@ -16,7 +16,7 @@ all:
           pjg1c19@192.168.175.15 # MR VM
         vars:
           deploy_type: 1
-          git_branch: deploy_pp
-          docker_tag: seploy_pp
+          git_branch: dev #deploy_pp
+          docker_tag: dev #deploy_pp
 
           LOG_LEVEL: INFO

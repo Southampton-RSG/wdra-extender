@@ -75,6 +75,7 @@ def log_request():
 
 
 @app.route('/')
+@app.route('/index')
 def index():
     """Static page where users will land when first accessing WDRA-Extender."""
     return render_template('index.html')
