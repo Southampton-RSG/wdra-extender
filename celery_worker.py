@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os
+import celery
 from wdra_extender.app import create_app
 
 app = create_app()

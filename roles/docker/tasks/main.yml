@@ -7,8 +7,9 @@
     when: vars.deploy_type == 0
   # RHEL-8
   - name: RHEL-8
-    dnf:
-      enablerepo: https://download.docker.com/linux/rhel/docker-ce.repo
+    get_url:
+      url: https://download.docker.com/linux/centos/docker-ce.repo
+      dest: /etc/yum.repos.d/docker-ce.repo
     when: vars.deploy_type == 1
 
   - name: Install Docker

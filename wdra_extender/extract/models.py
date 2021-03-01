@@ -1,5 +1,6 @@
 """Module containing the Extract model and supporting functionality."""
 
+import collections
 import csv
 from datetime import datetime
 import json
@@ -131,6 +132,8 @@ class Extract(db.Model):
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             work_dir = pathlib.Path(tmp_dir)
+            query_file_txt = work_dir.joinpath('search_query.txt')
+            search_returns_json = work_dir.joinpath('search_fields.json')
             tweets_file_json = work_dir.joinpath('tweets.json')
             tweets_file_csv = work_dir.joinpath('tweets.csv')
 
@@ -138,12 +141,22 @@ class Extract(db.Model):
                 json.dump(tweets, json_out, ensure_ascii=False, indent=4)
                 current_app.logger.info(f'Tweets saved to json')
             with open(tweets_file_csv, mode='w', newline='') as csv_out:
-                fieldnames = tweets[0].keys()
+                fieldnames = ['id', 'conservation_id', 'author_id', 'text', 'created_at', 'lang',
+                              'public_metrics_retweet_count', 'public_metrics_reply_count',
+                              'public_metrics_like_count', 'public_metrics_quote_count']
                 csv_writer = csv.DictWriter(csv_out, fieldnames=fieldnames)
                 csv_writer.writeheader()
                 for tweet in tweets:
-                    csv_writer.writerow(tweet)
-                current_app.logger.info(f'Tweets saved to json')
+                    flat_tweet = flatten(tweet)
+                    abridged_tweet = {key: flat_tweet.get(key, "") for key in fieldnames}
+                    csv_writer.writerow(abridged_tweet)
+                current_app.logger.info(f'Tweets saved to csv')
+            with open(search_returns_json, mode='w', encoding='utf-8') as search_out:
+                json.dump(additional_search_settings, search_out, ensure_ascii=False, indent=4)
+                current_app.logger.info(f'Return fields saved')
+            with open(query_file_txt, mode='w') as query_out:
+                query_out.write(query)
+                current_app.logger.info(f'API query saved')
 
             """for plugin in get_plugins().values():
                 output = plugin(tweets_file_json, tmp_dir, twitter_key_dict)
@@ -187,3 +200,14 @@ def compare_time(start, end):
     start_utc = convert_utc_time(start)
     end_utc = convert_utc_time(end)
     return datetime.strptime(start_utc, '%Y-%m-%dT%H:%M:%SZ') < datetime.strptime(end_utc, '%Y-%m-%dT%H:%M:%SZ')
+
+
+def flatten(d, parent_key='', sep='_'):
+    items = []
+    for k, v in d.items():
+        new_key = parent_key + sep + k if parent_key else k
+        if isinstance(v, collections.MutableMapping):
+            items.extend(flatten(v, new_key, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)

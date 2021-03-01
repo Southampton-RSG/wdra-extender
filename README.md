@@ -4,13 +4,12 @@ Web Data Research Assistant Extender
 
 ## About WDRAX
 
-The WDRA Extender service uses the Twitter API to fill out data captured from the WDRA (Web Data Research Assistant) Chrome extension.
-
 The WDRA browser plugin allows researchers to capture Twitter data without any programming expertise.
-Its key value is in being able to capture data from historic searches, which is impossible with the Twitter API and any services built on the API.
 The weakness of WebDataRA is that it is limited to data that is visible in the Web page.
-This complementary web service allows you to backfill the WebDataRA spreadsheet with extra information obtained from the Twitter API or with analysis that is difficult to produce in a browser.
-It is anticipated that more powerful text and network analysis will be provided to facilitate more sophisticated computation social science research methodologies.
+This complementary web service allows you to backfill the WebDataRA spreadsheet with extra information obtained from the
+Twitter API or with analysis that is difficult to produce in a browser.
+It is anticipated that more powerful text and network analysis will be provided to facilitate more sophisticated
+computation social science research methodologies.
 
 
 ## Development Actions
@@ -18,11 +17,15 @@ It is anticipated that more powerful text and network analysis will be provided 
 ### Configuration
 
 Regardless of the method you use to run WDRAX, you will need to provide some configuration parameters.
-The required options are `TWITTER_CONSUMER_KEY`, `TWITTER_CONSUMER_SECRET`, `TWITTER_ACCESS_TOKEN` and `TWITTER_ACCESS_TOKEN_SECRET` - for guidance on getting a Twitter API key see the [Twitter API docs](https://developer.twitter.com/en/docs/twitter-api/getting-started/guide).
+The required options are `TWITTER_CONSUMER_KEY`, `TWITTER_CONSUMER_SECRET`, `TWITTER_ACCESS_TOKEN` and 
+`TWITTER_ACCESS_TOKEN_SECRET` - for guidance on getting a Twitter API key see the 
+[Twitter API docs](https://developer.twitter.com/en/docs/twitter-api/getting-started/guide).
 
-In addition to these required parameters, there are a number of optional parameters which can be seen in `wdra_extender/settings.py`.
+In addition to these required parameters, 
+there are a number of optional parameters which can be seen in `wdra_extender/settings.py`.
 
-The method used to get these configuration values into WDRAX is different in each deployment method and is described in the relevant section below.
+The method used to get these configuration values into WDRAX is different in each deployment method 
+and is described in the relevant section below.
 
 ### Running a Local Version
 

@@ -1,6 +1,6 @@
 ---
 # file: playbook.yml
-- hosts: dev
+- hosts: deploy_pp
   become_method: sudo
   vars:
     project_dir: /home/{{ wdrax_user }}/wdra-extender
@@ -21,6 +21,7 @@
           - libselinux-python3
           - yum-utils
           - git
+          - https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
       become_user: root
       become: yes
 
