@@ -22,6 +22,7 @@ def get_from_session():
 
 # ======================================================================================================================
 @blueprint_extract.route('/', methods=['GET', 'POST'])
+@blueprint_extract.route('/index', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         if 'login' in request.form:
