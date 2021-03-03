@@ -33,6 +33,7 @@ def import_object(name: str) -> object:
 
 def get_tweets_by_id(
         tweet_ids: typing.Iterable[int],
+        twitter_key_dict: dict,
         tweet_providers: typing.Iterable[str]) -> typing.List[typing.Mapping]:
     """Get a list of Tweets from their IDs.
 
@@ -48,7 +49,7 @@ def get_tweets_by_id(
 
     for provider in map(import_object, tweet_providers):
         try:
-            provider_found_ids, provider_found_tweets = provider(tweet_ids)
+            provider_found_ids, provider_found_tweets = provider('twarc', twitter_key_dict, None, None)
         except ConnectionError as exc:
             logger.error('Failed to execute Tweet provider: %s', exc)
         else:
@@ -137,8 +138,8 @@ def redis_provider(tweet_ids: typing.Iterable[int]):
 
 def twarc_provider(extract_method: str,
                    twitter_key_dict: dict,
-                   tweet_ids: typing.Iterable[int] = None,
-                   search_dict: dict = {}
+                   tweet_ids: typing.Iterable[int],
+                   search_dict
                    ) -> typing.Tuple[typing.Set[int], typing.List[typing.Mapping]]:
     """Get a list of Tweets from their IDs sourced from the Twitter API.
 
