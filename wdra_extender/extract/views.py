@@ -102,10 +102,10 @@ def get_by_search(extract_uuid, basic_form):
             while '' in exc_terms:
                 exc_terms.remove('')
             query = ""
+            assert len(inc_terms) > 0, "You must include at least one term to search for"
             query += " ".join(inc_terms)
             if len(exc_terms) > 0:
                 query += " -" + " -".join(exc_terms)
-            query += ''
             # get the additional constraints and return fields
             adv_dict = {'results_per_call': 10,
                         'max_results': 10,
