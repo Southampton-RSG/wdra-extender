@@ -76,6 +76,7 @@ class Extract(db.Model):
 
         logger.info(f'Processing Bundle {self.uuid}, using method {self.extract_method}')
         if self.extract_method == "ID":
+            additional_search_settings = {}
             tweets = get_tweets_by_id(query,
                                       twitter_key_dict=twitter_key_dict,
                                       tweet_providers=current_app.config['TWEET_PROVIDERS'])
@@ -141,6 +142,7 @@ class Extract(db.Model):
                 json.dump(tweets, json_out, ensure_ascii=False, indent=4)
                 current_app.logger.info(f'Tweets saved to json')
             with open(tweets_file_csv, mode='w', newline='') as csv_out:
+                # TODO: Add Twarc fieldnames here
                 fieldnames = ['id', 'conservation_id', 'author_id', 'text', 'created_at', 'lang',
                               'public_metrics_retweet_count', 'public_metrics_reply_count',
                               'public_metrics_like_count', 'public_metrics_quote_count']
@@ -155,7 +157,11 @@ class Extract(db.Model):
                 json.dump(additional_search_settings, search_out, ensure_ascii=False, indent=4)
                 current_app.logger.info(f'Return fields saved')
             with open(query_file_txt, mode='w') as query_out:
-                query_out.write(query)
+                try:
+                    query_out.write(query)
+                except TypeError as e1:
+                    query_out.write("\n".join(str(query)))
+
                 current_app.logger.info(f'API query saved')
 
             """for plugin in get_plugins().values():

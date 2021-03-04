@@ -49,7 +49,7 @@ def get_tweets_by_id(
 
     for provider in map(import_object, tweet_providers):
         try:
-            provider_found_ids, provider_found_tweets = provider('twarc', twitter_key_dict, None, None)
+            provider_found_ids, provider_found_tweets = provider('twarc/redis', twitter_key_dict, tweet_ids, None)
         except ConnectionError as exc:
             logger.error('Failed to execute Tweet provider: %s', exc)
         else:
@@ -112,7 +112,11 @@ def save_to_redis(
         raise ConnectionError from exc
 
 
-def redis_provider(tweet_ids: typing.Iterable[int]):
+def redis_provider(extract_method: str,
+                   twitter_key_dict: dict,
+                   tweet_ids: typing.Iterable[int],
+                   search_dict
+                   ):
     config = current_app.config
     r = redis.Redis(  # pylint: disable=invalid-name
         host=config['REDIS_HOST'],
@@ -122,6 +126,7 @@ def redis_provider(tweet_ids: typing.Iterable[int]):
     found_tweet_ids = set()
     found_tweets = []
 
+    logger.info(f"getting tweets from redis {tweet_ids}")
     # Attempt to get all Tweets from cache
     try:
         tweets = r.mget(map(lambda i: f'tweet_hydrated:{i}', tweet_ids))
@@ -149,17 +154,15 @@ def twarc_provider(extract_method: str,
     # Twitter API consumer - handles rate limits for us
     t = Twarc(  # pylint: disable=invalid-name
         consumer_key=twitter_key_dict['search_tweets']['consumer_key'],
-        consumer_secret=twitter_key_dict['search_tweets']['consumer_key_secret'],
+        consumer_secret=twitter_key_dict['search_tweets']['consumer_secret'],
         access_token=twitter_key_dict['search_tweets']['access_token'],
         access_token_secret=twitter_key_dict['search_tweets']['access_token_secret'],
     )
-    if extract_method == 'ID':
-        logger.info('Fetching %d uncached Tweets', len(tweet_ids))
-        found_tweets = list(t.hydrate(tweet_ids))
-        found_tweet_ids = {tweet['id'] for tweet in found_tweets}
-    elif extract_method == 'Search':
-        api_query = ""
-        logger.info(f'Executing api query:\n{api_query}\n')
+
+    logger.info('Fetching %d uncached Tweets', len(tweet_ids))
+    found_tweets = list(t.hydrate(tweet_ids))
+    found_tweet_ids = {tweet['id'] for tweet in found_tweets}
+
     return found_tweet_ids, found_tweets
 
 
