@@ -78,8 +78,8 @@ class Extract(db.Model):
         if self.extract_method == "ID":
             additional_search_settings = {}
             tweets = get_tweets_by_id(query,
-                                      twitter_key_dict=twitter_key_dict,
-                                      tweet_providers=current_app.config['TWEET_PROVIDERS'])
+                                      twitter_key_dict,
+                                      current_app.config['TWEET_PROVIDERS'])
         elif self.extract_method == "Search":
             logger.info(f"{kwargs}")
             additional_search_settings = {
