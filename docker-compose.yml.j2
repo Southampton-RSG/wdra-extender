@@ -4,7 +4,7 @@ services:
     build: .
     environment:
       # Web server component never connects to Twitter API
-      - REDIS_HOST=redis
+      - REDIS_HOST=localhost
       - LOG_LEVEL={{ LOG_LE_tag=VEL }}
     image: wdrax:{{ docker_tag }}
     ports:
@@ -13,8 +13,8 @@ services:
       - {{ project_dir }}/db.sqlite3:/var/www/wdrax/db.sqlite3:z
       - {{ project_dir }}/media:/var/www/wdrax/media:z,ro
     depends_on:
-      - redis
       - runner
+    network_mode: "host"  # Required to access Redis on localhost
 
   runner:
     build: .
@@ -27,8 +27,7 @@ services:
       - {{ project_dir }}/db.sqlite3:/var/www/wdrax/db.sqlite3:z
       - {{ project_dir }}/media:/var/www/wdrax/media:z
       - {{ project_dir }}/plugins:/var/www/wdrax/plugins:z,ro
-    depends_on:
-      - redis
+    network_mode: "host"  # Required to access Redis on localhost
 
-  redis:
-    image: redis
+networks:
+  default:
