@@ -185,14 +185,14 @@ def get_by_id(extract_uuid):
 
         if current_app.config['CELERY_BROKER_URL']:
             # Add job to task queue
+            from ..tasks import build_extract
+
+        if current_app.config['CELERY_BROKER_URL']:
+            # Add job to task queue
             current_app.logger.debug(f'Handing extract {extract.uuid} to queue')
             from ..tasks import build_extract
-            build_extract(extract.uuid, tweet_ids)
+            build_extract.delay(extract.uuid, tweet_ids)
             current_app.logger.debug(f'Handed extract {extract.uuid} to queue')
-        else:
-            # Build the extract now
-            extract.build.delay(tweet_ids)
-
         return redirect(extract.get_absolute_url())
     else:
         return render_template('get_by_id.html', extract_uuid=extract_uuid)
