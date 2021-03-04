@@ -96,11 +96,11 @@ def get_by_search(extract_uuid, basic_form):
                                    return_fields=current_app.config['TWITTER_RETURN_DICT'])
         if ('submit_basic' in request.form) or ('submit_adv' in request.form):
             inc_terms = str(request.form['include_terms']).split(sep=',')
-            logger.debug(f"include list {inc_terms}")
+            logger.info(f"include list {inc_terms}")
             while '' in inc_terms:
                 inc_terms.remove('')
             exc_terms = str(request.form['exclude_terms']).split(sep=',')
-            logger.debug(f"exclude list {exc_terms}")
+            logger.info(f"exclude list {exc_terms}")
             while '' in exc_terms:
                 exc_terms.remove('')
             query = ""

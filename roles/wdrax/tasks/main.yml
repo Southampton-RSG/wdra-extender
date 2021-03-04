@@ -73,6 +73,7 @@
         state: present
         recreate: smart
 
+
     - name: Perform DB migrations
       docker_container:
         name: migrate
