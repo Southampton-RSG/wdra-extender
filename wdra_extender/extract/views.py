@@ -4,6 +4,7 @@ import pathlib
 from flask import Blueprint, current_app, render_template, redirect, request, send_from_directory, url_for, session
 from flask_login import login_required, current_user
 from . import models, tools
+from ..extensions import db
 
 blueprint_extract = Blueprint("extract", __name__, url_prefix='/extract')
 
@@ -46,6 +47,8 @@ def profile():
             return redirect(url_for('extract.select_method'))
         if 'change_api' in request.form:
             return redirect(url_for('auth.get_keys'))
+        if 'go_to_extracts' in request.form:
+            return redirect(url_for('extract.show_extracts'))
     elif request.method == 'GET':
         return render_template('profile.html', name=current_user.name)
 # ======================================================================================================================
@@ -168,9 +171,10 @@ def get_by_search(extract_uuid, basic_form):
             extract = models.Extract.query.get(str(extract_uuid))
             if current_app.config['CELERY_BROKER_URL']:
                 # Add job to task queue
+                current_app.logger.debug(f'Handing extract {extract.uuid} to queue')
                 from ..tasks import build_extract
                 build_extract.delay(extract.uuid, query, **adv_dict)
-
+                current_app.logger.debug(f'Handed extract {extract.uuid} to queue')
             return redirect(extract.get_absolute_url())
 
 
@@ -206,11 +210,26 @@ def get_by_replication(extract_uuid):
 
 
 # Methods for managing the extract bundle once created==================================================================
+@login_required
+@blueprint_extract.route('/show', methods=['GET', 'POST'])
+def show_extracts():
+    """Display a list of the users previous Twitter Extract Bundles"""
+    user_extracts = models.Extract.query.filter_by(user_id=current_user.id).all()
+    if request.method == 'GET':
+        user_extracts_list = [[extract.uuid, extract.ready, extract.extract_method,
+                               current_app.config['OUTPUT_DIR'].joinpath(
+                                   pathlib.Path(str(extract.uuid)).with_suffix('.zip')
+                               ).is_file()]
+                              for extract in user_extracts]
+        return render_template('all_extracts.html', user_extracts_list=user_extracts_list)
+    if request.method == 'POST':
+
+
+
 @blueprint_extract.route('/detail/<uuid:extract_uuid>')
 def detail_extract(extract_uuid):
     """View displaying details of a Twitter Extract Bundle."""
     extract = models.Extract.query.get(str(extract_uuid))
-
     return render_template('extract.html', extract=extract)
 
 
@@ -219,6 +238,11 @@ def download_extract(extract_uuid):
     """View to download a Twitter Extract Bundle."""
     return send_from_directory(current_app.config['OUTPUT_DIR'],
                                pathlib.Path(
-                                   str(extract_uuid)).with_suffix('.zip'),
+                                    str(extract_uuid)).with_suffix('.zip'),
                                as_attachment=True)
+
+@blueprint_extract.route('/delete/<uuid:extract_uuid>')
+def delete_extract(extract_uuid):
+    extract = models.Extract.query.get(str(extract_uuid))
+    db.session.delete(extract)
 # ======================================================================================================================

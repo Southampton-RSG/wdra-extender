@@ -3,4 +3,3 @@
 pip-tools
 prospector
 pytest
-yapf

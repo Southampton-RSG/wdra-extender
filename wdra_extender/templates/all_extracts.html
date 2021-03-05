@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Past Extracts</h1>
+
+<a class="btn btn-prima`ry btn-lg btn-block" href="{{ url_for('extract.profile') }}">
+    Home
+</a>
+
+<hr>
+{% for extract in user_extracts_list %}
+    {% if extract[1] %}
+        <tr>
+            <td>
+                Extract: {{ extract[0] }}
+            </td>
+            <td>
+                {% if extract[3] %}
+                    <a class="btn btn-prima`ry btn-lg btn-block"
+                       href="{{ url_for('extract.download_extract', extract_uuid=extract[0]) }}">
+                        Download
+                    </a>
+                {% else %}
+                    <a class="btn btn-prima`ry btn-lg btn-block"
+                       href="{{ url_for('extract.download_extract', extract_uuid=extract[0]) }}">
+                        Recreate
+                    </a>
+                {%  endif %}
+            </td>
+            <td>
+                <a class="btn btn-prima`ry btn-lg btn-block"
+                   href="{{ url_for('extract.download_extract', extract_uuid=extract[0]) }}">
+                    Delete extract.
+                </a>
+            </td>
+        </tr>
+    {% else %}
+        <button class="btn btn-info btn-lg btn-block"
+                disabled>
+            Extract not yet ready. {{ extract[0] }}
+        </button>
+    {% endif %}
+{% endfor %}
+
+{% endblock %}

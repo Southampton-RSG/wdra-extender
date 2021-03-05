@@ -71,7 +71,7 @@
       docker_compose:
         project_src: '{{ project_dir }}'
         state: present
-        recreate: smart
+        recreate: always
 
 
     - name: Perform DB migrations
