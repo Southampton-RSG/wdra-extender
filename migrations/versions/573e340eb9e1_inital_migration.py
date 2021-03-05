@@ -1,8 +1,8 @@
-"""empty message
+"""Inital Migration
 
-Revision ID: 986e6e375d70
+Revision ID: 573e340eb9e1
 Revises: 
-Create Date: 2021-02-11 16:31:32.767869
+Create Date: 2021-03-05 18:05:18.445490
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '986e6e375d70'
+revision = '573e340eb9e1'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,11 +22,13 @@ def upgrade():
     sa.Column('uuid', sa.String(length=36), nullable=False),
     sa.Column('user_id', sa.Unicode(length=16), nullable=True),
     sa.Column('validate_on_email', sa.Boolean(), nullable=True),
-    sa.Column('ready', sa.Boolean(), nullable=False),
+    sa.Column('ready', sa.Boolean(), nullable=True),
+    sa.Column('building', sa.Boolean(), nullable=True),
     sa.Column('extract_method', sa.String(length=254), nullable=False),
+    sa.Column('query_string', sa.String(length=1024), nullable=True),
+    sa.Column('search_settings', sa.PickleType(), nullable=True),
     sa.PrimaryKeyConstraint('uuid')
     )
-    op.create_index(op.f('ix_extract_ready'), 'extract', ['ready'], unique=False)
     op.create_index(op.f('ix_extract_user_id'), 'extract', ['user_id'], unique=False)
     op.create_index(op.f('ix_extract_uuid'), 'extract', ['uuid'], unique=True)
     op.create_table('user',
@@ -34,6 +36,12 @@ def upgrade():
     sa.Column('email', sa.String(length=100), nullable=True),
     sa.Column('name', sa.String(length=1000), nullable=True),
     sa.Column('password', sa.String(length=100), nullable=True),
+    sa.Column('twitter_keys_set', sa.Boolean(), nullable=True),
+    sa.Column('bearer_token', sa.String(), nullable=True),
+    sa.Column('consumer_key', sa.String(), nullable=True),
+    sa.Column('consumer_secret', sa.String(), nullable=True),
+    sa.Column('access_token', sa.String(), nullable=True),
+    sa.Column('access_token_secret', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
     )
@@ -45,6 +53,5 @@ def downgrade():
     op.drop_table('user')
     op.drop_index(op.f('ix_extract_uuid'), table_name='extract')
     op.drop_index(op.f('ix_extract_user_id'), table_name='extract')
-    op.drop_index(op.f('ix_extract_ready'), table_name='extract')
     op.drop_table('extract')
     # ### end Alembic commands ###

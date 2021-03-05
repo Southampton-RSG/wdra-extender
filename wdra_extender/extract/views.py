@@ -216,14 +216,7 @@ def show_extracts():
     """Display a list of the users previous Twitter Extract Bundles"""
     user_extracts = models.Extract.query.filter_by(user_id=current_user.id).all()
     if request.method == 'GET':
-        user_extracts_list = [[extract.uuid, extract.ready, extract.extract_method,
-                               current_app.config['OUTPUT_DIR'].joinpath(
-                                   pathlib.Path(str(extract.uuid)).with_suffix('.zip')
-                               ).is_file()]
-                              for extract in user_extracts]
-        return render_template('all_extracts.html', user_extracts_list=user_extracts_list)
-    if request.method == 'POST':
-
+        return render_template('all_extracts.html', extracts=user_extracts)
 
 
 @blueprint_extract.route('/detail/<uuid:extract_uuid>')
@@ -241,8 +234,24 @@ def download_extract(extract_uuid):
                                     str(extract_uuid)).with_suffix('.zip'),
                                as_attachment=True)
 
+
+@blueprint_extract.route('/delete_data/<uuid:extract_uuid>')
+def delete_extract_data(extract_uuid):
+    extract = models.Extract.query.get(str(extract_uuid))
+    extract.delete_data()
+    return redirect(url_for('extract.show_extracts'))
+
+
 @blueprint_extract.route('/delete/<uuid:extract_uuid>')
 def delete_extract(extract_uuid):
     extract = models.Extract.query.get(str(extract_uuid))
-    db.session.delete(extract)
+    extract.delete()
+    return redirect(url_for('extract.show_extracts'))
+
+
+@blueprint_extract.route('/rebuild/<uuid:extract_uuid>')
+def rebuild_extract(extract_uuid):
+    from ..tasks import rebuild_extract
+    rebuild_extract.delay(extract_uuid)
+    return redirect(url_for('extract.show_extracts'))
 # ======================================================================================================================

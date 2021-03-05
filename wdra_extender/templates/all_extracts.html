@@ -8,38 +8,53 @@
 </a>
 
 <hr>
-{% for extract in user_extracts_list %}
-    {% if extract[1] %}
-        <tr>
+{% for _extract in user_extracts %}
+    <tr>
+    {% if not _extract.building %}
             <td>
-                Extract: {{ extract[0] }}
+                Extract: {{ _extract.uuid }}
             </td>
             <td>
-                {% if extract[3] %}
+                {% if _extract.is_ready() %}
                     <a class="btn btn-prima`ry btn-lg btn-block"
-                       href="{{ url_for('extract.download_extract', extract_uuid=extract[0]) }}">
+                       href="{{ url_for('extract.download_extract', extract_uuid=_extract.uuid) }}">
                         Download
                     </a>
                 {% else %}
                     <a class="btn btn-prima`ry btn-lg btn-block"
-                       href="{{ url_for('extract.download_extract', extract_uuid=extract[0]) }}">
+                       href="{{ url_for('extract.rebuild_extract', extract_uuid=_extract.uuid) }}">
                         Recreate
                     </a>
                 {%  endif %}
             </td>
             <td>
+            {% if _extract.is_ready() %}
                 <a class="btn btn-prima`ry btn-lg btn-block"
-                   href="{{ url_for('extract.download_extract', extract_uuid=extract[0]) }}">
+                   href="{{ url_for('extract.delete_extract', extract_uuid=_extract.uuid) }}">
+                    Delete extract data.
+                </a>
+            {% else %}
+                <button class="btn btn-info btn-lg btn-block"
+                disabled>
+                    Extract {{ _extract.uuid }} has no output file.
+                </button>
+            {% endif %}
+            </td>
+            <td>
+                <a class="btn btn-prima`ry btn-lg btn-block"
+                   href="{{ url_for('extract.delete_extract', extract_uuid=_extract.uuid) }}">
                     Delete extract.
                 </a>
             </td>
-        </tr>
     {% else %}
+        <td>
         <button class="btn btn-info btn-lg btn-block"
                 disabled>
-            Extract not yet ready. {{ extract[0] }}
+            Extract {{ _extract.uuid }} is in the build queue.
         </button>
+        </td>
     {% endif %}
+    </tr>
 {% endfor %}
 
 {% endblock %}
