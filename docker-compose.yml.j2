@@ -10,7 +10,7 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - {{ project_dir }}/db.sqlite3:/var/www/wdrax/db.sqlite3:z
+      - {{ project_dir }}/db.postgresql:/var/www/wdrax/db.postgresql:z
       - {{ project_dir }}/media:/var/www/wdrax/media:z,ro
     depends_on:
       - runner
