@@ -27,6 +27,16 @@
 
   become_user: root
   become: yes
+- name: Launch postgres
+  services:
+    db:
+      image: postgres
+      restart: always
+      envronment:
+        POSTGRES_DB: db.postgresql
+        PGDATA: '{{ project_dir }}'
+        POSTGRES_USER: wdrax
+        POSTGRES_PASSWORD: wdrax
 
 
 - name: Clone repo and use docker to start app
@@ -52,12 +62,6 @@
         dest: '{{ project_dir }}/docker-compose.yml'
         force: yes
 
-    - name: Touch database file
-      file:
-        path: '{{ project_dir }}/db.sqlite3'
-        state: touch
-        owner: '{{ wdrax_user }}'
-
     - name: Build Docker image
       docker_image:
         build:
@@ -73,7 +77,6 @@
         state: present
         recreate: always
 
-
     - name: Perform DB migrations
       docker_container:
         name: migrate
@@ -82,7 +85,7 @@
         state: started
         restart: yes
         volumes:
-          - '{{ project_dir }}/db.sqlite3:/var/www/wdrax/db.sqlite3:z'
+          - '{{ project_dir }}/db.postgresql:/var/www/wdrax/db.postgresql:z'
 
   become_user: '{{ wdrax_user }}'
   become: yes

@@ -5,6 +5,7 @@ flask
 flask-migrate
 flask-sqlalchemy
 flask-login
+psycopg2-binary
 python-decouple
 searchtweets-v2
 twarc

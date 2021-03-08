@@ -44,7 +44,7 @@ CELERY_IMPORTS = config(
 
 SQLALCHEMY_DATABASE_URI = config(
     'SQLALCHEMY_DATABASE_URI',
-    default=f'sqlite:///{BASE_DIR.joinpath("db.sqlite3")}')
+    default=f'postgresql://wdrax:wdrax/{BASE_DIR.joinpath("db.postgrsql")}')
 
 TWEET_PROVIDERS = [
     'wdra_extender.extract.tweet_providers.redis_provider',

@@ -70,6 +70,8 @@ pillow==8.0.1
     #   wordcloud
 pluggy==0.13.1
     # via pytest
+psycopg2-binary==2.8.6
+    # via -r requirements.in
 py==1.8.1
     # via pytest
 pyparsing==2.4.7

@@ -51,7 +51,7 @@ def register_extensions(_app):
     """
 
     db.init_app(_app)
-    migrate.init_app(_app, db, render_as_batch=True)
+    migrate.init_app(_app, db)
     login_manager.init_app(_app)
 
 
