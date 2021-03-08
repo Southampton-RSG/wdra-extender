@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block extra_head %}
-{% if not extract.ready %}
+{% if not extract.__ready__ %}
     <meta http-equiv="refresh" content="15">
 {% endif %}
 {% endblock %}
@@ -17,7 +17,7 @@
 
     <dt>Status</dt>
     <dd>
-        {% if extract.ready %}
+        {% if extract.__ready__ %}
             Your extract has been processed and is ready to download.
         {% else %}
             Your extract is waiting to be processed, check back soon.
@@ -25,7 +25,7 @@
     </dd>
 </dl>
 
-{% if extract.ready %}
+{% if extract.__ready__ %}
     <a class="btn btn-prima`ry btn-lg btn-block"
        href="{{ url_for('extract.download_extract', extract_uuid=extract.uuid) }}">
         Download
@@ -43,7 +43,7 @@
         Home
     </button>
     <button class="btn btn-lg btn-block" href="{{ url_for('extract.show_extracts') }}">
-        All Extracts
+        Show all Extracts
     </button>
 
 {% endblock %}
