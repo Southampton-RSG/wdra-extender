@@ -5,7 +5,7 @@ services:
     environment:
       # Web server component never connects to Twitter API
       - REDIS_HOST=localhost
-      - LOG_LEVEL={{ LOG_LE_tag=VEL }}
+      - LOG_LEVEL={{ LOG_LEVEL }}
     image: wdrax:{{ docker_tag }}
     ports:
       - 8000:8000
