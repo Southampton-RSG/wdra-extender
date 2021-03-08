@@ -25,7 +25,7 @@ services:
     image: wdrax:{{ docker_tag }}
     command: celery -A wdra_extender.app:celery worker --loglevel=debug --concurrency=1
     volumes:
-      - {{ project_dir }}/db.sqlite3:/var/www/wdrax/db.sqlite3:z
+      - {{ project_dir }}/db.postgresql:/var/www/wdrax/db.postgresql:z
       - {{ project_dir }}/media:/var/www/wdrax/media:z
       - {{ project_dir }}/plugins:/var/www/wdrax/plugins:z,ro
     network_mode: "host"  # Required to access Redis on localhost
@@ -33,7 +33,7 @@ services:
   db:
     image: postgres
     volumes:
-      - postgres_data:{{ project_dir }}
+      - - {{ project_dir }}/db.postgresql:/var/www/wdrax/db.postgresql:z
     environment:
       POSTGRES_DB: db.postgresql
       POSTGRES_USER: wdrax
