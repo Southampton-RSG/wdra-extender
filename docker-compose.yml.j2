@@ -33,13 +33,14 @@ services:
       - db
 
   db:
-    image: postgres
+    image: postgres:13-alpine
     volumes:
-      - {{ project_dir }}/db.postgresql:/var/www/wdrax/db.postgresql:z
+      - postgres_data:/var/www/wdrax/db.postgresql:z
     environment:
       POSTGRES_DB: db.postgresql
       POSTGRES_USER: wdrax
       POSTGRES_PASSWORD: wdrax
+    network_mode: "host"  # Required to access Redis on localhost
 
 volumes:
   postgres_data:
