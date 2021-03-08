@@ -27,16 +27,6 @@
 
   become_user: root
   become: yes
-- name: Launch postgres
-  services:
-    db:
-      image: postgres
-      restart: always
-      envronment:
-        POSTGRES_DB: db.postgresql
-        PGDATA: '{{ project_dir }}'
-        POSTGRES_USER: wdrax
-        POSTGRES_PASSWORD: wdrax
 
 
 - name: Clone repo and use docker to start app

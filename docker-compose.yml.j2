@@ -14,6 +14,7 @@ services:
       - {{ project_dir }}/media:/var/www/wdrax/media:z,ro
     depends_on:
       - runner
+      - db
     network_mode: "host"  # Required to access Redis on localhost
 
   runner:
@@ -28,6 +29,18 @@ services:
       - {{ project_dir }}/media:/var/www/wdrax/media:z
       - {{ project_dir }}/plugins:/var/www/wdrax/plugins:z,ro
     network_mode: "host"  # Required to access Redis on localhost
+
+  db:
+    image: postgres
+    volumes:
+      - postgres_data:{{ project_dir }}
+    environment:
+      POSTGRES_DB: db.postgresql
+      POSTGRES_USER: wdrax
+      POSTGRES_PASSWORD: wdrax
+
+volumes:
+  postgres_data:
 
 networks:
   default:
