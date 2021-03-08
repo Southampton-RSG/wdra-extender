@@ -53,7 +53,7 @@ class Extract(db.Model):
     validate_on_email = db.Column(db.Boolean, default=False)
 
     #: Is the Bundle ready for pickup?
-    ready = db.Column(db.Boolean, default=False)
+    ready = db.Column(db.Boolean, default=False, index=True, nullable=False)
     building = db.Column(db.Boolean, default=False)
 
     #: Details the method
