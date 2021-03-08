@@ -38,8 +38,6 @@ services:
       POSTGRES_DB: db.postgresql
       POSTGRES_USER: wdrax
       POSTGRES_PASSWORD: wdrax
-    env_file:
-      - ./.env.prod.db
     network_mode: "host"  # Required to access Redis on localhost
 
 
