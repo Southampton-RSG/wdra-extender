@@ -14,20 +14,8 @@
         name: epel-release
         state: latest
 
-    - name: Install Redis
-      yum:
-        name: redis
-        state: latest
-
-    - name: Start Redis service
-      systemd:
-        name: redis
-        state: started
-        enabled: yes
-
   become_user: root
   become: yes
-
 
 - name: Clone repo and use docker to start app
   block:
