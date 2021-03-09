@@ -55,6 +55,11 @@
         state: present
         recreate: always
 
+  become_user: '{{ wdrax_user }}'
+  become: yes
+
+- name: Migrate Database
+  block:
     - name: Add wdrax_container to inventory
       add_host:
         name: wdrax
@@ -63,11 +68,8 @@
 
     - name: Make DB migrations
        delegate_to: wdrax
-       command: flask db migrate
+         command: flask db migrate
 
     - name: Perform DB migrations
       delegate_to: wdrax
-      command: flask db upgrade
-
-  become_user: '{{ wdrax_user }}'
-  become: yes
+        command: flask db upgrade
