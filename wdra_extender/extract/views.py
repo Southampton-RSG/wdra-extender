@@ -214,7 +214,7 @@ def get_by_replication(extract_uuid):
 @blueprint_extract.route('/show', methods=['GET', 'POST'])
 def show_extracts():
     """Display a list of the users previous Twitter Extract Bundles"""
-    user_extracts = models.Extract.query.filter_by(user_id=current_user.id).all()
+    user_extracts = models.Extract.query.filter_by(user_id=int(current_user.id)).all()
     if request.method == 'GET':
         return render_template('all_extracts.html', extracts=user_extracts)
 

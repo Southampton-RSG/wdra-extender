@@ -55,15 +55,19 @@
         state: present
         recreate: always
 
+    - name: Add wdrax_container to inventory
+      add_host:
+        name: wdrax
+        ansible_connection: docker
+      changed_when: false
+
+    - name: Make DB migrations
+       delegate_to: wdrax
+       command: flask db migrate
+
     - name: Perform DB migrations
-      docker_container:
-        name: migrate-upgrade
-        image: wdrax:{{ docker_tag }}
-        command: flask db migrate; flask db upgrade
-        state: started
-        restart: yes
-        volumes:
-          - '{{ project_dir }}/db.postgres:/var/www/wdrax/db.postgres:z'
+      delegate_to: wdrax
+      command: flask db upgrade
 
   become_user: '{{ wdrax_user }}'
   become: yes
