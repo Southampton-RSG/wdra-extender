@@ -1,6 +1,6 @@
 ---
 # file: roles/wdrax/tasks/main.yml
-- name: install redis
+- name: create user
   block:
     - name: Create WDRAX user
       user:
@@ -23,7 +23,7 @@
       git:
         repo: 'https://github.com/Southampton-RSG/wdra-extender.git'
         dest: '{{ project_dir }}'
-        version: '{{ git_branch | default ("master") }}'
+        version: '{{ git_branch | default ("dev") }}'
         accept_hostkey: yes
 
     - name: Install docker-compose

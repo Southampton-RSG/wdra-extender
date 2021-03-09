@@ -20,8 +20,8 @@ login_manager = LoginManager()  # pylint: disable=invalid-name
 def make_celery(_app):
     celery = Celery(
         __name__,
-        backend=f'redis://{_app.config["REDIS HOST"]}:6379/0',
-        broker=f'redis://{_app.config["REDIS HOST"]}:6379/0'
+        backend=f'redis://localhost:6379/0',
+        broker=f'redis://localhost:6379/0'
     )
     celery.conf.update(_app.config)
     TaskBase = celery.Task  # pylint: disable=invalid-name
