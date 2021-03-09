@@ -1,0 +1,4 @@
+---
+# file: roles/wdrax/meta/main.yml
+collections:
+  - community.docker

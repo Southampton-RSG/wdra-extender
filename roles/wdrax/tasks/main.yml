@@ -55,21 +55,19 @@
         state: present
         recreate: always
 
+    - name: Make migration
+      community.docker.docker:
+        remote_addr: wdra-extender_wdrax_1
+        docker_extra_args: "flask db migrate"
+        remote_user: root
+
+    - name: Perform Migration
+      community.docker.docker:
+        remote_addr: wdra-extender_wdrax_1
+        docker_extra_args: "flask db upgrade"
+        remote_user: root
   become_user: '{{ wdrax_user }}'
   become: yes
 
-- name: Migrate Database
-  block:
-    - name: Add wdrax_container to inventory
-      add_host:
-        name: wdrax
-        ansible_connection: docker
-      changed_when: false
 
-    - name: Make DB migrations
-       delegate_to: wdrax
-         command: flask db migrate
 
-    - name: Perform DB migrations
-      delegate_to: wdrax
-        command: flask db upgrade
