@@ -57,9 +57,9 @@
 
     - name: Perform DB migrations
       docker_container:
-        name: migrate
+        name: migrate-upgrade
         image: wdrax:{{ docker_tag }}
-        command: python -m flask db upgrade
+        command: flask db migrate; flask db upgrade
         state: started
         restart: yes
         volumes:
