@@ -34,7 +34,7 @@ def index():
 # ======================================================================================================================
 
 
-# User view ============================================================================================================
+# WdraxUser view =======================================================================================================
 @blueprint_extract.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
@@ -215,8 +215,9 @@ def get_by_replication(extract_uuid):
 def show_extracts():
     """Display a list of the users previous Twitter Extract Bundles"""
     user_extracts = models.Extract.query.filter_by(user_id=int(current_user.id)).all()
+    logger.debug(f"Extracts recieved:\n {user_extracts}")
     if request.method == 'GET':
-        return render_template('all_extracts.html', extracts=user_extracts)
+        return render_template('all_extracts.html', user_extracts=user_extracts)
 
 
 @blueprint_extract.route('/detail/<uuid:extract_uuid>')

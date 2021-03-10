@@ -42,9 +42,7 @@ CELERY_IMPORTS = config(
     default=("wdra_extender.tasks", )
 )
 
-SQLALCHEMY_DATABASE_URI = config(
-    'SQLALCHEMY_DATABASE_URI',
-    default='postgresql://wdrax:wdrax@db:5432/db.postgres')
+SQLALCHEMY_DATABASE_URI = config('DATABASE_URL')
 
 TWEET_PROVIDERS = [
     'wdra_extender.extract.tweet_providers.redis_provider',

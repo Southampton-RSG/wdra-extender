@@ -6,12 +6,12 @@ from ..extract.tools import ContextProxyLogger
 logger = ContextProxyLogger(__name__)
 
 __all__ = [
-    'User',
+    'WdraxUser',
 ]
 
 
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)  # primary keys are required by SQLAlchemy
+class WdraxUser(UserMixin, db.Model):
+    id = db.Column(db.Integer, unique=True, primary_key=True)  # primary keys are required by SQLAlchemy
     email = db.Column(db.String(100), unique=True)
     name = db.Column(db.String(1000))
     password = db.Column(db.String(100))

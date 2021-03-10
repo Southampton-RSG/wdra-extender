@@ -104,9 +104,16 @@ class Extract(db.Model):
         logger.info(f'Processing Bundle {self.uuid}, using method {self.extract_method}')
         if self.extract_method == "ID":
             self.query_string = query
-            tweets = get_tweets_by_id(query,
-                                      twitter_key_dict,
-                                      current_app.config['TWEET_PROVIDERS'])
+            self.save()
+            try:
+                tweets = get_tweets_by_id(query,
+                                          twitter_key_dict,
+                                          current_app.config['TWEET_PROVIDERS'])
+            except Exception as e:
+                self.building = False
+                self.ready = False
+                self.save()
+                raise e
 
         elif self.extract_method == "Search":
             logger.info(f"{kwargs}")
@@ -152,10 +159,20 @@ class Extract(db.Model):
                        "'Date to' must be after 'Date from'"
             self.query_string = query
             self.search_settings = additional_search_settings
-            tweets = get_tweets_by_search(query,
-                                          twitter_key_dict,
-                                          additional_search_settings,
-                                          current_app.config['TWEET_PROVIDERS_V2'])
+            self.save()
+            try:
+                max_results = additional_search_settings['max_results']
+                tweets = get_tweets_by_search(query,
+                                              twitter_key_dict,
+                                              additional_search_settings,
+                                              current_app.config['TWEET_PROVIDERS_V2'])
+            except Exception as e:
+                self.search_settings['max_results'] = max_results
+                self.building = False
+                self.ready = False
+                self.save()
+                raise e
+        self.search_settings['max_results'] = max_results
         self.make_output_files(tweets)
         self.building = False
         self.ready = True
@@ -168,10 +185,19 @@ class Extract(db.Model):
                                       twitter_key_dict,
                                       current_app.config['TWEET_PROVIDERS'])
         elif self.extract_method == "Search":
-            tweets = get_tweets_by_search(self.query_string,
-                                          twitter_key_dict,
-                                          self.search_settings,
-                                          current_app.config['TWEET_PROVIDERS_V2'])
+            try:
+                max_results = self.search_settings['max_results']
+                tweets = get_tweets_by_search(self.query_string,
+                                              twitter_key_dict,
+                                              self.search_settings,
+                                              current_app.config['TWEET_PROVIDERS_V2'])
+            except Exception as e:
+                self.search_settings['max_results'] = max_results
+                self.building = False
+                self.ready = False
+                self.save()
+                raise e
+        self.search_settings['max_results'] = max_results
         self.make_output_files(tweets)
         self.building = False
         self.ready = True
