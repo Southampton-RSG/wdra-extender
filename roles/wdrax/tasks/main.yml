@@ -56,10 +56,11 @@
         recreate: always
 
     - name: Perform Migration
-      community.docker.docker:
+      docker:
         remote_addr: wdra-extender_wdrax_1
         docker_extra_args: "flask db upgrade"
         remote_user: root
+
   become_user: '{{ wdrax_user }}'
   become: yes
 
