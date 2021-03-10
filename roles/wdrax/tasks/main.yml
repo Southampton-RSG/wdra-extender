@@ -56,10 +56,7 @@
         recreate: always
 
     - name: Perform Migration
-      docker:
-        remote_addr: wdra-extender_wdrax_1
-        docker_extra_args: "flask db upgrade"
-        remote_user: root
+      command: docker exec -it wdra-extender_wdrax_1 bash -c "flask db upgrade"
 
   become_user: '{{ wdrax_user }}'
   become: yes

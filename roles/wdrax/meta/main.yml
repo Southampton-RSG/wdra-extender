@@ -1,4 +1,4 @@
 ---
 # wdrax/meta/main.yml
-collections:
-  - community.docker
+#collections:
+#  - community.docker
