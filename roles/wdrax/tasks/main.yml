@@ -25,6 +25,8 @@
         dest: '{{ project_dir }}'
         version: '{{ git_branch | default ("dev") }}'
         accept_hostkey: yes
+      tags:
+        - always
 
     - name: Install docker-compose
       pip:
@@ -39,12 +41,16 @@
         src: 'docker-compose.yml.j2'
         dest: '{{ project_dir }}/docker-compose.yml'
         force: yes
+      tags:
+        - always
 
     - name: Populate settings template
       template:
         src: 'settings.ini.j2'
         dest: '{{ project_dir }}/settings.ini'
         force: yes
+      tags:
+        - always
 
     - name: Build Docker image
       docker_image:
@@ -54,18 +60,24 @@
         name: wdrax
         tag: '{{ docker_tag }}'
         source: build
+      tags:
+        - always
 
     - name: Run containers with docker-compose
       docker_compose:
         project_src: '{{ project_dir }}'
         state: present
-        recreate: always
+        restarted: yes
+        build: yes
+      tags:
+        - always
 
     - name: Perform Migration
       command: docker exec -it wdra-extender_wdrax_1 bash -c "flask db upgrade"
 
   become_user: '{{ wdrax_user }}'
   become: yes
+
 
 
 

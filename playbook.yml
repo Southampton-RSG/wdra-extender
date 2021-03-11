@@ -1,6 +1,6 @@
 ---
 # file: playbook.yml
-- hosts: dev #deploy_pp
+- hosts: dev # deploy_pp #
   become_method: sudo
   vars:
     project_dir: /home/{{ wdrax_user }}/wdra-extender

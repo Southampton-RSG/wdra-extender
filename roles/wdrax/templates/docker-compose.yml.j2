@@ -7,6 +7,7 @@ services:
       - REDIS_HOST=redis
       - LOG_LEVEL={{ LOG_LEVEL }}
     image: wdrax:{{ docker_tag }}
+    restart: always
     ports:
       - 8000:8000
     volumes:
@@ -23,6 +24,7 @@ services:
       - REDIS_HOST=redis
       - LOG_LEVEL={{ LOG_LEVEL }}
     image: wdrax:{{ docker_tag }}
+    restart: always
     command: celery -A wdra_extender.app:celery worker --loglevel=debug --concurrency=1
     volumes:
       - {{ project_dir }}/db.postgres:/var/www/wdrax/db.postgres:z
@@ -34,13 +36,16 @@ services:
 
   db:
     image: postgres:13-alpine
+    restart: always
     volumes:
       - {{ project_dir }}/db.postgres:/var/www/wdrax/db.postgres:z
     environment:
+      PGDATA:/var/www/wdrax/
       POSTGRES_DB: db.postgres
       POSTGRES_USER: wdrax
       POSTGRES_PASSWORD: wdrax
 
   redis:
     image: redis
+    restart: always
 
