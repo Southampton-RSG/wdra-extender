@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% if current_user.is_authenticated %}
+    {{ url_for('extract.profile') }}
+{% endif %}
+
 {% block content %}
 <h1>WDRA Extender</h1>
     <form action="{{ url_for('extract.index', basic_form=basic_form) }}" method="POST">

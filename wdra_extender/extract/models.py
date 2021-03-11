@@ -1,6 +1,7 @@
 """Module containing the Extract model and supporting functionality."""
 
 import collections
+from copy import deepcopy
 import csv
 from datetime import datetime
 import json
@@ -161,18 +162,15 @@ class Extract(db.Model):
             self.search_settings = additional_search_settings
             self.save()
             try:
-                max_results = additional_search_settings['max_results']
                 tweets = get_tweets_by_search(query,
                                               twitter_key_dict,
-                                              additional_search_settings,
+                                              deepcopy(additional_search_settings),
                                               current_app.config['TWEET_PROVIDERS_V2'])
             except Exception as e:
-                self.search_settings['max_results'] = max_results
                 self.building = False
                 self.ready = False
                 self.save()
                 raise e
-        self.search_settings['max_results'] = max_results
         self.make_output_files(tweets)
         self.building = False
         self.ready = True
@@ -186,18 +184,15 @@ class Extract(db.Model):
                                       current_app.config['TWEET_PROVIDERS'])
         elif self.extract_method == "Search":
             try:
-                max_results = self.search_settings['max_results']
                 tweets = get_tweets_by_search(self.query_string,
                                               twitter_key_dict,
-                                              self.search_settings,
+                                              deepcopy(self.search_settings),
                                               current_app.config['TWEET_PROVIDERS_V2'])
             except Exception as e:
-                self.search_settings['max_results'] = max_results
                 self.building = False
                 self.ready = False
                 self.save()
                 raise e
-        self.search_settings['max_results'] = max_results
         self.make_output_files(tweets)
         self.building = False
         self.ready = True

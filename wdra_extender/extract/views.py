@@ -4,7 +4,7 @@ import pathlib
 from flask import Blueprint, current_app, render_template, redirect, request, send_from_directory, url_for, session
 from flask_login import login_required, current_user
 from . import models, tools
-from ..extensions import db
+# from ..app.celery.task.control import inspect
 
 blueprint_extract = Blueprint("extract", __name__, url_prefix='/extract')
 
@@ -49,6 +49,8 @@ def profile():
             return redirect(url_for('auth.get_keys'))
         if 'go_to_extracts' in request.form:
             return redirect(url_for('extract.show_extracts'))
+        if 'logout' in request.form:
+            return redirect(url_for('auth.logout'))
     elif request.method == 'GET':
         return render_template('profile.html', name=current_user.name)
 # ======================================================================================================================
@@ -215,6 +217,11 @@ def get_by_replication(extract_uuid):
 def show_extracts():
     """Display a list of the users previous Twitter Extract Bundles"""
     user_extracts = models.Extract.query.filter_by(user_id=int(current_user.id)).all()
+    # TODO: query the celery queue to check on jobs that may have faild with building set to true
+    # celery_tasks = inspect()
+    # active_tasks = celery_tasks.active()
+    # sched_tasks = celery_tasks.scheduled()
+    # for extract in user_extracts()
     logger.debug(f"Extracts recieved:\n {user_extracts}")
     if request.method == 'GET':
         return render_template('all_extracts.html', user_extracts=user_extracts)
