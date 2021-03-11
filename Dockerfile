@@ -11,6 +11,7 @@ RUN pip install --no-cache-dir -r requirements.txt gunicorn
 
 COPY wdra_extender wdra_extender/
 COPY migrations migrations/
+COPY settings.ini settings.ini
 
 EXPOSE 8000
 
