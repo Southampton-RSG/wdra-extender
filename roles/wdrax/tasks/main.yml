@@ -69,8 +69,6 @@
         state: present
         restarted: yes
         build: yes
-      tags:
-        - always
 
     - name: Perform Migration
       command: docker exec -it wdra-extender_wdrax_1 bash -c "flask db upgrade"
