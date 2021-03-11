@@ -11,7 +11,7 @@ services:
       - 8000:8000
     volumes:
       - {{ project_dir }}/db.postgres:/var/www/wdrax/db.postgres:z
-      - {{ project_dir }}/media:/var/www/wdrax/media:z,ro
+      - {{ project_dir }}/media:/var/www/wdrax/media:z
     depends_on:
       - redis
       - runner
