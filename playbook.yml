@@ -6,6 +6,7 @@
     project_dir: /home/{{ wdrax_user }}/wdra-extender
     wdrax_user: wdrax
     LOG_LEVEL: DEBUG  # Passed to web server via docker-compose.yml
+    db_host: db
 
   pre_tasks:
     - name: Install Ansible prerequisites
