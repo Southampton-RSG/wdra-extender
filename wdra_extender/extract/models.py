@@ -39,6 +39,8 @@ class Extract(db.Model):
     """
     # pylint: disable=no-member
 
+    __tablename__ = 'extracts'
+
     #: UUID identifier for the Bundle - acts as PK
     uuid = db.Column(db.String(36),
                      default=lambda: str(uuid4()),
@@ -48,7 +50,7 @@ class Extract(db.Model):
                      unique=True)
 
     #: user_id of person who requested the Bundle
-    user_id = db.Column(db.Integer, index=True, nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('wdrax_users.id'), index=True, nullable=True)
 
     #: Should the bundle be limited to only the user who requested it
     validate_on_email = db.Column(db.Boolean, default=False)

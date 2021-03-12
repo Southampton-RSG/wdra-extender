@@ -11,10 +11,19 @@ __all__ = [
 
 
 class WdraxUser(UserMixin, db.Model):
+    """A Twitter Extract Bundle.
+
+    A user of the website with associated extracts and auth keys
+    """
+
+    # pylint: disable=no-member
+    __tablename__ = 'wdrax_users'
+
     id = db.Column(db.Integer, unique=True, primary_key=True)  # primary keys are required by SQLAlchemy
     email = db.Column(db.String(100), unique=True)
-    name = db.Column(db.String(1000))
+    name = db.Column(db.String(1000), unique=True)
     password = db.Column(db.String(100))
+    extracts = db.relationship('Extract')
 
     # these keys may need to be adjusted if in the future different keys are required for different endpoints
     twitter_keys_set = db.Column(db.Boolean, default=False)
