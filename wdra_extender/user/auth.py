@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, abort
 from flask_login import login_user, logout_user, login_required, current_user
-from urllib.parse import urlparse, urljoin
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.urls import url_parse
 
 from wdra_extender.extensions import db
 from .models import WdraxUser
@@ -12,15 +11,10 @@ logger = ContextProxyLogger(__name__)
 blueprint_auth = Blueprint('auth', __name__)
 
 
-def is_safe_url(target):
-    ref_url = urlparse(request.host_url)
-    test_url = urlparse(urljoin(request.host_url, target))
-    return test_url.scheme in ('http', 'https') and \
-        ref_url.netloc == test_url.netloc
-
-
 @blueprint_auth.route('/login')
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('extract.profile'))
     return render_template('login.html')
 
 
@@ -44,28 +38,30 @@ def get_keys():
 
 @blueprint_auth.route('/login', methods=['POST'])
 def login_post():
-    email = request.form.get('email')
-    password = request.form.get('password')
     remember = True if request.form.get('remember') else False
 
-    user = WdraxUser.query.filter_by(email=email).first()
+    user = WdraxUser.query.filter_by(email=request.form.get('email')).first()
 
     # check if the user actually exists
     # take the user-supplied password, hash it, and compare it to the hashed password in the database
-    if not user or not check_password_hash(user.password, password):
+    if not user or not user.check_password(request.form.get('password')):
         flash('Please check your login details and try again.')
         return redirect(url_for('auth.login'))  # if the user doesn't exist or password is wrong, reload the page
 
     # if the above check passes, then we know the user has the right credentials
     login_user(user, remember=remember)
-    next = request.args.get('next')
-    if not is_safe_url(next):
-        return abort(400)
-
-    if current_user.twitter_keys_set:
-        return redirect(url_for('extract.profile'))
-    else:
-        return redirect(url_for('auth.get_keys'))
+    next_page = request.args.get('next')
+    if next_page is None:
+        if current_user.twitter_keys_set:
+            next_page = url_for('extract.profile')
+        else:
+            next_page = url_for('auth.get_keys')
+    elif not url_parse(next_page) or url_parse(next_page).netloc != '':
+        if current_user.twitter_keys_set:
+            next_page = url_for('extract.profile')
+        else:
+            next_page = url_for('auth.get_keys')
+    return redirect(next_page)
 
 
 @blueprint_auth.route('/signup', methods=['POST'])

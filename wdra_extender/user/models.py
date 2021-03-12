@@ -1,6 +1,7 @@
 from flask_login import UserMixin
-from ..extensions import db
+from werkzeug.security import generate_password_hash, check_password_hash
 
+from ..extensions import db, login_manager
 from ..extract.tools import ContextProxyLogger
 # Logger safe for use inside or outside of Flask context
 logger = ContextProxyLogger(__name__)
@@ -8,6 +9,12 @@ logger = ContextProxyLogger(__name__)
 __all__ = [
     'WdraxUser',
 ]
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    # since the user_id is just the primary key of our user table, use it in the query for the user
+    return WdraxUser.query.get(int(user_id))
 
 
 class WdraxUser(UserMixin, db.Model):
@@ -32,6 +39,12 @@ class WdraxUser(UserMixin, db.Model):
     consumer_secret = db.Column(db.String(), nullable=True)
     access_token = db.Column(db.String(), nullable=True)
     access_token_secret = db.Column(db.String(), nullable=True)
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
 
     def set_keys(self, form):
         self.bearer_token = form.get('bearer_token')
