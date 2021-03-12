@@ -67,18 +67,16 @@ def login_post():
 @blueprint_auth.route('/signup', methods=['POST'])
 def signup_post():
     email = request.form.get('email')
-    name = request.form.get('name')
-    password = request.form.get('password')
 
     # if this returns a user, then the email already exists in database
     user = WdraxUser.query.filter_by(email=email).first()
-
     if user:  # if a user is found, we want to redirect back to signup page so user can try again
         flash('Email address already exists')
         return redirect(url_for('auth.signup'))
 
     # create a new user with the form data. Hash the password so the plaintext version isn't saved.
-    new_user = WdraxUser(email=email, name=name, password=user.set_password(password))
+    new_user = WdraxUser(email=email, name=request.form.get('name'))
+    new_user.set_password(request.form.get('password'))
 
     # add the new user to the database
     db.session.add(new_user)
