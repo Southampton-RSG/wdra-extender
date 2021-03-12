@@ -1,14 +1,22 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, abort
 from flask_login import login_user, logout_user, login_required, current_user
+from urllib.parse import urlparse, urljoin
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import WdraxUser
-from wdra_extender.extensions import db
 
+from wdra_extender.extensions import db
+from .models import WdraxUser
 from ..extract.tools import ContextProxyLogger
 # Logger safe for use inside or outside of Flask context
 logger = ContextProxyLogger(__name__)
 
 blueprint_auth = Blueprint('auth', __name__)
+
+
+def is_safe_url(target):
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ('http', 'https') and \
+        ref_url.netloc == test_url.netloc
 
 
 @blueprint_auth.route('/login')
@@ -50,6 +58,10 @@ def login_post():
 
     # if the above check passes, then we know the user has the right credentials
     login_user(user, remember=remember)
+    next = request.args.get('next')
+    if not is_safe_url(next):
+        return abort(400)
+
     if current_user.twitter_keys_set:
         return redirect(url_for('extract.profile'))
     else:

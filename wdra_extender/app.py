@@ -39,6 +39,7 @@ def create_app(config_module='wdra_extender.settings'):
     def load_user(user_id):
         # since the user_id is just the primary key of our user table, use it in the query for the user
         return user.models.WdraxUser.query.get(int(user_id))
+
     return _app
 
 
@@ -53,6 +54,7 @@ def register_extensions(_app):
     db.init_app(_app)
     migrate.init_app(_app, db)
     login_manager.init_app(_app)
+    login_manager.login_view = "auth.login"
 
 
 def register_blueprints(_app) -> None:
