@@ -1,6 +1,6 @@
 ---
 # file: roles/wdrax/tasks/main.yml
-- name: create user
+- name: create user and give db permissions
   block:
     - name: Create WDRAX user
       user:
@@ -13,6 +13,15 @@
       yum:
         name: epel-release
         state: latest
+
+    - name: grant permissions to db.postgres
+      ansible.builtin.file:
+        state: directory
+        path: '{{ project_dir }}/db.postgres'
+        owner: 0
+        group: docker
+        mode: u=rwx,g=rwx
+        recurse: yes
 
   become_user: root
   become: yes
