@@ -40,7 +40,7 @@ services:
     volumes:
       - {{ project_dir }}/db.postgres:/var/www/wdrax/db.postgres:z
     environment:
-      PGDATA:/var/www/wdrax/
+      PGDATA: /var/www/wdrax/db.postgres
       POSTGRES_DB: db.postgres
       POSTGRES_USER: wdrax
       POSTGRES_PASSWORD: wdrax
