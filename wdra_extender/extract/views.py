@@ -21,8 +21,6 @@ def get_from_session():
     return rich_dict
 
 
-
-
 # Methods for selecting search parameters ==============================================================================
 @blueprint_extract.route('/method/', methods=['GET', 'POST'])
 def select_method():

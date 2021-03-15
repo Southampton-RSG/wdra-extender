@@ -2,7 +2,7 @@
 from celery import Celery
 from flask_login import LoginManager
 from flask_migrate import Migrate
-from flask.ext.session import Session
+from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 
 

@@ -9,7 +9,7 @@ import importlib
 
 from flask import Flask, request
 
-from wdra_extender import user, extract, index
+from wdra_extender import main, user, extract
 from wdra_extender.extensions import db, login_manager, make_celery, migrate, session
 
 __all__ = [
@@ -68,7 +68,7 @@ def register_blueprints(_app) -> None:
 
     :param _app: Flask App which views should be registered to.
     """
-    _app.register_blueprint(index)
+    _app.register_blueprint(main.routes.blueprint_index)
     _app.register_blueprint(extract.views.blueprint_extract)
     _app.register_blueprint(user.auth.blueprint_auth)
 
