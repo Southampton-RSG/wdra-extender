@@ -1,10 +1,11 @@
 # Generate requirements.txt using pip-tools
 celery[redis]
-python-decouple
 flask
-flask-migrate
-flask-sqlalchemy
 flask-login
+flask-migrate
+flask-session
+flask-sqlalchemy
+python-decouple
 psycopg2-binary
 python-decouple
 searchtweets-v2

@@ -188,7 +188,7 @@ def searchtweets_provider(api_endpoint, twitter_key_dict, request_arguments, add
 
     logger.info(f"add_sch_par\n {additional_search_parameters}")
 
-    available_endpoints = {'search_tweets', }
+    available_endpoints = {'search_tweets', }  # TODO: as searchtweets endpoints are expanded expand availability here
 
     assert api_endpoint in twitter_key_dict.keys(), f'api_endpoint must be in\n\n {available_endpoints} \n\n' \
                                                     f'other endpoints not yet configured'

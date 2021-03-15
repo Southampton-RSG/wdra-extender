@@ -1,20 +1,25 @@
 """Module containing setup code for Flask extensions."""
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
 from celery import Celery
+from flask_login import LoginManager
+from flask_migrate import Migrate
+from flask.ext.session import Session
+from flask_sqlalchemy import SQLAlchemy
+
 
 __all__ = [
     'db',
-    'migrate',
     'login_manager',
-    'make_celery'
+    'make_celery',
+    'migrate',
+    'session'
 ]
 
 
 db = SQLAlchemy()  # pylint: disable=invalid-name
 migrate = Migrate()  # pylint: disable=invalid-name
+
 login_manager = LoginManager()  # pylint: disable=invalid-name
+session = Session()
 
 
 def make_celery(_app):
