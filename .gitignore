@@ -26,3 +26,4 @@ vagrant_extra_vars.yml
 twarc.log
 .vagrant/
 WDRAX.d/
+/dump.rdb

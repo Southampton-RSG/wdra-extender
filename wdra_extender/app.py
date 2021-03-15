@@ -80,4 +80,3 @@ app, celery = create_app()  # pylint: disable=invalid-name
 def log_request():
     """Log each request received."""
     app.logger.debug(repr(request))
-
