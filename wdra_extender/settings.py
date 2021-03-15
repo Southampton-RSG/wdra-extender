@@ -20,9 +20,6 @@ LOG_LEVEL = config('LOG_LEVEL', default='INFO')
 # Security key
 SECRET_KEY = os.urandom(16)
 
-
-
-
 # Directory where executable analysis scrips are stored
 PLUGIN_DIR = config('PLUGIN_DIR',
                     cast=pathlib.Path,
@@ -60,11 +57,15 @@ SESSION_REDIS = config(
     'SESSION REDIS',
     default=(None if REDIS_HOST is None else
              f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'))
+SESSION_COOKIE_NAME = 'wdrax_session'
+SESSION_USE_SIGNER = True
 
 # Define the SQL Alchemy configuration for the extract and user model tables.
 SQLALCHEMY_DATABASE_URI = config('DATABASE_URL')  # From settings.ini
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+# Login extension settings
+REMEMBER_COOKIE_NAME = 'wdrax_user'
 
 # Define where to get the tweets from and define null environment variables for storing twitter credentials that can be=
 # loaded later with user credentials ===================================================================================

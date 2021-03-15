@@ -6,7 +6,7 @@ from flask_login import login_required, current_user
 from . import models, tools
 # from ..app.celery.task.control import inspect
 
-blueprint_extract = Blueprint("extract", __name__, url_prefix='/extract')
+blueprint_extract = Blueprint("extract", __name__, url_prefix='/wdrax/extract')
 
 # Logger safe for use inside or outside of Flask context
 logger = tools.ContextProxyLogger(__name__)
@@ -21,39 +21,6 @@ def get_from_session():
     return rich_dict
 
 
-# ======================================================================================================================
-@blueprint_extract.route('/', methods=['GET', 'POST'])
-def index():
-    if request.method == 'POST':
-        if 'login' in request.form:
-            return redirect(url_for('auth.login'))
-        if 'sign_up' in request.form:
-            return redirect(url_for('auth.signup'))
-    elif request.method == 'GET':
-        return render_template('index.html')
-# ======================================================================================================================
-
-
-# WdraxUser view =======================================================================================================
-@blueprint_extract.route('/profile', methods=['GET', 'POST'])
-@login_required
-def profile():
-    # This is the landing page where users should be able to navigate to the following
-    # - Make a new extract bundle
-    # - Alter their API keys
-    # - Anything else we add later
-    if request.method == 'POST':
-        if 'select_method' in request.form:
-            return redirect(url_for('extract.select_method'))
-        if 'change_api' in request.form:
-            return redirect(url_for('auth.get_keys'))
-        if 'go_to_extracts' in request.form:
-            return redirect(url_for('extract.show_extracts'))
-        if 'logout' in request.form:
-            return redirect(url_for('auth.logout'))
-    elif request.method == 'GET':
-        return render_template('profile.html', name=current_user.name)
-# ======================================================================================================================
 
 
 # Methods for selecting search parameters ==============================================================================

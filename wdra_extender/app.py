@@ -7,9 +7,9 @@ This is the entrypoint to WDRA-Extender.
 
 import importlib
 
-from flask import Flask, render_template, request
+from flask import Flask, request
 
-from wdra_extender import user, extract
+from wdra_extender import user, extract, index
 from wdra_extender.extensions import db, login_manager, make_celery, migrate, session
 
 __all__ = [
@@ -68,6 +68,7 @@ def register_blueprints(_app) -> None:
 
     :param _app: Flask App which views should be registered to.
     """
+    _app.register_blueprint(index)
     _app.register_blueprint(extract.views.blueprint_extract)
     _app.register_blueprint(user.auth.blueprint_auth)
 
@@ -75,18 +76,8 @@ def register_blueprints(_app) -> None:
 app, celery = create_app()  # pylint: disable=invalid-name
 
 
-
 @app.before_request
 def log_request():
     """Log each request received."""
     app.logger.debug(repr(request))
 
-
-# Both routes are required for cross compatibility on RHEL8 and CentOS 8, without both '...:8000/' will work on RHEL8
-# and '...8000/index' will work on CentOS8. With both routes '...:8000/' works on both and '...:8000/index on neither!
-# TODO: get both '/index' and '/' working. Issue #12
-@app.route('/')
-@app.route('/index')
-def index():
-    """Static page where users will land when first accessing WDRA-Extender."""
-    return render_template('index.html')

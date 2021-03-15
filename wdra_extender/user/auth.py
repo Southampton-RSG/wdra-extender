@@ -8,13 +8,36 @@ from ..extract.tools import ContextProxyLogger
 # Logger safe for use inside or outside of Flask context
 logger = ContextProxyLogger(__name__)
 
-blueprint_auth = Blueprint('auth', __name__)
+blueprint_auth = Blueprint('auth', __name__, url_prefix='/wdrax/auth')
 
 
+# WdraxUser view =======================================================================================================
+@blueprint_auth.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    # This is the landing page where users should be able to navigate to the following
+    # - Make a new extract bundle
+    # - Alter their API keys
+    # - Anything else we add later
+    if request.method == 'POST':
+        if 'select_method' in request.form:
+            return redirect(url_for('extract.select_method'))
+        if 'change_api' in request.form:
+            return redirect(url_for('auth.get_keys'))
+        if 'go_to_extracts' in request.form:
+            return redirect(url_for('extract.show_extracts'))
+        if 'logout' in request.form:
+            return redirect(url_for('auth.logout'))
+    elif request.method == 'GET':
+        return render_template('profile.html', name=current_user.name)
+# ======================================================================================================================
+
+
+# GET for login pages===================================================================================================
 @blueprint_auth.route('/login')
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('extract.profile'))
+        return redirect(url_for('auth.profile'))
     return render_template('login.html')
 
 
@@ -34,8 +57,10 @@ def logout():
 @login_required
 def get_keys():
     return render_template('get_keys.html')
+# ======================================================================================================================
 
 
+# POST for the login pages==============================================================================================
 @blueprint_auth.route('/login', methods=['POST'])
 def login_post():
     remember = True if request.form.get('remember') else False
@@ -53,12 +78,12 @@ def login_post():
     next_page = request.args.get('next')
     if next_page is None:
         if current_user.twitter_keys_set:
-            next_page = url_for('extract.profile')
+            next_page = url_for('auth.profile')
         else:
             next_page = url_for('auth.get_keys')
     elif not url_parse(next_page) or url_parse(next_page).netloc != '':
         if current_user.twitter_keys_set:
-            next_page = url_for('extract.profile')
+            next_page = url_for('auth.profile')
         else:
             next_page = url_for('auth.get_keys')
     return redirect(next_page)
@@ -87,10 +112,6 @@ def signup_post():
 @blueprint_auth.route('/get_keys', methods=['POST'])
 @login_required
 def get_keys_post():
-    """current_user.bearer_token = request.form.get('bearer_token')
-    current_user.consumer_key = request.form.get('consumer_key')
-    current_user.consumer_secret = request.form.get('consumer_secret')
-    current_user.access_token = request.form.get('access_token')
-    current_user.access_token_secret = request.form.get('access_token_secret')"""
     current_user.set_keys(request.form)
-    return redirect(url_for('extract.profile'))
+    return redirect(url_for('auth.profile'))
+# ======================================================================================================================
