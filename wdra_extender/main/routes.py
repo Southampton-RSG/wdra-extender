@@ -3,8 +3,11 @@ Module containing the index view
 """
 
 from flask import Blueprint, render_template, redirect, request, url_for
+from ..extract.tools import ContextProxyLogger
+# Logger safe for use inside or outside of Flask context
+logger = ContextProxyLogger(__name__)
 
-blueprint_index = Blueprint("index", __name__, url_prefix='/')
+blueprint_index = Blueprint("index", __name__)
 
 
 # Both routes are required for cross compatibility on RHEL8 and CentOS 8, without both '...:8000/' will work on RHEL8
