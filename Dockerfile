@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /var/www/wdrax
 
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt gunicorn
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY wdra_extender wdra_extender/
 COPY migrations migrations/
