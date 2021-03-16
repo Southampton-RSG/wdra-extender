@@ -57,6 +57,7 @@ SESSION_TYPE = 'redis'
 SESSION_REDIS = redis.Redis(host=f'{REDIS_HOST}', port=int(f'{REDIS_PORT}'), db=int(f'{REDIS_DB}'))
 SESSION_COOKIE_NAME = 'wdrax_session'
 SESSION_USE_SIGNER = True
+SESSION_COOKIE_HTTPONLY = False
 
 # Define the SQL Alchemy configuration for the extract and user model tables.
 SQLALCHEMY_DATABASE_URI = config('DATABASE_URL')  # From settings.ini
@@ -64,6 +65,8 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Login extension settings
 REMEMBER_COOKIE_NAME = 'wdrax_user'
+USE_SESSION_FOR_NEXT = True
+
 
 # Define where to get the tweets from and define null environment variables for storing twitter credentials that can be=
 # loaded later with user credentials ===================================================================================

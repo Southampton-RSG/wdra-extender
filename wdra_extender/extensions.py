@@ -19,7 +19,7 @@ db = SQLAlchemy()  # pylint: disable=invalid-name
 migrate = Migrate()  # pylint: disable=invalid-name
 
 login_manager = LoginManager()  # pylint: disable=invalid-name
-session = Session() # pylint: disable=invalid-name
+session = Session()  # pylint: disable=invalid-name
 
 
 def make_celery(_app):

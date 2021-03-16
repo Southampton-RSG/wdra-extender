@@ -11,13 +11,6 @@ __all__ = [
 ]
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    logger.debug(f"attempting to load user {user_id}")
-    # since the user_id is just the primary key of our user table, use it in the query for the user
-    return WdraxUser.query.get(int(user_id))
-
-
 class WdraxUser(UserMixin, db.Model):
     """A Twitter Extract Bundle.
 
@@ -81,3 +74,10 @@ class WdraxUser(UserMixin, db.Model):
         """Save this model to the database."""
         db.session.add(self)
         db.session.commit()
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    logger.debug(f"attempting to load user {user_id}")
+    # since the user_id is just the primary key of our user table, use it in the query for the user
+    return WdraxUser.query.get(int(user_id))
