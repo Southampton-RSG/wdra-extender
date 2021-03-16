@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.urls import url_parse
 
@@ -74,8 +74,11 @@ def login_post():
         return redirect(url_for('auth.login'))  # if the user doesn't exist or password is wrong, reload the page
 
     # if the above check passes, then we know the user has the right credentials
-    login_user(user, remember=remember)
-    next_page = request.args.get('next')
+    result = login_user(user, remember=remember)
+    logger.debug(f"Login result is {result}")
+    logger.debug(f"Session has {session}")
+    next_page = session.get('next')
+    logger.debug(f"next page is {next_page}")
     if next_page is None:
         logger.debug("Login successful.")
         if current_user.twitter_keys_set:
