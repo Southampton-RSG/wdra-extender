@@ -15,7 +15,7 @@ __all__ = [
 def load_user(user_id):
     logger.debug(f"attempting to load user {user_id}")
     # since the user_id is just the primary key of our user table, use it in the query for the user
-    return WdraxUser.query.get(user_id)
+    return WdraxUser.query.get(int(user_id))
 
 
 class WdraxUser(UserMixin, db.Model):
@@ -27,7 +27,7 @@ class WdraxUser(UserMixin, db.Model):
     # pylint: disable=no-member
     __tablename__ = 'wdrax_users'
 
-    id = db.Column(db.Unicode, unique=True, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, unique=True, primary_key=True, autoincrement=True)
     email = db.Column(db.String(100), unique=True)
     name = db.Column(db.String(1000), unique=True)
     password = db.Column(db.String(100))
