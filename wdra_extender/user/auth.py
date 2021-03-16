@@ -76,6 +76,8 @@ def login_post():
     # if the above check passes, then we know the user has the right credentials
     result = login_user(user, remember=remember)
     logger.debug(f"Login result is {result}")
+    logger.debug(f"Current user localscope:appscope is {user.name}:{current_user.name}")
+    logger.debug(f"Current user auth setting is localscope:appscope {user.is_authenticated()}:{current_user.is_authenticated()}")
     logger.debug(f"Session has {session}")
     next_page = session.get('next')
     logger.debug(f"next page is {next_page}")
