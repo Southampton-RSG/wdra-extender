@@ -52,7 +52,7 @@ def register_extensions(_app):
 
     # account manager
     login_manager.init_app(_app)
-    login_manager.login_view = "auth.login"
+    #login_manager.login_view = "auth.login"
 
     # server side session
     session.init_app(_app)
