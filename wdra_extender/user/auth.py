@@ -77,6 +77,7 @@ def login_post():
     login_user(user, remember=remember)
     next_page = request.args.get('next')
     if next_page is None:
+        logger.debug("Login successful.")
         if current_user.twitter_keys_set:
             next_page = url_for('auth.profile')
         else:
