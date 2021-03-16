@@ -7,6 +7,7 @@ import pathlib
 
 from decouple import AutoConfig
 import yaml
+import redis
 
 # Use the parent directory as the root relative to which we define other paths
 BASE_DIR = pathlib.Path(__name__).absolute().parent
@@ -53,10 +54,7 @@ CELERY_IMPORTS = config(
 
 # User session settings
 SESSION_TYPE = 'redis'
-"""SESSION_REDIS = config(
-    'SESSION REDIS',
-    default=(None if REDIS_HOST is None else
-             f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'))"""
+SESSION_REDIS = redis.Redis(host='{REDIS_HOST}', port='{REDIS_PORT}', db='{REDIS_DB}')
 SESSION_COOKIE_NAME = 'wdrax_session'
 SESSION_USE_SIGNER = True
 
