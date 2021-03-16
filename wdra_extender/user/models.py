@@ -15,7 +15,7 @@ __all__ = [
 def load_user(user_id):
     logger.debug(f"attempting to load user {user_id}")
     # since the user_id is just the primary key of our user table, use it in the query for the user
-    return WdraxUser.query.get(id=user_id)
+    return WdraxUser.query.get(user_id)
 
 
 class WdraxUser(UserMixin, db.Model):
