@@ -27,7 +27,7 @@ class WdraxUser(UserMixin, db.Model):
     # pylint: disable=no-member
     __tablename__ = 'wdrax_users'
 
-    id = db.Column(db.Unicode, unique=True, primary_key=True)  # primary keys are required by SQLAlchemy
+    id = db.Column(db.Unicode, unique=True, primary_key=True, autoincrement=True)
     email = db.Column(db.String(100), unique=True)
     name = db.Column(db.String(1000), unique=True)
     password = db.Column(db.String(100))
