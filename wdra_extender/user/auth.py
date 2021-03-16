@@ -61,7 +61,7 @@ def get_keys():
 
 
 # POST for the login pages==============================================================================================
-@blueprint_auth.route('/login', methods=['POST'])
+@blueprint_auth.route('/login_post', methods=['POST'])
 def login_post():
     remember = True if request.form.get('remember') else False
 
@@ -89,7 +89,7 @@ def login_post():
     return redirect(next_page)
 
 
-@blueprint_auth.route('/signup', methods=['POST'])
+@blueprint_auth.route('/signup_post', methods=['POST'])
 def signup_post():
     email = request.form.get('email')
 
