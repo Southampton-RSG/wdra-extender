@@ -54,7 +54,7 @@ CELERY_IMPORTS = config(
 
 # User session settings
 SESSION_TYPE = 'redis'
-SESSION_REDIS = redis.Redis(host='{REDIS_HOST}', port=int('{REDIS_PORT}'), db=int('{REDIS_DB}'))
+SESSION_REDIS = redis.Redis(host=f'{REDIS_HOST}', port=int(f'{REDIS_PORT}'), db=int(f'{REDIS_DB}'))
 SESSION_COOKIE_NAME = 'wdrax_session'
 SESSION_USE_SIGNER = True
 
