@@ -76,7 +76,7 @@ def signup():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('extract.index'))
+    return redirect(url_for('index.index'))
 
 
 @blueprint_auth.route('/get_keys')
