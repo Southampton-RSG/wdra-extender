@@ -1,6 +1,6 @@
 ---
 # file: playbook.yml
-- hosts: dev # deploy_pp #
+- hosts: deploy_pp # dev #
   become_method: sudo
 
   vars:

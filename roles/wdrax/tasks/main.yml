@@ -14,19 +14,10 @@
         name: epel-release
         state: latest
 
-    - name: grant permissions to db.postgres
-      ansible.builtin.file:
-        state: directory
-        path: '{{ project_dir }}/db.postgres'
-        owner: 0
-        group: docker
-        mode: u=rwx,g=rwx
-        recurse: yes
-
   become_user: root
   become: yes
 
-- name: Clone repo and use docker to start app
+- name: Clone repo
   block:
     - name: Clone / update from source repo
       git:
@@ -36,7 +27,24 @@
         accept_hostkey: yes
       tags:
         - always
+  become_user: '{{ wdrax_user }}'
+  become: yes
 
+- name: add permissions to postgres
+  block:
+    - name: grant permissions to db.postgres
+      ansible.builtin.file:
+        state: directory
+        path: '{{ project_dir }}/db.postgres'
+        owner: 0
+        group: docker
+        mode: u=rwx,g=rwx
+        recurse: yes
+  become_user: root
+  become: yes
+
+- name: Use docker to start app
+  block:
     - name: Install docker-compose
       pip:
         name:
