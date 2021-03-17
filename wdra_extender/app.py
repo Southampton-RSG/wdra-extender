@@ -55,7 +55,7 @@ def register_extensions(_app):
     login_manager.login_view = "auth.login"
 
     # server side session
-    #session.init_app(_app)
+    session.init_app(_app)
 
     # job runner
     _celery = make_celery(_app)
