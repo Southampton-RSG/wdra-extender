@@ -6,6 +6,7 @@ flask-migrate
 flask-session
 flask-sqlalchemy
 gunicorn
+neo4j
 psycopg2-binary
 python-decouple
 python-decouple
