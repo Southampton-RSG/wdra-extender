@@ -10,7 +10,7 @@ import importlib
 from flask import Flask, request
 
 from wdra_extender import main, user, extract, neo
-from wdra_extender.extensions import db, login_manager, make_celery, migrate, session
+from wdra_extender.extensions import db, login_manager, make_celery, migrate, session, drive_neo
 
 __all__ = [
     'app',
@@ -59,6 +59,9 @@ def register_extensions(_app):
 
     # job runner
     _celery = make_celery(_app)
+
+    # neo4j
+    drive_neo(_app)
 
     return _celery
 

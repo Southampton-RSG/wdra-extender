@@ -4,16 +4,11 @@ from flask import current_app, g, session
 from flask_login import login_required, current_user
 from neo4j import GraphDatabase, basic_auth
 
+from ..extensions import driver
 from ..extract.tools import ContextProxyLogger
 # Logger safe for use inside or outside of Flask context
 logger = ContextProxyLogger(__name__)
 
-with current_app.app_context():
-    driver = GraphDatabase.driver(current_app.config['NEO4J_URI'],
-                                  auth=basic_auth(current_app.config['NEO4J_USER'],
-                                                  current_app.config['NEO4J_PASSWORD']
-                                                  )
-                                  )
 
 __all__ = [
     'get_db',

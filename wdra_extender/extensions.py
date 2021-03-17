@@ -4,13 +4,16 @@ from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
+from neo4j import GraphDatabase, basic_auth
 
 __all__ = [
     'db',
     'login_manager',
     'make_celery',
     'migrate',
-    'session'
+    'session',
+    'driver',
+    'drive_neo'
 ]
 
 
@@ -19,6 +22,17 @@ migrate = Migrate()  # pylint: disable=invalid-name
 
 login_manager = LoginManager()  # pylint: disable=invalid-name
 session = Session()  # pylint: disable=invalid-name
+
+driver = None
+
+
+def drive_neo(_app):
+    driver = GraphDatabase.driver(current_app.config['NEO4J_URI'],
+                                  auth=basic_auth(current_app.config['NEO4J_USER'],
+                                                  current_app.config['NEO4J_PASSWORD']
+                                                  )
+                                  )
+    global driver
 
 
 def make_celery(_app):
