@@ -28,10 +28,10 @@ def user_session_test():
     logger.debug(f"\n")
     current_session = session
     logger.debug(f"Current Session:\n")
-    logger.debug('\n'.join([f'{key}: {value}' for key, value in current_session]))
+    logger.debug(f"{current_session}")
     current_cookies = request.cookies
     logger.debug(f"Current Cookies:\n")
-    logger.debug('\n'.join([f'{key}: {value}' for key, value in current_cookies]))
+    logger.debug(f"{current_cookies}")
     logger.debug(f"\n :Login and Session testing\n")
     return redirect(url_for('extract.index'))
 # ======================================================================================================================
