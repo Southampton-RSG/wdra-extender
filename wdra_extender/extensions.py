@@ -27,12 +27,12 @@ driver = None
 
 
 def drive_neo(_app):
-    driver = GraphDatabase.driver(current_app.config['NEO4J_URI'],
-                                  auth=basic_auth(current_app.config['NEO4J_USER'],
-                                                  current_app.config['NEO4J_PASSWORD']
+    global driver
+    driver = GraphDatabase.driver(_app.config['NEO4J_URI'],
+                                  auth=basic_auth(_app.config['NEO4J_USER'],
+                                                  _app.config['NEO4J_PASSWORD']
                                                   )
                                   )
-    global driver
 
 
 def make_celery(_app):
