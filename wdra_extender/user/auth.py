@@ -11,6 +11,26 @@ logger = ContextProxyLogger(__name__)
 blueprint_auth = Blueprint('auth', __name__, url_prefix='/wdrax/auth')
 
 
+# Test login and session================================================================================================
+@blueprint_auth.route('/user_session_test')
+def user_session_test():
+    logger.debug(f"\n Login and Session testing: \n")
+    user = current_user
+    logger.debug(f"Current User:\n"
+                 f"id: {user.id}\n"
+                 f"is_auth: {user.is_authenticated}\n"
+                 f"\n")
+    current_session = session
+    logger.debug(f"Current Session:\n")
+    logger.debug('\n'.join([f'{key}: {value}' for key, value in current_session]))
+    current_cookies = request.cookies
+    logger.debug(f"Current Cookies:\n")
+    logger.debug('\n'.join([f'{key}: {value}' for key, value in current_cookies]))
+    logger.debug(f"\n :Login and Session testing\n")
+    return redirect(url_for('extract.index'))
+# ======================================================================================================================
+
+
 # WdraxUser view =======================================================================================================
 @blueprint_auth.route('/profile', methods=['GET', 'POST'])
 @login_required
