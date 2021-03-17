@@ -3,16 +3,12 @@
 - hosts: dev # deploy_pp #
   become_method: sudo
 
-  shell: random_string
-    run_once: true
-    delegate_to: 127.0.0.1
-    register: unique_id
   vars:
     project_dir: /home/{{ wdrax_user }}/wdra-extender
     wdrax_user: wdrax
     LOG_LEVEL: DEBUG  # Passed to web server via docker-compose.yml
     db_host: db
-    secret_key: '{{ unique_id }}'
+    secret_key: '{{ lookup("password", "/dev/null") }}'
 
   pre_tasks:
     - name: Install Ansible prerequisites
