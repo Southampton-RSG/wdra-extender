@@ -177,8 +177,8 @@ def get_by_replication(extract_uuid):
 
 
 # Methods for managing the extract bundle once created==================================================================
-@login_required
 @blueprint_extract.route('/show', methods=['GET', 'POST'])
+@login_required
 def show_extracts():
     """Display a list of the users previous Twitter Extract Bundles"""
     user_extracts = models.Extract.query.filter_by(user_id=int(current_user.id)).all()

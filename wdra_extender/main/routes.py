@@ -10,9 +10,6 @@ logger = ContextProxyLogger(__name__)
 blueprint_index = Blueprint("index", __name__)
 
 
-# Both routes are required for cross compatibility on RHEL8 and CentOS 8, without both '...:8000/' will work on RHEL8
-# and '...8000/index' will work on CentOS8. With both routes '...:8000/' works on both and '...:8000/index on neither!
-# TODO: get both '/index' and '/' working. Issue #12
 @blueprint_index.route('/', methods=['GET', 'POST'])
 @blueprint_index.route('/index', methods=['GET', 'POST'])
 def index():
