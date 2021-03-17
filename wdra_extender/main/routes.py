@@ -19,5 +19,7 @@ def index():
             return redirect(url_for('auth.login'))
         if 'sign_up' in request.form:
             return redirect(url_for('auth.signup'))
+        if 'neo_test' in request.form:
+            return redirect(url_for('neo.get_graph'))
     elif request.method == 'GET':
         return render_template('index.html')

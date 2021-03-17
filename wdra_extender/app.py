@@ -9,7 +9,7 @@ import importlib
 
 from flask import Flask, request
 
-from wdra_extender import main, user, extract
+from wdra_extender import main, user, extract, neo
 from wdra_extender.extensions import db, login_manager, make_celery, migrate, session
 
 __all__ = [
@@ -71,6 +71,7 @@ def register_blueprints(_app) -> None:
     _app.register_blueprint(main.routes.blueprint_index)
     _app.register_blueprint(extract.views.blueprint_extract)
     _app.register_blueprint(user.auth.blueprint_auth)
+    _app.register_blueprint(neo.neo_view.blueprint_neo)
 
 
 app, celery = create_app()  # pylint: disable=invalid-name

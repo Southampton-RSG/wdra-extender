@@ -67,6 +67,14 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 REMEMBER_COOKIE_NAME = 'wdrax_user'
 USE_SESSION_FOR_NEXT = True
 
+# neo4j settings
+NEO4J_URI = config('NEO4J_URI')
+NEO4J_USER = config('NEO4J_USER')
+NEO4J_PASSWORD = config('NEO4J_PASSWORD')
+NEO4J_VERSION = config('NEO4J_VERSION')
+NEO4J_DATABASE = config('NEO4J_DATABASE')
+NEO4J_PORT = config('NEO4J_PORT')
+
 
 # Define where to get the tweets from and define null environment variables for storing twitter credentials that can be=
 # loaded later with user credentials ===================================================================================
