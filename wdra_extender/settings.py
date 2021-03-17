@@ -19,7 +19,7 @@ config = AutoConfig(search_path=str(BASE_DIR))  # pylint: disable=invalid-name
 LOG_LEVEL = config('LOG_LEVEL', default='INFO')
 
 # Security key
-SECRET_KEY = os.urandom(16)
+SECRET_KEY = config('FLASK_SECRET_KEY', default="not-secure")
 
 # Directory where executable analysis scrips are stored
 PLUGIN_DIR = config('PLUGIN_DIR',
