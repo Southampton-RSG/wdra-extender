@@ -16,10 +16,16 @@ blueprint_auth = Blueprint('auth', __name__, url_prefix='/wdrax/auth')
 def user_session_test():
     logger.debug(f"\n Login and Session testing: \n")
     user = current_user
-    logger.debug(f"Current User:\n"
-                 f"id: {user.id}\n"
-                 f"is_auth: {user.is_authenticated}\n"
-                 f"\n")
+    logger.debug(f"Current User:\n")
+    try:
+        logger.debug(f"id: {user.id}\n")
+    except AttributeError as e:
+        logger.debug(f"Except {e}: id: {user.get_id()}")
+    try:
+        logger.debug(f"is_auth: {user.is_authenticated}\n")
+    except AttributeError as e:
+        logger.debug(f"Except {e}: user_object: {user}")
+    logger.debug(f"\n")
     current_session = session
     logger.debug(f"Current Session:\n")
     logger.debug('\n'.join([f'{key}: {value}' for key, value in current_session]))
