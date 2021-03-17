@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 
 from json import dumps
 
-import graph
+from . import graph
 
 blueprint_neo = Blueprint("neo", __name__, url_prefix='/wdrax/neo')
 
