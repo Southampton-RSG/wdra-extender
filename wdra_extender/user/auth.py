@@ -33,7 +33,7 @@ def user_session_test():
     logger.debug(f"Current Cookies:\n")
     logger.debug(f"{current_cookies}")
     logger.debug(f"\n :Login and Session testing\n")
-    return redirect(url_for('extract.index'))
+    return redirect(url_for('index.index'))
 # ======================================================================================================================
 
 
