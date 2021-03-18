@@ -93,7 +93,7 @@
         }
         function search() {
             const query=$("#search").find("input[name=search]").val();
-            $.get("{{ url_for('neo.get_search') }}" + "?q=" + encodeURIComponent(query),
+            $.get("search?q=" + encodeURIComponent(query),
                     function (data) {
                         const t = $("table#results tbody").empty();
                         if (!data || data.length == 0) return;
