@@ -1,5 +1,6 @@
 """Module containing setup code for Flask extensions."""
 from celery import Celery
+from flask import g
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_session import Session
@@ -42,12 +43,12 @@ class MakeNeo:
         Function to return the neo4j database driver associated with the application else
         create, assign, and return a driver for the neo4j session.
         """
-        if not hasattr(self.current_app.g, 'neo4j_db'):
+        if not hasattr(g, 'neo4j_db'):
             if self.current_app.config['NEO4J_VERSION'].startswith("4"):
-                self.current_app.g.neo4j_db = self.driver.session(database=self.current_app.config['NEO4J_DATABASE'])
+                g.neo4j_db = self.driver.session(database=self.current_app.config['NEO4J_DATABASE'])
             else:
-                self.current_app.g.neo4j_db = self.driver.session()
-        return self.current_app.g.neo4j_db
+                g.neo4j_db = self.driver.session()
+        return g.neo4j_db
 
 
 neo_db = MakeNeo()
