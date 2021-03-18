@@ -51,7 +51,7 @@ def register_extensions(_app):
     migrate.init_app(_app, db)
 
     # neo4j
-    neo_db.init_app(_app)
+    # neo_db.init_app(_app)
 
     # account manager
     login_manager.init_app(_app)

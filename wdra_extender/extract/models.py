@@ -133,7 +133,8 @@ class Extract(db.Model):
                 'place_fields': None,
                 'poll_fields': None,
                 'expansions': None,
-                'stringify': True
+                'stringify': True,
+                'endpoint': 'search_tweets'
             }
 
             for key in kwargs.keys():

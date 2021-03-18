@@ -114,6 +114,18 @@
                 <td><label for="to_inc">Inclusive</label>
                     <input type="checkbox" class="form-control" id="to_inc" name="to_inclusive"></td>
             </tr>
+            <tr>
+                <td><label for="method_select">Endpoint</label></td>
+                {% for key, enabled in endpoints %}
+                    {% if enabled %}
+                    <td colspan="6">
+                        <select class = "browser-default custom-select" name= "endpoint">
+                                <option name= "{{ key }}" SELECTED>{{ key }}</option>
+                        </select>
+                    </td>
+                    {% if enabled %}
+                {% endfor %}
+            </tr>
         </table>
         <label><h3>Return Fields</h3></label>
         <p>Choose the return fields to retrieve from the api</p>

@@ -18,6 +18,14 @@
         <textarea type="text" class="form-control" id="access_token_secret" name="access_token_secret"></textarea>
     </div>
     <div>
+        {% for endpoint in endpoints %}
+            <tr>
+                <td colspan="1"><label for="{{ endpoint }}_check"> {{ endpoint }}</label></td>
+                <td colspan="1"><input type="checkbox" class="form-control" id="{{ endpoint }}_check" name="{{ endpoint }}"></td>
+            </tr>
+        {% endfor %}
+    </div>
+    <div>
         <input class="button1" type="submit" value="Submit">
     </div>
 </form>

@@ -1,3 +1,4 @@
+from flask import current_app
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -34,6 +35,8 @@ class WdraxUser(UserMixin, db.Model):
     access_token = db.Column(db.String(), nullable=True)
     access_token_secret = db.Column(db.String(), nullable=True)
 
+    endpoints = db.Column(db.PickleType(), nullable=True)
+
     def set_password(self, password):
         self.password = generate_password_hash(password, method='sha256')
 
@@ -47,6 +50,12 @@ class WdraxUser(UserMixin, db.Model):
         self.access_token = form.get('access_token')
         self.access_token_secret = form.get('access_token_secret')
         self.twitter_keys_set = True
+        self.endpoints = {}
+        for endpoint in current_app.config['TWITTER_ENDPOINTS']:
+            if endpoint in form.keys:
+                self.endpoints[endpoint] = True
+            else:
+                self.endpoints[endpoint] = False
         self.save()
 
     def get_key(self, key: str):
@@ -64,6 +73,7 @@ class WdraxUser(UserMixin, db.Model):
                         }
                         for endpoint_name, endpoint_str in [['get_tweets_by_id', 'tweets/'],
                                                             ['search_tweets', 'tweets/search/recent'],
+                                                            ['search_archive', 'tweets/search/all'],
                                                             ['user_mention', 'users/:id/mentions'],
                                                             ['user_tweets', 'users/:id/tweet']
                                                             ]

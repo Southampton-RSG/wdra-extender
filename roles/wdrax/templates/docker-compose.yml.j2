@@ -49,3 +49,15 @@ services:
     image: redis
     restart: always
 
+  neo4j:
+    image: neo4j:4.2.3
+    restart: always
+    ports:
+      - 7474:7474 #HTTP
+      - 7473:7473 #HTTPS
+      - 7687:7687 #Bolt
+    volumes:
+      - {{ project_dir }}/db.neo/:/var/www/wdrax/db.neo/:z
+    environment:
+      NEO$J_HOME: /var/www/wdrax/db.neo/
+      NEO4J_AUTH: wdrax/wdrax

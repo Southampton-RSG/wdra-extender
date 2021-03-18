@@ -68,12 +68,12 @@ REMEMBER_COOKIE_NAME = 'wdrax_user'
 USE_SESSION_FOR_NEXT = True
 
 # neo4j settings
-NEO4J_URI = config('NEO4J_URI')
-NEO4J_USER = config('NEO4J_USER')
-NEO4J_PASSWORD = config('NEO4J_PASSWORD')
-NEO4J_VERSION = config('NEO4J_VERSION')
-NEO4J_DATABASE = config('NEO4J_DATABASE')
-NEO4J_PORT = config('NEO4J_PORT')
+NEO4J_URI = config('NEO4J_URI', default=None)
+NEO4J_USER = config('NEO4J_USER', default=None)
+NEO4J_PASSWORD = config('NEO4J_PASSWORD', default=None)
+NEO4J_VERSION = config('NEO4J_VERSION', default=None)
+NEO4J_DATABASE = config('NEO4J_DATABASE', default=None)
+NEO4J_PORT = config('NEO4J_PORT', default=None)
 
 
 # Define where to get the tweets from and define null environment variables for storing twitter credentials that can be=
@@ -108,6 +108,10 @@ dict_file = {'get_tweets_by_id': {'endpoint': 'https://api.twitter.com/2/tweets/
                                'consumer_key': f'{TWITTER_CONSUMER_KEY}',
                                'consumer_secret': f'{TWITTER_CONSUMER_SECRET}',
                                'bearer_token': f'{BEARER_TOKEN}'},
+             'search_archive': {'endpoint': 'https://api.twitter.com/2/tweets/search/all',
+                                            'consumer_key': f'{TWITTER_CONSUMER_KEY}',
+                                            'consumer_secret': f'{TWITTER_CONSUMER_SECRET}',
+                                            'bearer_token': f'{BEARER_TOKEN}'},
              'user_mention': {'endpoint': 'https://api.twitter.com/2/users/:id/mentions',
                               'consumer_key': f'{TWITTER_CONSUMER_KEY}',
                               'consumer_secret': f'{TWITTER_CONSUMER_SECRET}',
@@ -117,6 +121,8 @@ dict_file = {'get_tweets_by_id': {'endpoint': 'https://api.twitter.com/2/tweets/
                              'consumer_secret': f'{TWITTER_CONSUMER_SECRET}',
                              'bearer_token': f'{BEARER_TOKEN}'},
              }
+
+TWITTER_ENDPOINTS = dict_file.keys()
 
 # This is blank and currently never used to overwrite user credentials but could be used to provide a framework for ====
 # organisational logins or local installs

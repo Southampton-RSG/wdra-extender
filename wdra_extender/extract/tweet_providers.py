@@ -74,6 +74,7 @@ def get_tweets_by_search(query, twitter_key_dict,
     found_tweets = []
     for provider in map(import_object, tweet_providers):
         try:
+            additional_search_parameters.get('endpoint', 'search_tweets')
             provider_found_ids, provider_found_tweets = provider('search_tweets', twitter_key_dict,
                                                                  query, additional_search_parameters)
         except ConnectionError as exc:
@@ -188,7 +189,7 @@ def searchtweets_provider(api_endpoint, twitter_key_dict, request_arguments, add
 
     logger.info(f"add_sch_par\n {additional_search_parameters}")
 
-    available_endpoints = {'search_tweets', }  # TODO: as searchtweets endpoints are expanded expand availability here
+    available_endpoints = {'search_tweets', 'search_archive'}  # TODO: as searchtweets endpoints are expanded expand availability here
 
     assert api_endpoint in twitter_key_dict.keys(), f'api_endpoint must be in\n\n {available_endpoints} \n\n' \
                                                     f'other endpoints not yet configured'
@@ -200,9 +201,17 @@ def searchtweets_provider(api_endpoint, twitter_key_dict, request_arguments, add
 
     search_creds = load_credentials(env_overwrite=False)
 
-    max_results = int(additional_search_parameters.pop('max_results'))
+    def get_valid_kwargs(func, args_dict):
+        valid_args = func.func_code.co_varnames[:func.func_code.co_argcount]
+        kwargs_len = len(func.func_defaults)  # number of keyword arguments
+        valid_kwargs = valid_args[-kwargs_len:]  # because kwargs are last
+        return dict((key, value) for key, value in args_dict.iteritems()
+                    if key in valid_kwargs)
+
+    max_results = additional_search_parameters.get('max_results', 10)
     logger.info(f"max_results set to: {max_results}")
-    query = gen_request_parameters(request_arguments, **additional_search_parameters)
+    query = gen_request_parameters(request_arguments, **get_valid_kwargs(gen_request_parameters,
+                                                                         additional_search_parameters))
     rs = ResultStream(request_parameters=query, max_tweets=max_results, **search_creds)
     tweets = list(rs.stream())
     logger.info(f"{tweets}")

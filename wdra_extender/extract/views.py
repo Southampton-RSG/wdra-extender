@@ -63,7 +63,8 @@ def get_by_search(extract_uuid, basic_form):
             return render_template('get_by_search.html',
                                    extract_uuid=extract_uuid,
                                    basic_form=basic_form,
-                                   return_fields=current_app.config['TWITTER_RETURN_DICT'])
+                                   return_fields=current_app.config['TWITTER_RETURN_DICT'],
+                                   endpoints=current_user.avalible_endpoints)
         if ('submit_basic' in request.form) or ('submit_adv' in request.form):
             inc_terms = str(request.form['include_terms']).split(sep=',')
             logger.info(f"include list {inc_terms}")
@@ -86,7 +87,8 @@ def get_by_search(extract_uuid, basic_form):
                         'media_fields': [],
                         'place_fields': [],
                         'poll_fields': [],
-                        'expansions': []}
+                        'expansions': [],
+                        'endpoint': 'search_tweets'}
             if 'max_results' in request.form:
                 adv_dict['max_results'] = request.form['max_results']
             if 'results_per_call' in request.form:
@@ -107,6 +109,8 @@ def get_by_search(extract_uuid, basic_form):
                                 adv_dict[field] = request.form[field] + 1
                             else:
                                 adv_dict[field] = request.form[field]
+                    if field == 'endpoint':
+                        adv_dict[field] = request.form[field]
                     # Basic return fields
                     if field in current_app.config['TWITTER_RETURN_DICT']['tweet_fields']:
                         if field not in ["poll_fields", "id", "text"]:

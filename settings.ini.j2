@@ -12,9 +12,8 @@ LOG_LEVEL=DEBUG
 
 DATABASE_URL=postgresql://wdrax:wdrax@{{ db_host }}:5432/db.postgres
 
-NEO4J_URI=neo4j+s://demo.neo4jlabs.com
-NEO4J_USER=movies
-NEO4J_PASSWORD=movies
+NEO4J_URI=neo4j+s://{{ db_host }}:7474/db.neo4j
+NEO4J_USER=wdrax
+NEO4J_PASSWORD=wdrax
 NEO4J_VERSION=4
 NEO4J_DATABASE=movies
-NEO4J_PORT=8080
