@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash, session
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.urls import url_parse
 
@@ -54,6 +54,8 @@ def profile():
             return redirect(url_for('extract.show_extracts'))
         if 'logout' in request.form:
             return redirect(url_for('auth.logout'))
+        if 'view_graph' in request.form:
+            return current_app.send_static_file('neo_graph.html')
     elif request.method == 'GET':
         return render_template('profile.html', name=current_user.name)
 # ======================================================================================================================
