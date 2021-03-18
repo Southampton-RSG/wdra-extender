@@ -1,6 +1,15 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://neo4j-documentation.github.io/developer-resources/language-guides/assets/css/main.css">
+    <title>Neo4j Movies</title>
+</head>
 
-{% block content %}
+<body>
+<div id="graph">
+</div>
 <div role="navigation" class="navbar navbar-default navbar-static-top">
     <div class="container">
         <div class="row">
@@ -69,7 +78,7 @@
     .node.movie { fill: #BBB; }
     .link { stroke: #999; stroke-opacity: .6; stroke-width: 1px; }
 </style>
-{% endblock %}
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
         integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
         crossorigin="anonymous"></script>
@@ -153,3 +162,5 @@
         });
     });
 </script>
+</body>
+</html>
