@@ -55,8 +55,7 @@ def profile():
         if 'logout' in request.form:
             return redirect(url_for('auth.logout'))
         if 'view_graph' in request.form:
-            return send_from_directory(filename='neo_graph.html',
-                                       directory=current_app.config['BASE_DIR'].joinpath('wdra_extender/templates'))
+            return redirect(url_for('neo.show_graph'))
     elif request.method == 'GET':
         return render_template('profile.html', name=current_user.name)
 # ======================================================================================================================

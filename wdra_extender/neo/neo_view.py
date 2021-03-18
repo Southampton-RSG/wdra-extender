@@ -1,5 +1,5 @@
 """Module containing views to support display and interaction with neo4j"""
-from flask import Blueprint, current_app, g, render_template, redirect, request, Response, url_for, session
+from flask import Blueprint, current_app, g, render_template, redirect, request, Response, url_for, session, send_from_directory
 from flask_login import login_required, current_user
 
 from json import dumps
@@ -8,6 +8,12 @@ from . import graph
 from ..extensions import neo_db
 
 blueprint_neo = Blueprint("neo", __name__, url_prefix='/wdrax/neo')
+
+
+@blueprint_neo.route("/display")
+def show_graph():
+    return send_from_directory(filename='neo_graph.html',
+                               directory=current_app.config['BASE_DIR'].joinpath('wdra_extender/templates'))
 
 
 @blueprint_neo.route("/graph")
