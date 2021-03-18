@@ -64,7 +64,7 @@ def get_by_search(extract_uuid, basic_form):
                                    extract_uuid=extract_uuid,
                                    basic_form=basic_form,
                                    return_fields=current_app.config['TWITTER_RETURN_DICT'],
-                                   endpoints=current_user.avalible_endpoints)
+                                   endpoints=current_user.endpoints)
         if ('submit_basic' in request.form) or ('submit_adv' in request.form):
             inc_terms = str(request.form['include_terms']).split(sep=',')
             logger.info(f"include list {inc_terms}")
