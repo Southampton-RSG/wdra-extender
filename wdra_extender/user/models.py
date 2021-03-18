@@ -52,7 +52,7 @@ class WdraxUser(UserMixin, db.Model):
         self.twitter_keys_set = True
         self.endpoints = {}
         for endpoint in current_app.config['TWITTER_ENDPOINTS']:
-            if endpoint in form.keys:
+            if endpoint in form.keys():
                 self.endpoints[endpoint] = True
             else:
                 self.endpoints[endpoint] = False
