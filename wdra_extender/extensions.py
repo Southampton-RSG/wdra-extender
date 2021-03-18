@@ -42,7 +42,7 @@ class MakeNeo:
         Function to return the neo4j database driver associated with the application else
         create, assign, and return a driver for the neo4j session.
         """
-        if not hasattr(g, 'neo4j_db'):
+        if not hasattr(self.current_app.g, 'neo4j_db'):
             if self.current_app.config['NEO4J_VERSION'].startswith("4"):
                 self.current_app.g.neo4j_db = self.driver.session(database=self.current_app.config['NEO4J_DATABASE'])
             else:
