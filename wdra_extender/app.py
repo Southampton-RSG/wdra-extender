@@ -10,13 +10,12 @@ import importlib
 from flask import Flask, request, g
 
 from wdra_extender import main, user, extract, neo
-from wdra_extender.extensions import db, login_manager, make_celery, MakeNeo, migrate, session
+from wdra_extender.extensions import db, login_manager, make_celery, neo_db, migrate, session
 
 __all__ = [
     'app',
     'celery',
-    'create_app',
-    'neo_db'
+    'create_app'
 ]
 
 
@@ -78,7 +77,7 @@ def register_blueprints(_app) -> None:
     _app.register_blueprint(neo.neo_view.blueprint_neo)
 
 
-app, celery, neo_db = create_app()  # pylint: disable=invalid-name
+app, celery= create_app()  # pylint: disable=invalid-name
 
 
 @app.before_request
