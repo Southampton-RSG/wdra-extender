@@ -12,7 +12,7 @@ __all__ = [
     'make_celery',
     'migrate',
     'session',
-    'MakeNeo'
+    'neo_db'
 ]
 
 
@@ -25,7 +25,11 @@ session = Session()  # pylint: disable=invalid-name
 
 class MakeNeo:
 
-    def __init__(self, _app):
+    def __init__(self):
+        self.current_app = None
+        self.driver = None
+
+    def init_app(self, _app):
         self.current_app = _app
         self.driver = GraphDatabase.driver(_app.config['NEO4J_URI'],
                                            auth=basic_auth(_app.config['NEO4J_USER'],
@@ -40,10 +44,13 @@ class MakeNeo:
         """
         if not hasattr(g, 'neo4j_db'):
             if self.current_app.config['NEO4J_VERSION'].startswith("4"):
-                g.neo4j_db = self.driver.session(database=self.current_app.config['NEO4J_DATABASE'])
+                self.current_app.g.neo4j_db = self.driver.session(database=self.current_app.config['NEO4J_DATABASE'])
             else:
-                g.neo4j_db = self.driver.session()
-        return g.neo4j_db
+                self.current_app.g.neo4j_db = self.driver.session()
+        return self.current_app.g.neo4j_db
+
+
+neo_db = MakeNeo()
 
 
 def make_celery(_app):

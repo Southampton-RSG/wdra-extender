@@ -34,9 +34,9 @@ def create_app(config_module='wdra_extender.settings'):
     _app.logger.debug('Logger initialised')
 
     register_blueprints(_app)
-    _celery, _neo = register_extensions(_app)
+    _celery = register_extensions(_app)
 
-    return _app, _celery, _neo
+    return _app, _celery
 
 
 def register_extensions(_app):
@@ -51,6 +51,9 @@ def register_extensions(_app):
     db.init_app(_app)
     migrate.init_app(_app, db)
 
+    # neo4j
+    neo_db.init_app(_app)
+
     # account manager
     login_manager.init_app(_app)
     login_manager.login_view = "auth.login"
@@ -61,10 +64,7 @@ def register_extensions(_app):
     # job runner
     _celery = make_celery(_app)
 
-    # neo4j
-    _neo = MakeNeo(_app)
-
-    return _celery, _neo
+    return _celery
 
 
 def register_blueprints(_app) -> None:

@@ -4,20 +4,16 @@ from flask import current_app, g, session
 from flask_login import login_required, current_user
 from neo4j import GraphDatabase, basic_auth
 
-from ..app import neo_db
+from ..extensions import neo_db
 from ..extract.tools import ContextProxyLogger
 # Logger safe for use inside or outside of Flask context
 logger = ContextProxyLogger(__name__)
 
 
 __all__ = [
-    'get_db',
     'serialize_movie',
     'serialize_cast'
 ]
-
-# bring the contextualised database object into the local scope to be used by the neo_view and local functions
-get_db = neo_db.get_db
 
 
 # These functions are database management and extention tools. They can/will oad tweets request new tweets and more ====

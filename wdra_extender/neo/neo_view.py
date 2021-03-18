@@ -5,13 +5,14 @@ from flask_login import login_required, current_user
 from json import dumps
 
 from . import graph
+from ..extensions import neo_db
 
 blueprint_neo = Blueprint("neo", __name__, url_prefix='/wdrax/neo')
 
 
 @blueprint_neo.route("/graph")
 def get_graph():
-    db = graph.get_db()
+    db = neo_db.get_db()
     results = db.read_transaction(lambda tx: list(tx.run("MATCH (m:Movie)<-[:ACTED_IN]-(a:Person) "
                                                          "RETURN m.title as movie, collect(a.name) as cast "
                                                          "LIMIT $limit", {
@@ -44,7 +45,7 @@ def get_search():
     except KeyError:
         return []
     else:
-        db = graph.get_db()
+        db = neo_db.get_db()
         results = db.read_transaction(lambda tx: list(tx.run("MATCH (movie:Movie) "
                                                              "WHERE movie.title =~ $title "
                                                              "RETURN movie", {"title": "(?i).*" + q + ".*"}
@@ -55,7 +56,7 @@ def get_search():
 
 @blueprint_neo.route("/movie/<title>")
 def get_movie(title):
-    db = graph.get_db()
+    db = neo_db.get_db()
     result = db.read_transaction(lambda tx: tx.run("MATCH (movie:Movie {title:$title}) "
                                                    "OPTIONAL MATCH (movie)<-[r]-(person:Person) "
                                                    "RETURN movie.title as title,"
