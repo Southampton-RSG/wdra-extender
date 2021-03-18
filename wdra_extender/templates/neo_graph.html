@@ -79,7 +79,7 @@
 <script type="text/javascript">
     $(function () {
         function showMovie(title) {
-            $.get("/movie/" + encodeURIComponent(title),
+            $.get("movie/" + encodeURIComponent(title),
                     function (data) {
                         if (!data) return;
                         $("#title").text(data.title);
