@@ -12,8 +12,7 @@ __all__ = [
     'make_celery',
     'migrate',
     'session',
-    'driver',
-    'drive_neo'
+    'MakeNeo'
 ]
 
 
@@ -23,16 +22,28 @@ migrate = Migrate()  # pylint: disable=invalid-name
 login_manager = LoginManager()  # pylint: disable=invalid-name
 session = Session()  # pylint: disable=invalid-name
 
-driver = None
 
+class MakeNeo:
 
-def drive_neo(_app):
-    global driver
-    driver = GraphDatabase.driver(_app.config['NEO4J_URI'],
-                                  auth=basic_auth(_app.config['NEO4J_USER'],
-                                                  _app.config['NEO4J_PASSWORD']
-                                                  )
-                                  )
+    def __init__(self, _app):
+        self.current_app = _app
+        self.driver = GraphDatabase.driver(_app.config['NEO4J_URI'],
+                                           auth=basic_auth(_app.config['NEO4J_USER'],
+                                                           _app.config['NEO4J_PASSWORD']
+                                                           )
+                                           )
+
+    def get_db(self):
+        """
+        Function to return the neo4j database driver associated with the application else
+        create, assign, and return a driver for the neo4j session.
+        """
+        if not hasattr(g, 'neo4j_db'):
+            if self.current_app.config['NEO4J_VERSION'].startswith("4"):
+                g.neo4j_db = self.driver.session(database=self.current_app.config['NEO4J_DATABASE'])
+            else:
+                g.neo4j_db = self.driver.session()
+        return g.neo4j_db
 
 
 def make_celery(_app):

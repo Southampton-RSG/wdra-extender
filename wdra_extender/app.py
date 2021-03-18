@@ -7,15 +7,16 @@ This is the entrypoint to WDRA-Extender.
 
 import importlib
 
-from flask import Flask, request
+from flask import Flask, request, g
 
 from wdra_extender import main, user, extract, neo
-from wdra_extender.extensions import db, login_manager, make_celery, migrate, session, drive_neo
+from wdra_extender.extensions import db, login_manager, make_celery, MakeNeo, migrate, session
 
 __all__ = [
     'app',
     'celery',
     'create_app',
+    'neo_db'
 ]
 
 
@@ -33,9 +34,9 @@ def create_app(config_module='wdra_extender.settings'):
     _app.logger.debug('Logger initialised')
 
     register_blueprints(_app)
-    _celery = register_extensions(_app)
+    _celery, _neo = register_extensions(_app)
 
-    return _app, _celery
+    return _app, _celery, _neo
 
 
 def register_extensions(_app):
@@ -61,9 +62,9 @@ def register_extensions(_app):
     _celery = make_celery(_app)
 
     # neo4j
-    drive_neo(_app)
+    _neo = MakeNeo(_app)
 
-    return _celery
+    return _celery, _neo
 
 
 def register_blueprints(_app) -> None:
@@ -77,10 +78,17 @@ def register_blueprints(_app) -> None:
     _app.register_blueprint(neo.neo_view.blueprint_neo)
 
 
-app, celery = create_app()  # pylint: disable=invalid-name
+app, celery, neo_db = create_app()  # pylint: disable=invalid-name
 
 
 @app.before_request
 def log_request():
     """Log each request received."""
     app.logger.debug(repr(request))
+
+
+@app.teardown_appcontext
+def close_db(error):
+    """Close the DB in event of app shutdown"""
+    if hasattr(g, 'neo4j_db'):
+        g.neo4j_db.close()

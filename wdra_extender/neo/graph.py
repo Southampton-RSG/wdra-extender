@@ -4,7 +4,7 @@ from flask import current_app, g, session
 from flask_login import login_required, current_user
 from neo4j import GraphDatabase, basic_auth
 
-from ..extensions import driver
+from ..app import neo_db
 from ..extract.tools import ContextProxyLogger
 # Logger safe for use inside or outside of Flask context
 logger = ContextProxyLogger(__name__)
@@ -16,26 +16,8 @@ __all__ = [
     'serialize_cast'
 ]
 
-
-# These functions handle the database in the application context =======================================================
-def get_db():
-    """
-    Function to return the neo4j database driver associated with the application else
-    create, assign, and return a driver for the neo4j session.
-    """
-    if not hasattr(g, 'neo4j_db'):
-        if current_app.config['NEO4J_VERSION'].startswith("4"):
-            g.neo4j_db = driver.session(database=current_app.config['NEO4J_DATABASE'])
-        else:
-            g.neo4j_db = driver.session()
-    return g.neo4j_db
-
-
-@current_app.teardown_appcontext
-def close_db(error):
-    if hasattr(g, 'neo4j_db'):
-        g.neo4j_db.close()
-# ======================================================================================================================
+# bring the contextualised database object into the local scope to be used by the neo_view and local functions
+get_db = neo_db.get_db
 
 
 # These functions are database management and extention tools. They can/will oad tweets request new tweets and more ====
