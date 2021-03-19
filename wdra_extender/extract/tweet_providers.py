@@ -9,7 +9,7 @@ import redis
 from searchtweets import ResultStream, gen_request_parameters, load_credentials
 from twarc import Twarc
 
-from ..tools import ContextProxyLogger
+from ..tools import ContextProxyLogger, get_valid_kwargs
 # Logger safe for use inside or outside of Flask context
 logger = ContextProxyLogger(__name__)
 
@@ -200,13 +200,6 @@ def searchtweets_provider(api_endpoint, twitter_key_dict, request_arguments, add
     os.environ["SEARCHTWEETS_CONSUMER_SECRET"] = twitter_key_dict[api_endpoint]['consumer_secret']
 
     search_creds = load_credentials(env_overwrite=False)
-
-    def get_valid_kwargs(func, args_dict):
-        valid_args = func.func_code.co_varnames[:func.func_code.co_argcount]
-        kwargs_len = len(func.func_defaults)  # number of keyword arguments
-        valid_kwargs = valid_args[-kwargs_len:]  # because kwargs are last
-        return dict((key, value) for key, value in args_dict.iteritems()
-                    if key in valid_kwargs)
 
     max_results = additional_search_parameters.get('max_results', 10)
     logger.info(f"max_results set to: {max_results}")

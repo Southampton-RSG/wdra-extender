@@ -1,3 +1,4 @@
+from inspect import signature
 import logging
 import typing
 
@@ -20,3 +21,17 @@ class ContextProxyLogger(logging.Logger):
                 return super().__getattribute__(name)
 
             raise
+
+
+# Function decorator to parse kwargs and remove any that dont appear in the function definition ========================
+def get_valid_kwargs(func):
+    def wrapper(*args, **kwargs):
+        outer_sig = signature(func)
+        new_kwargs = {}
+        for param in outer_sig.parameters.values():
+            if param.kind == param.POSITIONAL_OR_KEYWORD:
+                if param in kwargs:
+                    new_kwargs[param] = kwargs[param]
+        return func(*args, **new_kwargs)
+    return wrapper
+# ======================================================================================================================
