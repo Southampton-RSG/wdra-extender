@@ -116,12 +116,14 @@
             </tr>
             <tr>
                 <td><label for="method_select">Endpoint</label></td>
-                {% for key in endpoints %}
+                {% for key, enabled in endpoints.items() %}
+                    {% if enabled %}
                     <td colspan="6">
                         <select class = "browser-default custom-select" name= "endpoint">
                                 <option name= "{{ key }}" SELECTED>{{ key }}</option>
                         </select>
                     </td>
+                    {% endif %}
                 {% endfor %}
             </tr>
         </table>
