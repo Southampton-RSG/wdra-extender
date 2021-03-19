@@ -9,7 +9,7 @@ import redis
 from searchtweets import ResultStream, gen_request_parameters, load_credentials
 from twarc import Twarc
 
-from .tools import ContextProxyLogger
+from ..tools import ContextProxyLogger
 # Logger safe for use inside or outside of Flask context
 logger = ContextProxyLogger(__name__)
 

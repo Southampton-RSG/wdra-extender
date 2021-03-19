@@ -5,7 +5,7 @@ from flask_login import login_required, current_user
 from neo4j import GraphDatabase, basic_auth
 
 from ..extensions import neo_db
-from ..extract.tools import ContextProxyLogger
+from ..tools import ContextProxyLogger
 # Logger safe for use inside or outside of Flask context
 logger = ContextProxyLogger(__name__)
 

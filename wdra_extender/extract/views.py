@@ -3,13 +3,14 @@ import pathlib
 
 from flask import Blueprint, current_app, render_template, redirect, request, send_from_directory, url_for, session
 from flask_login import login_required, current_user
-from . import models, tools
+from . import models
+from ..tools import ContextProxyLogger
 # from ..app.celery.task.control import inspect
 
 blueprint_extract = Blueprint("extract", __name__, url_prefix='/wdrax/extract')
 
 # Logger safe for use inside or outside of Flask context
-logger = tools.ContextProxyLogger(__name__)
+logger = ContextProxyLogger(__name__)
 
 
 def get_from_session():

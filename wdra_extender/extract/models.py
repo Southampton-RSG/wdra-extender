@@ -19,7 +19,7 @@ from searchtweets import convert_utc_time
 from ..extensions import db
 from .tweet_providers import get_tweets_by_id, get_tweets_by_search, save_to_redis
 from .plugins import PluginCollection
-from .tools import ContextProxyLogger
+from ..tools import ContextProxyLogger
 
 
 # Logger safe for use inside or outside of Flask context

@@ -5,7 +5,11 @@ from flask_login import login_required, current_user
 from json import dumps
 
 from . import graph
+from ..tools import ContextProxyLogger
 from ..extensions import neo_db
+
+# Logger safe for use inside or outside of Flask context
+logger = ContextProxyLogger(__name__)
 
 blueprint_neo = Blueprint("neo", __name__, url_prefix='/wdrax/neo')
 

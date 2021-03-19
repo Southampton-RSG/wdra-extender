@@ -3,7 +3,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from ..extensions import db, login_manager
-from ..extract.tools import ContextProxyLogger
+from ..tools import ContextProxyLogger
 # Logger safe for use inside or outside of Flask context
 logger = ContextProxyLogger(__name__)
 

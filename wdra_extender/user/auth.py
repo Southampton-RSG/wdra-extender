@@ -4,7 +4,7 @@ from werkzeug.urls import url_parse
 
 from wdra_extender.extensions import db
 from .models import WdraxUser
-from ..extract.tools import ContextProxyLogger
+from ..tools import ContextProxyLogger
 # Logger safe for use inside or outside of Flask context
 logger = ContextProxyLogger(__name__)
 
