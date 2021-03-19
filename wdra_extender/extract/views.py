@@ -82,14 +82,14 @@ def get_by_search(extract_uuid, basic_form):
                 query += " -" + " -".join(exc_terms)
             # get the additional constraints and return fields
             adv_dict = {'results_per_call': 10,
-                        'max_results': 10,
                         'tweet_fields': ["id", "text"],
                         'user_fields': [],
                         'media_fields': [],
                         'place_fields': [],
                         'poll_fields': [],
                         'expansions': [],
-                        'endpoint': 'search_tweets'}
+                        'max_results': 10,
+                        'endpoint': request.form.get('endpont', 'search_tweets')}
             if 'max_results' in request.form:
                 adv_dict['max_results'] = request.form['max_results']
             if 'results_per_call' in request.form:
@@ -110,8 +110,6 @@ def get_by_search(extract_uuid, basic_form):
                                 adv_dict[field] = request.form[field] + 1
                             else:
                                 adv_dict[field] = request.form[field]
-                    if field == 'endpoint':
-                        adv_dict[field] = request.form[field]
                     # Basic return fields
                     if field in current_app.config['TWITTER_RETURN_DICT']['tweet_fields']:
                         if field not in ["poll_fields", "id", "text"]:
