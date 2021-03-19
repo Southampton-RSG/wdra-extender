@@ -116,15 +116,15 @@
             </tr>
             <tr>
                 <td><label for="method_select">Endpoint</label></td>
-                {% for key, enabled in endpoints.items() %}
-                    {% if enabled %}
-                    <td colspan="6">
-                        <select class = "browser-default custom-select" name= "endpoint">
-                                <option name= "{{ key }}" SELECTED>{{ key }}</option>
-                        </select>
-                    </td>
-                    {% endif %}
-                {% endfor %}
+                <td colspan="6">
+                    <select class = "browser-default custom-select" name= "endpoint">
+                        {% for key, enabled in endpoints.items() %}
+                        {% if enabled %}
+                            <option name= "{{ key }}" SELECTED>{{ key }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </td>
             </tr>
         </table>
         <label><h3>Return Fields</h3></label>
