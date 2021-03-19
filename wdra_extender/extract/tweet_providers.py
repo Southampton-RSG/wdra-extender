@@ -74,8 +74,8 @@ def get_tweets_by_search(query, twitter_key_dict,
     found_tweets = []
     for provider in map(import_object, tweet_providers):
         try:
-            additional_search_parameters.get('endpoint', 'search_tweets')
-            provider_found_ids, provider_found_tweets = provider('search_tweets', twitter_key_dict,
+            endpoint = additional_search_parameters.get('endpoint', 'search_tweets')
+            provider_found_ids, provider_found_tweets = provider(endpoint, twitter_key_dict,
                                                                  query, additional_search_parameters)
         except ConnectionError as exc:
             logger.error('Failed to execute Tweet provider: %s', exc)
@@ -204,7 +204,7 @@ def searchtweets_provider(api_endpoint, twitter_key_dict, request_arguments, add
     max_results = additional_search_parameters.get('max_results', 10)
     logger.info(f"max_results set to: {max_results}")
     argsafe_gen_request_parameters = get_valid_kwargs(gen_request_parameters)
-    query = argsafe_gen_request_parameters(request_arguments, additional_search_parameters)
+    query = argsafe_gen_request_parameters(request_arguments, **additional_search_parameters)
     rs = ResultStream(request_parameters=query, max_tweets=max_results, **search_creds)
     tweets = list(rs.stream())
     logger.info(f"{tweets}")
