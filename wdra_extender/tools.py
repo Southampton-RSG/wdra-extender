@@ -29,7 +29,7 @@ def get_valid_kwargs(func):
         outer_sig = signature(func)
         new_kwargs = {}
         for param in outer_sig.parameters.values():
-            if param.kind == param.POSITIONAL_OR_KEYWORD:
+            if param.kind in [param.KEYWORD_ONLY, param.VAR_KEYWORD]:
                 if param.name in kwargs.keys():
                     new_kwargs[param.name] = kwargs[param.name]
         return func(*args, **new_kwargs)
