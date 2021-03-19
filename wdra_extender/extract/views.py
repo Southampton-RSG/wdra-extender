@@ -40,7 +40,7 @@ def select_method():
         rich_session['extract'].save()
         return redirect(url_for(extract_methods[selected], basic_form=True, extract_uuid=rich_session['extract'].uuid))
     else:
-        return render_template('get_method.html', extract_methods=extract_methods)
+        return render_template('get_method.html', extract_methods=extract_methods.keys())
 # ======================================================================================================================
 
 
@@ -64,7 +64,7 @@ def get_by_search(extract_uuid, basic_form):
                                    extract_uuid=extract_uuid,
                                    basic_form=basic_form,
                                    return_fields=current_app.config['TWITTER_RETURN_DICT'],
-                                   endpoints=current_user.endpoints)
+                                   endpoints=current_user.endpoints.)
         if ('submit_basic' in request.form) or ('submit_adv' in request.form):
             inc_terms = str(request.form['include_terms']).split(sep=',')
             logger.info(f"include list {inc_terms}")
