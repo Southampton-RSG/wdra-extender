@@ -3,7 +3,7 @@ Module containing the index view
 """
 
 from flask import Blueprint, render_template, redirect, request, url_for
-from ..extract.tools import ContextProxyLogger
+from ..tools import ContextProxyLogger
 # Logger safe for use inside or outside of Flask context
 logger = ContextProxyLogger(__name__)
 
