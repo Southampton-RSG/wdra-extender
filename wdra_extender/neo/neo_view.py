@@ -5,6 +5,7 @@ from flask_login import login_required, current_user
 from json import dumps
 
 from . import graph
+from ..extract.models import Extract
 from ..tools import ContextProxyLogger
 from ..extensions import neo_db
 
@@ -78,3 +79,10 @@ def get_movie(title):
                            "cast": [graph.serialize_cast(member)
                                     for member in result['cast']]}),
                     mimetype="application/json")
+
+
+@blueprint_neo.route("/upload_extract/<extract_uuid>")
+def upload_extract(extract_uuid):
+    db = neo_db.get_db()
+    extract = Extract.get(extract_uuid)
+    graph.process_extracts()

@@ -1,8 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>WDRA Extender</h1>
+<h1>Twitter User Credentials</h1>
 <h2>Input Twitter API Keys</h2>
+
+<p>
+    To launch searches via the Twitter API we require several authentication tokens.
+    These tokens are obtained by signing up for a developer/researcher account
+    <a href="https://developer.twitter.com/en/docs/twitter-api/getting-started/guide">here</a>.
+</p>
 
 <form action="{{ url_for('auth.get_keys_post') }}" method="POST">
     <div class="input_group">
@@ -17,6 +23,18 @@
         <label for="access_token_secret">Access Token Secret</label>
         <textarea type="text" class="form-control" id="access_token_secret" name="access_token_secret"></textarea>
     </div>
+    <p>
+        The Twitter API comes with several 'endpoints' currently available are the
+        'search_tweets' and the 'search_archive'.
+    </p>
+    <p>
+        'search_tweets' is the most common method which uses the standard product track.
+        It can retrieve tweets from the last 7 days.
+    </p>
+    <p>
+        'search_archive' is the the endpoint associated with the
+        academic research product track. It can retrieve tweets from the entire archive.
+    </p>
     <div>
         {% for endpoint in endpoints %}
             <tr>

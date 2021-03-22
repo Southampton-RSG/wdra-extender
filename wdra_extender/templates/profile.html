@@ -1,23 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>WDRA Extender</h1>
+    <h1>Twitter search and data management</h1>
     <h2 class="title">Welcome, {{ name }}!</h2>
     <form action="{{ url_for('auth.profile', basic_form=basic_form) }}" method="POST">
+        <h3>Twitter Search Tools</h3>
         <button class="btn btn-primary btn-lg btn-block mt" name="select_method" type="submit">
-            Select twitter extract method
-        </button>
-        <button class="btn btn-primary btn-lg btn-block mt" name="change_api" type="submit">
-            Change API keys
+            Select Search Method
         </button>
         <button class="btn btn-primary btn-lg btn-block mt" name="go_to_extracts" type="submit">
-            See Previous Extracts
+            See Previous Searches and Data for Download
         </button>
+        <!--<h3>Data visualisation</h3>
+        <button class="btn btn-primary btn-lg btn-block mt" name="view_graph" type="submit">
+            View Graph
+        </button>-->
+        <h3>Manage User</h3>
         <button class="btn btn-primary btn-lg btn-block mt" name="logout" type="submit">
             Logout
         </button>
-        <button class="btn btn-primary btn-lg btn-block mt" name="view_graph" type="submit">
-            View Graph
+        <h4>Change Credentials</h4>
+        <button class="btn btn-primary btn-lg btn-block mt" name="change_api" type="submit">
+            Change API keys
         </button>
     </form>
 {% endblock %}

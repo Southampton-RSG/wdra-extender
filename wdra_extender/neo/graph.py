@@ -12,8 +12,28 @@ logger = ContextProxyLogger(__name__)
 
 __all__ = [
     'serialize_movie',
-    'serialize_cast'
+    'serialize_cast',
+    'process_extracts'
 ]
+
+
+# Process Extracts to return uploadable schemas ========================================================================
+def process_extracts(extract):
+    # psudocode
+    # load json objects
+    # parse the jason object into individual tweets each to be a node.
+    # # try to identify corporations/governments to tag differently
+    # # try to identify sentiment of each tweet
+    # # get lists of '#' to create node relations
+    # # get lists of '@' to create node relations
+    # parse the search
+    # # create search term nodes (check existing @ and or #)
+    # # embed a includes or excludes to each tweet in the extract
+    #
+    # Build the query to do the insertion
+
+    pass
+# ======================================================================================================================
 
 
 # These functions are database management and extention tools. They can/will oad tweets request new tweets and more ====

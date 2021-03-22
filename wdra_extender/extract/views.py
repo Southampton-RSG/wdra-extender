@@ -4,6 +4,7 @@ import pathlib
 from flask import Blueprint, current_app, render_template, redirect, request, send_from_directory, url_for, session
 from flask_login import login_required, current_user
 from . import models
+from . import extract_tools
 from ..tools import ContextProxyLogger
 # from ..app.celery.task.control import inspect
 
@@ -54,7 +55,8 @@ def get_by_search(extract_uuid, basic_form):
         return render_template('get_by_search.html',
                                extract_uuid=extract_uuid,
                                basic_form=basic_form,
-                               return_fields=current_app.config['TWITTER_RETURN_DICT'])
+                               return_fields=current_app.config['TWITTER_RETURN_DICT'],
+                               endpoints=current_user.endpoints)
     if request.method == 'POST':
         if 'switch_form' in request.form:
             if basic_form == "True":
@@ -155,7 +157,7 @@ def get_by_id(extract_uuid):
     if request.method == "POST":
         extract = models.Extract.query.get(str(extract_uuid))
         tweet_ids = request.form['tweet_ids'].splitlines()
-        tweet_ids = tools.validate_tweet_ids(tweet_ids)
+        tweet_ids = extract_tools.validate_tweet_ids(tweet_ids)
 
         if current_app.config['CELERY_BROKER_URL']:
             # Add job to task queue

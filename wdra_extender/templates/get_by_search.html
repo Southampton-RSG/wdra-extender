@@ -65,8 +65,18 @@
             <input type="number" class="form-control" id="max_results" name="max_results" value="10">
         </div>
         <div>
-            <label for="number_to_return">Results per call (i.e. number of tweets to get per API call, must be greater than 10)</label>
-            <input type="number" class="form-control" id="number_to_return" name="results_per_call" value="10">
+            <tr>
+                <td><label for="method_select">Endpoint</label></td>
+                <td colspan="6">
+                    <select class = "browser-default custom-select" name= "endpoint">
+                        {% for key, enabled in endpoints.items() %}
+                        {% if enabled %}
+                            <option name= "{{ key }}" SELECTED>{{ key }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
         </div>
         <button class="btn btn-primary btn-lg btn-block mt" name="submit_basic" type="submit">Submit</button>
     </form>
