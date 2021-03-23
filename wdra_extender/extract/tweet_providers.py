@@ -6,8 +6,9 @@ import typing
 
 from flask import current_app
 import redis
-from searchtweets import ResultStream, gen_request_parameters, load_credentials
 from twarc import Twarc
+
+from ..SearchTweetsPython.searchtweets import ResultStream, gen_request_parameters, load_credentials
 
 from ..tools import ContextProxyLogger, get_valid_kwargs
 # Logger safe for use inside or outside of Flask context
@@ -34,7 +35,8 @@ def import_object(name: str) -> object:
 def get_tweets_by_id(
         tweet_ids: typing.Iterable[int],
         twitter_key_dict: dict,
-        tweet_providers: typing.Iterable[str]) -> typing.List[typing.Mapping]:
+        tweet_providers: typing.Iterable[str],
+        state_function) -> typing.List[typing.Mapping]:
     """Get a list of Tweets from their IDs.
 
     Attempt to get tweets from each of the tweet providers in turn.
@@ -42,14 +44,20 @@ def get_tweets_by_id(
     e.g. 'wdra_extender.extract.tweet_providers.redis_provider'
 
     :param tweet_ids: Tweet IDs to lookup.
+    :param twitter_key_dict: dictionary that contains the users twitter credentials
     :param tweet_providers: Iterable of names of tweet provider functions to import.
+    :param state_function: Celery state update function
     """
     tweet_ids = set(tweet_ids)
     found_tweets = []
 
     for provider in map(import_object, tweet_providers):
         try:
-            provider_found_ids, provider_found_tweets = provider('twarc/redis', twitter_key_dict, tweet_ids, None)
+            provider_found_ids, provider_found_tweets = provider('twarc/redis',
+                                                                 twitter_key_dict,
+                                                                 tweet_ids,
+                                                                 None,
+                                                                 state_function)
         except ConnectionError as exc:
             logger.error('Failed to execute Tweet provider: %s', exc)
         else:
@@ -69,14 +77,29 @@ def get_tweets_by_id(
     return found_tweets
 
 
-def get_tweets_by_search(query, twitter_key_dict,
-                         additional_search_parameters, tweet_providers) -> typing.List[typing.Mapping]:
+def get_tweets_by_search(
+        query,
+        twitter_key_dict,
+        additional_search_parameters,
+        tweet_providers,
+        state_function) -> typing.List[typing.Mapping]:
+    """
+    Generate a list of tweets from a search input.
+    :param query: a string of comma separated search and exclude terms
+    :param twitter_key_dict: dictionary that contains the users twitter credentials
+    :param additional_search_parameters: dictionary of search fields and returns parsed and used by search_tweets
+    :param tweet_providers: Iterable of names of tweet provider functions to import.
+    :param state_function: Celery state update function
+    """
     found_tweets = []
     for provider in map(import_object, tweet_providers):
         try:
             endpoint = additional_search_parameters.get('endpoint', 'search_tweets')
-            provider_found_ids, provider_found_tweets = provider(endpoint, twitter_key_dict,
-                                                                 query, additional_search_parameters)
+            provider_found_ids, provider_found_tweets = provider(endpoint,
+                                                                 twitter_key_dict,
+                                                                 query,
+                                                                 additional_search_parameters,
+                                                                 state_function)
         except ConnectionError as exc:
             logger.error('Failed to execute Tweet provider: %s', exc)
         else:
@@ -116,7 +139,8 @@ def save_to_redis(
 def redis_provider(extract_method: str,
                    twitter_key_dict: dict,
                    tweet_ids: typing.Iterable[int],
-                   search_dict
+                   search_dict,
+                   state_function
                    ):
     config = current_app.config
     r = redis.Redis(  # pylint: disable=invalid-name
@@ -145,7 +169,8 @@ def redis_provider(extract_method: str,
 def twarc_provider(extract_method: str,
                    twitter_key_dict: dict,
                    tweet_ids: typing.Iterable[int],
-                   search_dict
+                   search_dict,
+                   state_function
                    ) -> typing.Tuple[typing.Set[int], typing.List[typing.Mapping]]:
     """Get a list of Tweets from their IDs sourced from the Twitter API.
 
@@ -167,7 +192,11 @@ def twarc_provider(extract_method: str,
     return found_tweet_ids, found_tweets
 
 
-def searchtweets_provider(api_endpoint, twitter_key_dict, request_arguments, additional_search_parameters):
+def searchtweets_provider(api_endpoint,
+                          twitter_key_dict,
+                          request_arguments,
+                          additional_search_parameters,
+                          state_function):
     """ Download tweets via the searchtweets_v2 package for the TwitterV2 API.
     https://github.com/twitterdev/search-tweets-python/tree/v2
     """
@@ -189,7 +218,8 @@ def searchtweets_provider(api_endpoint, twitter_key_dict, request_arguments, add
 
     logger.info(f"add_sch_par\n {additional_search_parameters}")
 
-    available_endpoints = {'search_tweets', 'search_archive'}  # TODO: as searchtweets endpoints are expanded expand availability here
+    # TODO: as searchtweets endpoints are expanded expand availability here
+    available_endpoints = {'search_tweets', 'search_archive'}
 
     assert api_endpoint in twitter_key_dict.keys(), f'api_endpoint must be in\n\n {available_endpoints} \n\n' \
                                                     f'other endpoints not yet configured'

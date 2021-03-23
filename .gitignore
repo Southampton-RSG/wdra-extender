@@ -27,3 +27,5 @@ twarc.log
 .vagrant/
 WDRAX.d/
 /dump.rdb
+/wdra_extender/search-tweets-python/
+/wdra_extender/SearchTweetsPython/

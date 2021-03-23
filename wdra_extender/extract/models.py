@@ -93,7 +93,7 @@ class Extract(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    def build(self, query, twitter_key_dict, **kwargs):
+    def build(self, query, twitter_key_dict, state_function, **kwargs):
         """Build a requested Twitter extract.
 
         Called by `extract.tasks.build_extract` Celery task.
@@ -103,16 +103,21 @@ class Extract(db.Model):
                       extract.method == Search: A search query string to be processed and **kwargs will be populated
                       with keyword arguments
         :param twitter_key_dict: The twitter credentials of the user requesting the extract
+        :param state_function: Celery state update function
         """
         logger.info(f'Processing Bundle {self.uuid}, using method {self.extract_method}')
+        state_function(state='PROGRESS',
+                       meta={'task_type': self.extract_method})
         if self.extract_method == "ID":
             self.query_string = query
             self.save()
             try:
                 tweets = get_tweets_by_id(query,
                                           twitter_key_dict,
-                                          current_app.config['TWEET_PROVIDERS'])
+                                          current_app.config['TWEET_PROVIDERS'],
+                                          state_function)
             except Exception as e:
+                state_function(state_function(state='FAILED'))
                 self.building = False
                 self.ready = False
                 self.save()
@@ -168,8 +173,10 @@ class Extract(db.Model):
                 tweets = get_tweets_by_search(query,
                                               twitter_key_dict,
                                               deepcopy(additional_search_settings),
-                                              current_app.config['TWEET_PROVIDERS_V2'])
+                                              current_app.config['TWEET_PROVIDERS_V2'],
+                                              state_function)
             except Exception as e:
+                state_function(state='FAILED')
                 self.building = False
                 self.ready = False
                 self.save()

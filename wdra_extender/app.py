@@ -77,7 +77,7 @@ def register_blueprints(_app) -> None:
     _app.register_blueprint(neo.neo_view.blueprint_neo)
 
 
-app, celery= create_app()  # pylint: disable=invalid-name
+app, celery = create_app()  # pylint: disable=invalid-name
 
 
 @app.before_request
