@@ -147,7 +147,7 @@ def get_by_search(extract_uuid, basic_form):
                 from ..tasks import build_extract
                 task = build_extract.apply_async(args=[extract.uuid, query], kwargs=adv_dict, task_id=extract.uuid)
                 current_app.logger.debug(f'Handed extract {extract.uuid} to queue')
-            return redirect(url_for('extract.detail_extract', extract_uuid=extract_uuid.uuid))
+            return redirect(url_for('extract.detail_extract', extract_uuid=extract.uuid))
 
 
 @blueprint_extract.route('/method/id/<uuid:extract_uuid>', methods=['GET', 'POST'])
