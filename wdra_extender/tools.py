@@ -2,7 +2,6 @@ from inspect import signature, getmembers, isfunction
 import logging
 import typing
 
-from . import tasks
 from flask import current_app, Blueprint, jsonify
 
 blueprint_tools = Blueprint("tools", __name__)
@@ -43,6 +42,7 @@ def get_valid_kwargs(func):
 # ======================================================================================================================
 @blueprint_tools.route('/status/<task_id>')
 def task_status(task_id):
+    from . import tasks
     for task_fun_name, task_fun_value in getmembers(tasks, isfunction):
         task_fun = getattr(tasks, task_fun_name)
         try:
