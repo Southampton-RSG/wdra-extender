@@ -39,9 +39,9 @@ def get_valid_kwargs(func):
 # ======================================================================================================================
 
 
-# ======================================================================================================================
-@blueprint_tools.route('/status/<task_id>')
-def task_status(task_id):
+# Tools for working with/on background tasks============================================================================
+
+def get_task_fun(task_id):
     from . import tasks
     for task_fun_name, task_fun_value in getmembers(tasks, isfunction):
         task_fun = getattr(tasks, task_fun_name)
@@ -50,6 +50,12 @@ def task_status(task_id):
         except AttributeError:
             task = None
             pass
+    return task
+
+
+@blueprint_tools.route('/task/status/<task_id>')
+def task_status(task_id):
+    task = get_task_fun(task_id)
 
     task_state_dict = {
         'PENDING': [],
@@ -70,4 +76,15 @@ def task_status(task_id):
     if response is None:
         response = {'state': "Task found but has no response value"}
     return jsonify(response)
+
+
+@blueprint_tools.route('/task/kill/<task_id>')
+def kill_task(task_id):
+    task = get_task_fun(task_id)
+    if task is not None:
+        task.revoke(terminate=True)
+        message = f"Task {task_id} revoked"
+    else:
+        message = f"Task {task_id} not found"
+    return message
 # ======================================================================================================================

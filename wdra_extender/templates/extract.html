@@ -39,6 +39,9 @@
     <script>
         check_long_task()
     </script>
+    <a class="btn btn-info btn-lg btn-block" href="{{ url_for('tools.kill_task', task_id=extract.uuid) }}">
+        Stop Search
+    </a>
 {% endif %}
 
 <a class="btn btn-prima`ry btn-lg btn-block" href="{{ url_for('auth.profile') }}">
@@ -68,7 +71,7 @@ function check_long_task() {
         target: div[0].childNodes[0]
     });
     // check the progress of the task
-    update_progress('{%  url_for("tools.task_status", extract.uuid) %}', nanobar, div[0]);
+    update_progress('{{ url_for("tools.task_status", task_id=extract.uuid) }}', nanobar, div[0]);
 }
 </script>
 
@@ -92,7 +95,7 @@ function update_progress(status_url, nanobar, status_div, re_runs) {
             if (data['state'] === 'STARTING' || data['state'] === 'COLLECTING') {
                 //update status
                 // set nanobar to be the total number to collect
-                percent = parseInt(100 * data['collected'] / '{% extract.search_settings["max_results"] %}');
+                percent = parseInt(100 * data['collected'] / '{{ extract.search_settings["max_results"] }}');
                 $(status_div.childNodes[1]).text('Collecting Tweets');
                 //rerun in
                 rerun_in = 5 + (re_runs * ((100 - percent) / 100));
@@ -100,7 +103,7 @@ function update_progress(status_url, nanobar, status_div, re_runs) {
             if (data['state'] === 'RATE_LIMITING') {
                 //update status
                 // set nanobar to be the time to retry
-                percent = parseInt(100 * ('{% time.time %}' - data['sleep_start']) / data['sleep']);
+                percent = parseInt(100 * ('{{ time.time }}' - data['sleep_start']) / data['sleep']);
                 //rerun in
                 rerun_in = data['sleep'] / 10;
             }
