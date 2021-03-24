@@ -1,6 +1,4 @@
-[submodule "SearchTweetsPython"]
-	path = SearchTweetsPython
-	url = https://github.com/twitterdev/search-tweets-python.git
 [submodule "wdra_extender/SearchTweetsPython"]
 	path = wdra_extender/SearchTweetsPython
-	url = https://github.com/twitterdev/search-tweets-python.git
+	url = https://github.com/PipGrylls/search-tweets-python.git
+    branch = v2-flask
