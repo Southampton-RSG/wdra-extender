@@ -3,6 +3,11 @@ from .app import celery
 from .extract.models import Extract
 from .user.models import WdraxUser
 
+__all__ = [
+    'build_extract',
+    'rebuild_extract'
+]
+
 
 @celery.task(bind=True)
 def build_extract(self, uuid, query, **kwargs):

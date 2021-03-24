@@ -106,7 +106,7 @@ class Extract(db.Model):
         :param state_function: Celery state update function
         """
         logger.info(f'Processing Bundle {self.uuid}, using method {self.extract_method}')
-        state_function(state='PROGRESS',
+        state_function(state='STARTING',
                        meta={'task_type': self.extract_method})
         if self.extract_method == "ID":
             self.query_string = query
@@ -117,7 +117,8 @@ class Extract(db.Model):
                                           current_app.config['TWEET_PROVIDERS'],
                                           state_function)
             except Exception as e:
-                state_function(state_function(state='FAILED'))
+                state_function(state_function(state='FAILED',
+                                              meta={'error': f'{e}'}))
                 self.building = False
                 self.ready = False
                 self.save()
@@ -176,7 +177,8 @@ class Extract(db.Model):
                                               current_app.config['TWEET_PROVIDERS_V2'],
                                               state_function)
             except Exception as e:
-                state_function(state='FAILED')
+                state_function(state='FAILED',
+                               meta={'error': f'{e}'})
                 self.building = False
                 self.ready = False
                 self.save()
@@ -258,10 +260,6 @@ class Extract(db.Model):
             zip_path = current_app.config['OUTPUT_DIR'].joinpath(self.uuid).with_suffix('.zip')
             zip_directory(zip_path, work_dir)
             current_app.logger.info('Zipped output files to %s', zip_path)
-
-    def get_absolute_url(self):
-        """Get the URL for this object's detail view."""
-        return url_for('extract.detail_extract', extract_uuid=self.uuid)
 
 
 def zip_directory(zip_path: pathlib.Path, dir_path: pathlib.Path):

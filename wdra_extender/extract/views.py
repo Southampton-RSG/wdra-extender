@@ -145,9 +145,9 @@ def get_by_search(extract_uuid, basic_form):
                 # Add job to task queue
                 current_app.logger.debug(f'Handing extract {extract.uuid} to queue')
                 from ..tasks import build_extract
-                build_extract.delay(extract.uuid, query, **adv_dict)
+                task = build_extract.apply_async(args=[extract.uuid, query], kwargs=adv_dict, task_id=extract.uuid)
                 current_app.logger.debug(f'Handed extract {extract.uuid} to queue')
-            return redirect(extract.get_absolute_url())
+            return redirect(url_for('extract.detail_extract', extract_uuid=extract_uuid.uuid))
 
 
 @blueprint_extract.route('/method/id/<uuid:extract_uuid>', methods=['GET', 'POST'])
@@ -167,9 +167,9 @@ def get_by_id(extract_uuid):
             # Add job to task queue
             current_app.logger.debug(f'Handing extract {extract.uuid} to queue')
             from ..tasks import build_extract
-            build_extract.delay(extract.uuid, tweet_ids)
+            task = build_extract.apply_async(args=[extract.uuid, tweet_ids], task_id=extract.uuid)
             current_app.logger.debug(f'Handed extract {extract.uuid} to queue')
-        return redirect(extract.get_absolute_url())
+        return redirect(url_for('extract.detail_extract', extract_uuid=extract_uuid.uuid))
     else:
         return render_template('get_by_id.html', extract_uuid=extract_uuid)
 
