@@ -2,7 +2,7 @@ from inspect import signature, getmembers, isfunction
 import logging
 import typing
 
-from flask import current_app, Blueprint, jsonify
+from flask import current_app, Blueprint, jsonify, flash, redirect, url_for
 
 blueprint_tools = Blueprint("tools", __name__)
 
@@ -42,9 +42,11 @@ def get_valid_kwargs(func):
 # Tools for working with/on background tasks============================================================================
 
 def get_task_fun(task_id):
-    from . import tasks
-    for task_fun_name, task_fun_value in getmembers(tasks, isfunction):
-        task_fun = getattr(tasks, task_fun_name)
+    from .tasks import build_extract, rebuild_extract
+    # This is a workaround as getmembers(tasks, isfunction) wont return the celery decorated values using the inspect
+    # libraries is the preferred way to do this.
+    task_list = [build_extract, rebuild_extract]
+    for task_fun in task_list:
         try:
             task = task_fun.AsyncResult(task_id)
         except AttributeError:
@@ -86,5 +88,6 @@ def kill_task(task_id):
         message = f"Task {task_id} revoked"
     else:
         message = f"Task {task_id} not found"
-    return message
+    flash(message)
+    return redirect(url_for('extract.delete_extract', extract_uuid=task_id))
 # ======================================================================================================================

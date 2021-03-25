@@ -9,6 +9,7 @@
 
 # Data
 *.sqlite3
+*db.*
 .lock
 /media/
 TWARC.log

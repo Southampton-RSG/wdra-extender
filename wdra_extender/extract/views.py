@@ -5,7 +5,7 @@ from flask import Blueprint, current_app, render_template, redirect, request, se
 from flask_login import login_required, current_user
 from . import models
 from . import extract_tools
-from ..tools import ContextProxyLogger
+from ..tools import ContextProxyLogger, kill_task
 # from ..app.celery.task.control import inspect
 
 blueprint_extract = Blueprint("extract", __name__, url_prefix='/wdrax/extract')
@@ -230,6 +230,7 @@ def delete_extract(extract_uuid):
 @blueprint_extract.route('/rebuild/<uuid:extract_uuid>')
 def rebuild_extract(extract_uuid):
     from ..tasks import rebuild_extract
-    rebuild_extract.delay(extract_uuid)
+    rebuild_extract.apply_async(args=[extract_uuid], task_id=extract_uuid)
     return redirect(url_for('extract.show_extracts'))
+
 # ======================================================================================================================
