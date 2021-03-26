@@ -235,7 +235,7 @@ def searchtweets_provider(api_endpoint,
     logger.info(f"max_results set to: {max_results}")
     argsafe_gen_request_parameters = get_valid_kwargs(gen_request_parameters)
     query = argsafe_gen_request_parameters(request_arguments, **additional_search_parameters)
-    rs = ResultStream(request_parameters=query, max_tweets=max_results, **search_creds)
+    rs = ResultStream(request_parameters=query, max_tweets=max_results, state_function=state_function, **search_creds)
     tweets = list(rs.stream())
     logger.info(f"{tweets}")
     tweet_ids, tweets = [[row[i] for row in

@@ -1,5 +1,6 @@
 """Module containing views related to Twitter Extract Bundles."""
 import pathlib
+from time import time
 
 from flask import Blueprint, current_app, render_template, redirect, request, send_from_directory, url_for, session
 from flask_login import login_required, current_user
@@ -201,7 +202,7 @@ def show_extracts():
 def detail_extract(extract_uuid):
     """View displaying details of a Twitter Extract Bundle."""
     extract = models.Extract.query.get(str(extract_uuid))
-    return render_template('extract.html', extract=extract)
+    return render_template('extract.html', extract=extract, time_fun=time)
 
 
 @blueprint_extract.route('/download/<uuid:extract_uuid>/fetch')

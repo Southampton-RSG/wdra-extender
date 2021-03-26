@@ -4,7 +4,7 @@ import typing
 
 from flask import current_app, Blueprint, jsonify, flash, redirect, url_for
 
-blueprint_tools = Blueprint("tools", __name__)
+blueprint_tools = Blueprint("tools", __name__, url_prefix='/wdrax/tools')
 
 
 # Tool for creating an appropriate logger===============================================================================
@@ -71,7 +71,7 @@ def task_status(task_id):
         for task_state in task_state_dict.keys():
             if task.state == task_state:
                 # construct response from meta
-                response = {key: value for key, value in task.info}
+                response = {key: value for key, value in task.info.items()}
                 response['state'] = task.state
     else:
         response = {'state': 'No task found'}

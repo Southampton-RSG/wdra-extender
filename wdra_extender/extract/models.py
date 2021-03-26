@@ -117,8 +117,8 @@ class Extract(db.Model):
                                           current_app.config['TWEET_PROVIDERS'],
                                           state_function)
             except Exception as e:
-                state_function(state_function(state='FAILED',
-                                              meta={'error': f'{e}'}))
+                state_function(state='FAILED',
+                               meta={'error': f'{e}'})
                 self.building = False
                 self.ready = False
                 self.save()

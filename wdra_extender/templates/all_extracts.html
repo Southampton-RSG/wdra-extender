@@ -47,10 +47,18 @@
         </td>
     {% else %}
         <td>
-        <button class="btn btn-info btn-lg btn-block"
+        <tr>
+            <button class="btn btn-info btn-lg btn-block"
                 disabled>
             Extract {{ _extract.uuid }} is in the build queue.
-        </button>
+            </button>
+        </tr>
+        <tr>
+            <a class="btn btn-prima`ry btn-lg btn-block"
+               href="{{ url_for('tools.kill_task', task_id=_extract.uuid) }}">
+                Delete job.
+            </a>
+        </tr>
         </td>
     {% endif %}
     </tr>
