@@ -1,12 +1,24 @@
 <!DOCTYPE html>
 <head>
-    <title>WDRA Extender</title>
-
+    <title>Twitter API Search Tool</title>
+    <!-- Stylesheet for the website -->
     <link rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
           integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
           crossorigin="anonymous">
+    <!-- Class Style definitions -->
+    <!-- for the progress bars -->
+    <style>
+        .progress {
+            width: 100%;
+            hight: 10px;
+            text-align: center;
+        }
+    </style>
+    <!-- packages -->
+    <!-- for the progress bars -->
     <script src="//cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>
+    <!-- for Jquery -->
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     {% block extra_head %}
     {% endblock %}
@@ -19,4 +31,7 @@
             {% endblock %}
         </div>
     </div>
+    <!-- packages -->
+    <!-- for stuff I have written -->
+    <script src={{ url_for('static', filename='scripts/main.js') }}></script>
 </body>

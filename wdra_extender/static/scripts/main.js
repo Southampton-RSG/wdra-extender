@@ -1,61 +1,4 @@
-{% extends 'base.html' %}
-
-{% block extra_head %}
-    <script type="text/javascript">
-    $(document).ready(function() {
-    check_long_task('{{ url_for('tools.task_status', task_id=extract.uuid) }}', $('#progress_bar'), $('#progress_status'), $('#progress_message'));
-    });
-    </script>
-{% endblock %}
-
-{% block content %}
-<h1>Extract Details</h1>
-
-<a class="btn btn-prima`ry btn-lg btn-block" href="{{ url_for('auth.profile') }}">
-    Home
-</a>
-<a class="btn btn-prima`ry btn-lg btn-block" href="{{ url_for('extract.show_extracts') }}">
-    Show all Extracts
-</a>
-
-<hr>
-
-<dl>
-    <dt>UUID</dt>
-    <dd>{{ extract.uuid }}</dd>
-
-    <dt>Status</dt>
-    <dd>
-        {% if extract.ready %}
-            Your extract has been processed and is ready to download.
-        {% else %}
-            Your extract is, <a id="progress_status"></a>, check back soon.
-            <div id="progress_bar"></div>
-            Msg: <a id="progress_message"></a>
-        {% endif %}
-    </dd>
-</dl>
-
-<hr>
-
-{% if extract.ready %}
-    <a class="btn btn-prima`ry btn-lg btn-block"
-       href="{{ url_for('extract.download_extract', extract_uuid=extract.uuid) }}">
-        Download
-    </a>
-{% else %}
-    <button class="btn btn-info btn-lg btn-block"
-            disabled>
-        Download will be available soon
-    </button>
-    <a class="btn btn-info btn-lg btn-block" href="{{ url_for('tools.kill_task', task_id=extract.uuid) }}">
-        Stop Search
-    </a>
-{% endif %}
-<hr>
-<!--
-<script type="text/javascript">
-    function check_long_task(status_url) {
+function check_long_task(status_url, prog_bar, prog_status, prog_msg) {
         // create a progress bar
         div = $('<div class="progress"></div>');
         $('#progress_bar').append(div);
@@ -64,7 +7,7 @@
             target: div[0]
         });
         // check the progress of the task
-        update_progress(status_url, nanobar, $('#progress_status'), $('#progress_message'), 0);
+        update_progress(status_url, nanobar, prog_status, prog_msg, 0);
     }
     function update_progress(status_url, nanobar, prog_status, prog_msg, re_runs) {
         // send GET request to status URL
@@ -86,7 +29,7 @@
             if (data['state'] === 'STARTING' || data['state'] === 'COLLECTING') {
                 //update status
                 // set nanobar to be the total number to collect
-                percent = parseInt(100 * data['collected'] / '{{ extract.search_settings["max_results"] }}');
+                percent = parseInt(100 * data['collected'] / data['max_results']);
                 $(prog_msg).text('Collecting Tweets');
                 //rerun in
                 rerun_in = 5 + (re_runs * ((100 - percent) / 100));
@@ -106,6 +49,3 @@
             update_progress(status_url, nanobar, prog_status, prog_msg, re_runs+1);
         }, ~~(rerun_in*1000));
     }
-</script>
--->
-{% endblock %}

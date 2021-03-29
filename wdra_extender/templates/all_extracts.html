@@ -52,6 +52,9 @@
                 disabled>
             Extract {{ _extract.uuid }} is in the build queue.
             </button>
+            Your extract is, <a id="progress_status_{{ _extract.uuid }}"></a>, check back soon.
+            <div id="progress_bar_{{ _extract.uuid }}"></div>
+            Msg: <a id="progress_message_{{ _extract.uuid }}"></a>
         </tr>
         <tr>
             <a class="btn btn-prima`ry btn-lg btn-block"
