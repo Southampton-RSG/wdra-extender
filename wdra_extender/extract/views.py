@@ -1,13 +1,13 @@
 """Module containing views related to Twitter Extract Bundles."""
 import pathlib
 from time import time
+from datetime import datetime
 
 from flask import Blueprint, current_app, render_template, redirect, request, send_from_directory, url_for, session
 from flask_login import login_required, current_user
 from . import models
 from . import extract_tools
 from ..tools import ContextProxyLogger, kill_task
-# from ..app.celery.task.control import inspect
 
 blueprint_extract = Blueprint("extract", __name__, url_prefix='/wdrax/extract')
 
@@ -147,6 +147,9 @@ def get_by_search(extract_uuid, basic_form):
                 current_app.logger.debug(f'Handing extract {extract.uuid} to queue')
                 from ..tasks import build_extract
                 task = build_extract.apply_async(args=[extract.uuid, query], kwargs=adv_dict, task_id=extract.uuid)
+                task.state == 'PENDING'
+                extract.queuing = True
+                extract.save()
                 current_app.logger.debug(f'Handed extract {extract.uuid} to queue')
             return redirect(url_for('extract.detail_extract', extract_uuid=extract.uuid))
 
@@ -188,11 +191,6 @@ def get_by_replication(extract_uuid):
 def show_extracts():
     """Display a list of the users previous Twitter Extract Bundles"""
     user_extracts = models.Extract.query.filter_by(user_id=int(current_user.id)).all()
-    # TODO: query the celery queue to check on jobs that may have faild with building set to true
-    # celery_tasks = inspect()
-    # active_tasks = celery_tasks.active()
-    # sched_tasks = celery_tasks.scheduled()
-    # for extract in user_extracts()
     logger.debug(f"Extracts recieved:\n {user_extracts}")
     if request.method == 'GET':
         return render_template('all_extracts.html', user_extracts=user_extracts)

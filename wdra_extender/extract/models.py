@@ -58,6 +58,7 @@ class Extract(db.Model):
     #: Is the Bundle ready for pickup?
     ready = db.Column(db.Boolean, default=False, index=True, nullable=False)
     building = db.Column(db.Boolean, default=False)
+    queuing = db.Column(db.Boolean, default=False)
 
     #: Details the method
     extract_method = db.Column(db.String(254), default="", nullable=False)

@@ -71,8 +71,11 @@ def task_status(task_id):
         for task_state in task_state_dict.keys():
             if task.state == task_state:
                 # construct response from meta
-                response = {key: value for key, value in task.info.items()}
-                response['state'] = task.state
+                if task.state is not 'PENDING':
+                    response = {key: value for key, value in task.info.items()}
+                    response['state'] = task.state
+                else:
+                    response = {'state': task.state}
     else:
         response = {'state': 'No task found'}
     if response is None:

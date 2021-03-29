@@ -1,4 +1,6 @@
 """Module containing Celery tasks related to Twitter Extract Bundles."""
+from datetime import datetime
+
 from .app import celery
 from .extract.models import Extract
 from .user.models import WdraxUser
@@ -27,6 +29,7 @@ def rebuild_extract(uuid):
     extract = Extract.query.get(uuid)
     user = WdraxUser.query.get(extract.user_id)
     twitter_key_dict = user.twitter_key_dict()
+    extract.queuing = False
     extract.building = True
     extract.save()
     return extract.rebuild(twitter_key_dict)
