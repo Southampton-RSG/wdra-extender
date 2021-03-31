@@ -1,7 +1,7 @@
 function check_long_task(status_url, prog_bar, prog_status, prog_msg) {
         // create a progress bar
         div = $('<div class="progress"></div>');
-        $('#progress_bar').append(div);
+        $(prog_bar).append(div);
         var nanobar = new Nanobar({
             bg: '#44f',
             target: div[0]

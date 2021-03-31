@@ -64,6 +64,7 @@ def profile():
 # GET for login pages===================================================================================================
 @blueprint_auth.route('/login')
 def login():
+    # TODO: Add twitter login https://github.com/shalvah/twittersignin
     if current_user.is_authenticated:
         return redirect(url_for('auth.profile'))
     return render_template('login.html')
@@ -71,6 +72,7 @@ def login():
 
 @blueprint_auth.route('/signup')
 def signup():
+    # TODO: Add twitter login https://github.com/shalvah/twittersignin
     return render_template('signup.html')
 
 

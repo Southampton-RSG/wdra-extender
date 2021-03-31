@@ -18,11 +18,16 @@
 </a>
 
 {% for _extract in user_extracts %}
+    <hr>
     <tr>
-    {% if (_extract.building == False and _extract.queuing == False) %}
         <td>
-            Extract: {{ _extract.uuid }}
+            Extract ID: {{ _extract.uuid }}<br>
+            Search Method: {{ _extract.extract_method }}<br>
+            Search Endpoint: {{ _extract.search_settings.get('endpoint') }}<br>
+            Search String: {{ _extract.query_string }}<br>
+            Tweets Requested: {{ _extract.search_settings.get('max_results') }}<br>
         </td>
+    {% if (_extract.building == False and _extract.queuing == False) %}
         <td>
             {% if _extract.is_ready() %}
                 <a class="btn btn-prima`ry btn-lg btn-block"
@@ -58,12 +63,12 @@
     {% else %}
         <td>
         <tr>
-            <button class="btn btn-info btn-lg btn-block"
-                disabled>
-            Extract {{ _extract.uuid }} is in the build queue.
-            </button>
             Your extract is, <a id="progress_status_{{ _extract.uuid }}"></a>, check back soon.
+        </tr>
+        <tr>
             <div id="progress_bar_{{ _extract.uuid }}"></div>
+        </tr>
+        <tr>
             Msg: <a id="progress_message_{{ _extract.uuid }}"></a>
         </tr>
         <tr>
@@ -75,7 +80,7 @@
         </td>
     {% endif %}
     </tr>
-
+    <hr>
 {% endfor %}
 
 {% endblock %}

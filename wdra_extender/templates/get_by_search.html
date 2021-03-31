@@ -4,7 +4,7 @@
 <h1>WDRA Extender</h1>
 
 <div>
-    <form action="{{ url_for('extract.get_by_search', extract_uuid=extract_uuid, basic_form=basic_form) }}" method="POST">
+    <form action="{{ url_for('extract.get_by_search', basic_form=basic_form) }}" method="POST">
         <button class="btn btn-primary btn-lg btn-block mt" name="switch_form" type="submit">
             {% if basic_form == "True" %}
                 Go to Advanced Search
@@ -51,7 +51,7 @@
 {% if basic_form == "True" %}
     <h2>Basic Search</h2>
     <p>Input comma separated list of search terms.</p>
-    <form action="{{ url_for('extract.get_by_search', extract_uuid=extract_uuid, basic_form=basic_form) }}" method="POST">
+    <form action="{{ url_for('extract.get_by_search', basic_form=basic_form) }}" method="POST">
         <div class="input_group">
             <label for="field_search_terms">Search terms</label>
             <textarea type="text" class="form-control" id="field_search_terms" name="include_terms"></textarea>
@@ -84,12 +84,12 @@
 {% else %}
     <h2>Advanced Search</h2>
     <p>Include and exclude text, tags, and define timeframes.</p>
-    <form action="{{ url_for('extract.get_by_search', extract_uuid=extract_uuid, basic_form=basic_form) }}" method="POST">
+    <form action="{{ url_for('extract.get_by_search', basic_form=basic_form) }}" method="POST">
         <label><h3>Search Parameters</h3></label>
         <table style="width:100%">
             <tr>
                 <td></td>
-                <td colspan="6">Text</td>
+                <td colspan="6"></td>
             </tr>
             <tr>
                 <td><label for="include_terms">Include</label></td>
@@ -207,14 +207,15 @@
 
 {% endif %}
 
+
 <script>function show_hints() {
-    var card = document.getElementById("hints")
-    if (card.style.display === "none"){
-        card.style.display = "block"
-    }
-    else{
-        card.style.display = "none"
-    }
+var card = document.getElementById("hints")
+if (card.style.display === "none"){
+    card.style.display = "block"
+}
+else{
+    card.style.display = "none"
+}
 }
 
 function show_options(field_name) {

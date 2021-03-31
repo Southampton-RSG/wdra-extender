@@ -31,30 +31,24 @@ def select_method():
     extract_methods = {
         'Search': 'extract.get_by_search',
         'ID': 'extract.get_by_id',
-        'Replication': 'extract.get_by_replication'
+        # 'Replication': 'extract.get_by_replication'
     }
     rich_session = get_from_session()
     if request.method == "POST":
         selected = request.form.get('method_select')
-        # Create a new extract to handle the users next request
-        rich_session['extract'] = models.Extract(user_id=current_user.get_id())
-        session['extract'] = rich_session['extract'].uuid
-        rich_session['extract'].extract_method = selected
-        rich_session['extract'].save()
-        return redirect(url_for(extract_methods[selected], basic_form=True, extract_uuid=rich_session['extract'].uuid))
+        return redirect(url_for(extract_methods[selected], basic_form=True))
     else:
         return render_template('get_method.html', extract_methods=extract_methods)
 # ======================================================================================================================
 
 
 # Methods for getting the twitter data =================================================================================
-@blueprint_extract.route('/method/search/<basic_form>/<uuid:extract_uuid>', methods=['GET', 'POST'])
+@blueprint_extract.route('/method/search/<basic_form>/', methods=['GET', 'POST'])
 @login_required
-def get_by_search(extract_uuid, basic_form):
+def get_by_search(basic_form):
     """View to request a Twitter extract Bundle using search parameters"""
     if request.method == 'GET':
         return render_template('get_by_search.html',
-                               extract_uuid=extract_uuid,
                                basic_form=basic_form,
                                return_fields=current_app.config['TWITTER_RETURN_DICT'],
                                endpoints=current_user.endpoints)
@@ -65,7 +59,6 @@ def get_by_search(extract_uuid, basic_form):
             else:
                 basic_form = "True"
             return render_template('get_by_search.html',
-                                   extract_uuid=extract_uuid,
                                    basic_form=basic_form,
                                    return_fields=current_app.config['TWITTER_RETURN_DICT'],
                                    endpoints=current_user.endpoints)
@@ -141,41 +134,36 @@ def get_by_search(extract_uuid, basic_form):
                 else:
                     adv_dict[key] = ",".join(adv_dict[key])
 
-            extract = models.Extract.query.get(str(extract_uuid))
-            if current_app.config['CELERY_BROKER_URL']:
-                # Add job to task queue
-                current_app.logger.debug(f'Handing extract {extract.uuid} to queue')
-                from ..tasks import build_extract
-                task = build_extract.apply_async(args=[extract.uuid, query], kwargs=adv_dict, task_id=extract.uuid)
-                task.state == 'PENDING'
-                extract.queuing = True
-                extract.save()
-                current_app.logger.debug(f'Handed extract {extract.uuid} to queue')
-            return redirect(url_for('extract.detail_extract', extract_uuid=extract.uuid))
-
-
-@blueprint_extract.route('/method/id/<uuid:extract_uuid>', methods=['GET', 'POST'])
-def get_by_id(extract_uuid):
-    """View to request a Twitter Extract Bundle using provided tweet IDs."""
-
-    if request.method == "POST":
-        extract = models.Extract.query.get(str(extract_uuid))
-        tweet_ids = request.form['tweet_ids'].splitlines()
-        tweet_ids = extract_tools.validate_tweet_ids(tweet_ids)
-
-        if current_app.config['CELERY_BROKER_URL']:
-            # Add job to task queue
-            from ..tasks import build_extract
-
-        if current_app.config['CELERY_BROKER_URL']:
+            extract = models.Extract(user_id=current_user.get_id())
             # Add job to task queue
             current_app.logger.debug(f'Handing extract {extract.uuid} to queue')
             from ..tasks import build_extract
-            task = build_extract.apply_async(args=[extract.uuid, tweet_ids], task_id=extract.uuid)
+            task = build_extract.apply_async(args=[extract.uuid, query], kwargs=adv_dict, task_id=extract.uuid)
+            extract.queuing = True
+            extract.save()
             current_app.logger.debug(f'Handed extract {extract.uuid} to queue')
-        return redirect(url_for('extract.detail_extract', extract_uuid=extract_uuid.uuid))
+            return redirect(url_for('extract.detail_extract', extract_uuid=extract.uuid))
+
+
+@blueprint_extract.route('/method/id/', methods=['GET', 'POST'])
+def get_by_id():
+    """View to request a Twitter Extract Bundle using provided tweet IDs."""
+
+    if request.method == "POST":
+        tweet_ids = request.form['tweet_ids'].splitlines()
+        tweet_ids = extract_tools.validate_tweet_ids(tweet_ids)
+
+        extract = models.Extract(user_id=current_user.get_id())
+        # Add job to task queue
+        current_app.logger.debug(f'Handing extract {extract.uuid} to queue')
+        from ..tasks import build_extract
+        task = build_extract.apply_async(args=[extract.uuid, tweet_ids], task_id=extract.uuid)
+        extract.queuing = True
+        extract.save()
+        current_app.logger.debug(f'Handed extract {extract.uuid} to queue')
+        return redirect(url_for('extract.detail_extract', extract_uuid=extract.uuid))
     else:
-        return render_template('get_by_id.html', extract_uuid=extract_uuid)
+        return render_template('get_by_id.html')
 
 
 @blueprint_extract.route('/method/replication/<uuid:extract_uuid>', methods=['POST'])

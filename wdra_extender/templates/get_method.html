@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1>WDRA Extender</h1>
-<h2>Pick Tweet Input</h2>
+<h2>Pick Tweet Return Method</h2>
 
 <form action="{{ url_for('extract.select_method', extract_uuid=extract_uuid) }}" method="POST">
     <div>
@@ -17,4 +17,19 @@
         <input class="button1" type="submit" value="Select">
     </div>
 </form>
+
+<p>
+There are currently two extract methods, Search and ID.<br><br>
+Search has two forms the basic and advanced. The basic form offers include and exclude terms as well as total
+number of tweets to return. The basic form will return the tweet ID and the tweet text as is the default for the APIv2,
+it is also limited to the last 7 days.<br>
+The advanced form has include and exclude terms, and total number of tweets to return with batch size control. The
+advanced form allows selection of date and time range and/or selection of tweet ID range (within the limitation of
+your API credentials, non-academic users are still limited to the last 7 days). The advanced form allows selection of
+the return information giving access to the full suit of API return fields.
+<br><br>
+ID is a tweet hydrating feature, by supplying a list of tweet IDs the API is used to obtain all available fields from
+the tweet.
+</p>
+
 {% endblock %}
