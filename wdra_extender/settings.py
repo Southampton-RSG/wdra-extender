@@ -98,37 +98,9 @@ TWEET_PROVIDERS_V2 = [
     'wdra_extender.extract.tweet_providers.searchtweets_provider',
 ]
 
-# Make a yaml file for search_tweets_v2,
+# Define endpoints for search_tweets_v2,
 # Docs to add extra config and endpoints https://github.com/twitterdev/search-tweets-python/tree/v2#yaml-method
-dict_file = {'get_tweets_by_id': {'endpoint': 'https://api.twitter.com/2/tweets/',
-                                  'consumer_key': f'{TWITTER_CONSUMER_KEY}',
-                                  'consumer_secret': f'{TWITTER_CONSUMER_SECRET}',
-                                  'bearer_token': f'{BEARER_TOKEN}'},
-             'search_tweets': {'endpoint': 'https://api.twitter.com/2/tweets/search/recent',
-                               'consumer_key': f'{TWITTER_CONSUMER_KEY}',
-                               'consumer_secret': f'{TWITTER_CONSUMER_SECRET}',
-                               'bearer_token': f'{BEARER_TOKEN}'},
-             'search_archive': {'endpoint': 'https://api.twitter.com/2/tweets/search/all',
-                                            'consumer_key': f'{TWITTER_CONSUMER_KEY}',
-                                            'consumer_secret': f'{TWITTER_CONSUMER_SECRET}',
-                                            'bearer_token': f'{BEARER_TOKEN}'},
-             'user_mention': {'endpoint': 'https://api.twitter.com/2/users/:id/mentions',
-                              'consumer_key': f'{TWITTER_CONSUMER_KEY}',
-                              'consumer_secret': f'{TWITTER_CONSUMER_SECRET}',
-                              'bearer_token': f'{BEARER_TOKEN}'},
-             'user_tweets': {'endpoint': 'https://api.twitter.com/2/users/:id/tweet',
-                             'consumer_key': f'{TWITTER_CONSUMER_KEY}',
-                             'consumer_secret': f'{TWITTER_CONSUMER_SECRET}',
-                             'bearer_token': f'{BEARER_TOKEN}'},
-             }
-
-TWITTER_ENDPOINTS = dict_file.keys()
-
-# This is blank and currently never used to overwrite user credentials but could be used to provide a framework for ====
-# organisational logins or local installs
-with open(BASE_DIR.joinpath('.twitter_keys.yaml'), 'w') as file:
-    documents = yaml.dump(dict_file, file)
-TWITTER_CONF = BASE_DIR.joinpath('.twitter_keys.yaml')
+TWITTER_ENDPOINTS = ['search_tweets', 'search_archive']
 
 # This defines the return fields that can be selected as part of the twitter extract bundle. This could in theory be ===
 # automatically extracted from the twitter api?

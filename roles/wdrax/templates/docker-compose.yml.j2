@@ -3,7 +3,6 @@ services:
   wdrax:
     build: .
     environment:
-      # Web server component never connects to Twitter API
       - REDIS_HOST=redis
       - LOG_LEVEL={{ LOG_LEVEL }}
     image: wdrax:{{ docker_tag }}
@@ -30,6 +29,7 @@ services:
       - {{ project_dir }}/db.postgres:/var/www/wdrax/db.postgres:z
       - {{ project_dir }}/media:/var/www/wdrax/media:z
       - {{ project_dir }}/plugins:/var/www/wdrax/plugins:z,ro
+      - {{ project_dir }}/db.neo/:/var/www/wdrax/db.neo/:z
     depends_on:
       - db
       - redis

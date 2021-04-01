@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+
+  db:
+    image: postgres:13-alpine
+    restart: always
+    volumes:
+      - /Users/pgrylls/PycharmProjects/wdra-extender/db.postgres:/var/www/wdrax/db.postgres:z
+    environment:
+      PGDATA: /var/www/wdrax/db.postgres
+      POSTGRES_DB: db.postgres
+      POSTGRES_USER: wdrax
+      POSTGRES_PASSWORD: wdrax
+    ports:
+      - 5432:5432
