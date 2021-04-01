@@ -224,6 +224,7 @@ def searchtweets_provider(api_endpoint,
     assert api_endpoint in twitter_key_dict.keys(), f'api_endpoint must be in\n\n {available_endpoints} \n\n' \
                                                     f'other endpoints not yet configured'
 
+    # if more than one users is accessing the system this may be incorrect?
     os.environ["SEARCHTWEETS_BEARER_TOKEN"] = twitter_key_dict[api_endpoint]['bearer_token']
     os.environ["SEARCHTWEETS_ENDPOINT"] = twitter_key_dict[api_endpoint]['endpoint']
     os.environ["SEARCHTWEETS_CONSUMER_KEY"] = twitter_key_dict[api_endpoint]['consumer_key']
@@ -231,11 +232,14 @@ def searchtweets_provider(api_endpoint,
 
     search_creds = load_credentials(env_overwrite=False)
 
-    max_results = additional_search_parameters.get('max_results', 10)
+    max_results = int(additional_search_parameters.get('max_results', 10))
     logger.info(f"max_results set to: {max_results}")
+    logger.debug("Make Argsafe function")
     argsafe_gen_request_parameters = get_valid_kwargs(gen_request_parameters)
+    logger.debug("Use Argsafe function")
     query = argsafe_gen_request_parameters(request_arguments, **additional_search_parameters)
     rs = ResultStream(request_parameters=query, max_tweets=max_results, state_function=state_function, **search_creds)
+    logger.debug(f"Results Stream:\n {rs}")
     tweets = list(rs.stream())
     logger.info(f"{tweets}")
     tweet_ids, tweets = [[row[i] for row in

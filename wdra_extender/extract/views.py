@@ -63,15 +63,22 @@ def get_by_search(basic_form):
                                    return_fields=current_app.config['TWITTER_RETURN_DICT'],
                                    endpoints=current_user.endpoints)
         if ('submit_basic' in request.form) or ('submit_adv' in request.form):
-            inc_terms = str(request.form['include_terms']).split(sep=',')
+            # Parse the text input fields and create a valid search
+            # The include terms get separated on commas
+            inc_terms = [term.strip() for term in str(request.form['include_terms']).split(sep=',')]
             logger.info(f"include list {inc_terms}")
+            # Strip erroneous empty terms that may appear
             while '' in inc_terms:
                 inc_terms.remove('')
-            exc_terms = str(request.form['exclude_terms']).split(sep=',')
+            # The exclude terms get separated on commas
+            exc_terms = [term.strip() for term in str(request.form['exclude_terms']).split(sep=',')]
             logger.info(f"exclude list {exc_terms}")
+            # Strip erroneous empty terms that may appear
             while '' in exc_terms:
                 exc_terms.remove('')
+            # Assign a blank string to the query to build out on
             query = ""
+            # Check that there are search terms then join to the search string
             assert len(inc_terms) > 0, "You must include at least one term to search for"
             query += " ".join(inc_terms)
             if len(exc_terms) > 0:
@@ -85,7 +92,7 @@ def get_by_search(basic_form):
                         'poll_fields': [],
                         'expansions': [],
                         'max_results': 10,
-                        'endpoint': request.form.get('endpont', 'search_tweets')}
+                        'endpoint': request.form.get('endpoint', 'search_tweets')}
             if 'max_results' in request.form:
                 adv_dict['max_results'] = request.form['max_results']
             if 'results_per_call' in request.form:
@@ -127,16 +134,22 @@ def get_by_search(basic_form):
                         if field[1:] in current_app.config['TWITTER_RETURN_DICT']['id']:
                             adv_dict['expansions'] += [field[1:]]
             # If no subfields are selected change the value to none
-            for key in ['tweet_fields', 'user_fields', 'media_fields',
-                        'place_fields', 'poll_fields', 'expansions']:
+            for key in ['tweet_fields', 'user_fields', 'media_fields', 'place_fields', 'poll_fields', 'expansions']:
                 if len(adv_dict[key]) == 0:
                     adv_dict[key] = None
                 else:
                     adv_dict[key] = ",".join(adv_dict[key])
 
+            # Create an extract model for the runner to work on
             extract = models.Extract(user_id=current_user.get_id())
+            extract.extract_method = "Search"
+            extract.save()
+
             # Add job to task queue
-            current_app.logger.debug(f'Handing extract {extract.uuid} to queue')
+            current_app.logger.debug(f'Handing extract {extract.uuid} to queue\n'
+                                     f'Query Str: {query}\n'
+                                     f'Search Settings: {adv_dict}')
+
             from ..tasks import build_extract
             task = build_extract.apply_async(args=[extract.uuid, query], kwargs=adv_dict, task_id=extract.uuid)
             extract.queuing = True
@@ -153,7 +166,11 @@ def get_by_id():
         tweet_ids = request.form['tweet_ids'].splitlines()
         tweet_ids = extract_tools.validate_tweet_ids(tweet_ids)
 
+        # Create an extract model for the runner to work on
         extract = models.Extract(user_id=current_user.get_id())
+        extract.extract_method = "ID"
+        extract.save()
+
         # Add job to task queue
         current_app.logger.debug(f'Handing extract {extract.uuid} to queue')
         from ..tasks import build_extract

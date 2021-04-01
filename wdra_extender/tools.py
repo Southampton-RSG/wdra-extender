@@ -29,11 +29,14 @@ class ContextProxyLogger(logging.Logger):
 def get_valid_kwargs(func):
     def wrapper(*args, **kwargs):
         outer_sig = signature(func)
+        current_app.logger.debug(f"Function Signature:\n{outer_sig}")
         new_kwargs = {}
         for param in outer_sig.parameters.values():
-            if param.kind in [param.KEYWORD_ONLY, param.VAR_KEYWORD]:
+            if param.kind in [param.POSITIONAL_OR_KEYWORD, param.KEYWORD_ONLY, param.VAR_KEYWORD]:
                 if param.name in kwargs.keys():
                     new_kwargs[param.name] = kwargs[param.name]
+        current_app.logger.debug(f"Old Kwargs:\n{kwargs}\n"
+                                 f"New Kwargs:\n{new_kwargs}")
         return func(*args, **new_kwargs)
     return wrapper
 # ======================================================================================================================
@@ -71,7 +74,7 @@ def task_status(task_id):
         for task_state in task_state_dict.keys():
             if task.state == task_state:
                 # construct response from meta
-                if task.state is not 'PENDING':
+                if task.state != 'PENDING':
                     response = {key: value for key, value in task.info.items()}
                     response['state'] = task.state
                 else:

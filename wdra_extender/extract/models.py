@@ -147,7 +147,7 @@ class Extract(db.Model):
             for key in kwargs.keys():
                 if key in list(additional_search_settings.keys()):
                     additional_search_settings[key] = kwargs[key]
-            logger.info(f"{additional_search_settings}")
+            logger.info(f"Runner Search Settings\n {additional_search_settings}")
             # check there are not parameter conflicts
             assert int(additional_search_settings['results_per_call']) > 9,\
                 f"results_per_call (={additional_search_settings['results_per_call']})  must be >= 10"

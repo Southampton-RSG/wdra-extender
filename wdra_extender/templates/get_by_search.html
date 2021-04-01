@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>WDRA Extender</h1>
-
+<h1>Search Tweets</h1>
 <div>
     <form action="{{ url_for('extract.get_by_search', basic_form=basic_form) }}" method="POST">
         <button class="btn btn-primary btn-lg btn-block mt" name="switch_form" type="submit">
@@ -23,37 +22,47 @@
     <div id="hints" style="display: none" class="card card-body">
         This form provides a simple wrapper around the twitter recent search API endpoint:
         <a href="url">https://developer.twitter.com/en/docs/twitter-api/tweets/search/integrate/build-a-rule</a>
-        For full examples see the docs, for more return objects or timeframe searches see the advanced search,
-        and for complete control use the direct input field (not yet implemented).
-
+        For full examples see the docs, for more return objects or timeframe searches see the advanced search.
+        <br>
         The words given in the 'Search terms' form will be split on commas and added to the search using AND logic,
         i.e. the tweets returned must include all the search parameters. To implement OR logic, i.e. include tweets
         that contain either search term, simply add OR with a space 'OR ' before your search term. Finally search
         terms can be grouped using parentheses, using the AND and OR logic and parentheses search terms of high
         complexity can be built.
-
+        <br>
         The words in the 'Exclude terms' form will be implemented with NOT logic. Tweets with these terms will not
         be returned in the search. Words in this list should be alone and not grouped in parentheses.
-
+        <br>
         In addition we can search for a phrase using quotation marks, i.e. the search
         <i>Black AND Lives AND Matter</i> may be better implemented as <i>"Black Lives Matter"</i>.
-
+        <br>
         <b><u>Operators</u></b>
         The full list of operators can be found by following the link above.
-
+        <br>
         An operator can be used to increase the power of your search. We have discussed using quotes to switch from
         keyword to phrase matching. Other operators include the hashtag # to match <i>exact</i> hashtags, the @ to
         match usernames. Other operators can assert that tweets contain elements for example 'has:media' asserts
         that tweets contain a media object. One of the most commonly used operators is '-is:retweet' that excludes
-        retweets from the search terms.
+        retweets from the search.
     </div>
 </div>
+<div>
+<button onclick="showExample('{{ basic_form }}')">Show example search</button>
+</div>
+<a id='search_example_basic' style="display: none">
+    This search would return 30 tweets which contain 'dog' and either of the hashtags '#dogs' or '#puppies' but not
+    retweets or tweets containing any of the hashtags '#cats', '#cat', '#kitten' or, '#kittens'.
+</a>
+<a id='search_example_adv' style="display: none">
+    This search would return 30 tweets in two batches of 15 which contain 'dog' and either of the hashtags '#dogs' or
+    '#puppies' but not retweets or tweets containing any of the hashtags '#cats', '#cat', '#kitten' or, '#kittens'.
+</a>
 {% if basic_form == "True" %}
     <h2>Basic Search</h2>
-    <p>Input comma separated list of search terms.</p>
+    <p>Input comma separated list of include and exclude terms.</p>
     <form action="{{ url_for('extract.get_by_search', basic_form=basic_form) }}" method="POST">
         <div class="input_group">
-            <label for="field_search_terms">Search terms</label>
+            <label for="field_search_terms">Include terms</label>
             <textarea type="text" class="form-control" id="field_search_terms" name="include_terms"></textarea>
         </div>
         <div class="input_group">
@@ -208,17 +217,17 @@
 {% endif %}
 
 
-<script>function show_hints() {
-var card = document.getElementById("hints")
-if (card.style.display === "none"){
-    card.style.display = "block"
-}
-else{
-    card.style.display = "none"
-}
-}
+<script type="text/javascript">
+    function show_hints() {
+        var card = document.getElementById("hints")
+        if (card.style.display === "none") {
+            card.style.display = "block"
+        } else {
+            card.style.display = "none"
+        }
+    }
 
-function show_options(field_name) {
+    function show_options(field_name) {
         var checkBox = document.getElementById(field_name+"_check");
         var subtable = document.getElementById(field_name+"_subs");
         var secretcol = document.getElementById("secret_col")
@@ -229,9 +238,7 @@ function show_options(field_name) {
             subtable.style.display = "none";
         }
     }
-</script>
 
-<script>
     function select_all(allBox_name, fields_to_check, main_field_name='false', top_fields="['none']") {
         var allBox = document.getElementById(allBox_name);
         var box;
@@ -247,10 +254,25 @@ function show_options(field_name) {
                 box = document.getElementById(main_field_name + "_" + fields_to_check[field_name] + "_check");
                 box.checked = allBox.checked === true
             }
-
-
         }
     }
+
+    function showExample(basic_form) {
+        if (basic_form === 'True') {
+            $('#field_search_terms').val("dogs, (#dogs OR #puppies)")
+            $('#field_exclude_terms').val("is:retweet, #cats, #cat, #kitten, #kittens")
+            $('#max_results').val(30)
+            document.getElementById('search_example_basic').style.display = 'block'
+        }
+        else {
+            $('#include_terms').val("dogs, (#dogs OR #puppies)")
+            $('#exclude_terms').val("is:retweet, #cats, #cat, #kitten, #kittens")
+            $('#number_to_return').val(30)
+            $('#results_per_call').val(15)
+            document.getElementById('search_example_adv').style.display = 'block'
+        }
+    }
+
 </script>
 
 {% endblock %}

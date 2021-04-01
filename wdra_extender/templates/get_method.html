@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>WDRA Extender</h1>
 <h2>Pick Tweet Return Method</h2>
 
 <form action="{{ url_for('extract.select_method', extract_uuid=extract_uuid) }}" method="POST">
