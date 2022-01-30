@@ -7,8 +7,7 @@ from ..tools import ContextProxyLogger
 # Logger safe for use inside or outside of Flask context
 logger = ContextProxyLogger(__name__)
 
-blueprint_index = Blueprint("index", __name__, url_prefix='/wdrax/')
-
+blueprint_index = Blueprint("index", __name__)
 
 @blueprint_index.route('/', methods=['GET', 'POST'])
 @blueprint_index.route('/index', methods=['GET', 'POST'])
