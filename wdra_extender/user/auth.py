@@ -86,7 +86,10 @@ def logout():
 @blueprint_auth.route('/get_keys')
 @login_required
 def get_keys():
-    return render_template('get_keys.html', endpoints=current_app.config['TWITTER_ENDPOINTS'])
+    return render_template('get_keys.html',
+                           endpoints=current_app.config['TWITTER_ENDPOINTS'],
+                           current_user=current_user
+                           )
 # ======================================================================================================================
 
 
