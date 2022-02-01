@@ -67,6 +67,7 @@ class Extract(db.Model):
     query_string = db.Column(db.String(1024), default="")
     search_settings = db.Column(db.PickleType(), default={})
 
+
     def is_ready(self):
         self.ready = current_app.config['OUTPUT_DIR'].joinpath(
             pathlib.Path(str(self.uuid)).with_suffix('.zip')
@@ -172,12 +173,14 @@ class Extract(db.Model):
             self.search_settings = additional_search_settings
             self.save()
             try:
+                logger.warning("***** SEARCHING")
                 tweets = get_tweets_by_search(query,
                                               twitter_key_dict,
                                               deepcopy(additional_search_settings),
                                               current_app.config['TWEET_PROVIDERS_V2'],
                                               state_function)
             except Exception as e:
+                logger.warning("***** DIED")
                 state_function(state='FAILED',
                                meta={'error': f'{e}'})
                 self.building = False
