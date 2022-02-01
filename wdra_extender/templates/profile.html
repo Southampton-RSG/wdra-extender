@@ -3,25 +3,32 @@
 {% block content %}
     <h1>Twitter search and data management</h1>
     <h2 class="title">Welcome, {{ name }}!</h2>
-    <form action="{{ url_for('auth.profile', basic_form=basic_form) }}" method="POST">
-        <h3>Twitter Search Tools</h3>
-        <button class="btn btn-primary btn-lg btn-block mt" name="select_method" type="submit">
-            Select Search Method
-        </button>
-        <button class="btn btn-primary btn-lg btn-block mt" name="go_to_extracts" type="submit">
-            See Previous Searches and Data for Download
-        </button>
+
+    <form class="mt-3" action="{{ url_for('auth.profile', basic_form=basic_form) }}" method="POST">
+        <h6>Twitter Search Tools</h6>
+        <ul>
+             <li>
+                <a href="{{ url_for('extract.select_method') }}">Search</a>
+            </li>
+            <li>
+                <a href="{{ url_for('extract.show_extracts') }}">My Extracts</a>
+            </li>
+        </ul>
+
         <!--<h3>Data visualisation</h3>
         <button class="btn btn-primary btn-lg btn-block mt" name="view_graph" type="submit">
             View Graph
         </button>-->
-        <h3>Manage User</h3>
-        <button class="btn btn-primary btn-lg btn-block mt" name="logout" type="submit">
-            Logout
-        </button>
-        <h4>Change Credentials</h4>
-        <button class="btn btn-primary btn-lg btn-block mt" name="change_api" type="submit">
-            Change API keys
-        </button>
+        <h6>Manage User</h6>
+        <ul>
+             <li>
+                 <a href="{{ url_for('auth.logout') }}">Log out</a>
+             </li>
+             <li>
+                 <a href="{{ url_for('auth.get_keys') }}">Change API Keys</a>
+                </li>
+        </ul>
+
+
     </form>
 {% endblock %}
