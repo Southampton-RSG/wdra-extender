@@ -1,17 +1,44 @@
 {% extends "base.html" %}
 
-{% if current_user.is_authenticated %}
-    {{ url_for('auth.profile') }}
-{% endif %}
+{#{% if current_user.is_authenticated %}#}
+{#    {{ url_for('auth.profile') }}#}
+{#{% endif %}#}
 
 {% block content %}
-<h1>WDRA Extender</h1>
-    <form action="{{ url_for('index.index', basic_form=basic_form) }}" method="POST">
-    <button class="btn btn-primary btn-lg btn-block mt" name="login" type="submit">
-        Login
-    </button>
-    <button class="btn btn-primary btn-lg btn-block mt" name="sign_up" type="submit">
-        Sign Up
-    </button>
-    </form>
+    <div class="jumbotron">
+        <h1 class="display-4">Twitter API Search</h1>
+        <p class="lead">Accelerate your research by querying the Twitter API directly.</p>
+        <hr class="my-4">
+
+        {% if current_user.is_authenticated %}
+            <ul>
+                <li>
+                    <a href="{{ url_for('extract.select_method') }}">Search</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('extract.show_extracts') }}">My Extracts</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('auth.get_keys') }}">Manage Twitter Credentials</a>
+                </li>
+            </ul>
+        {% else %}
+            <p>To get started, you'll need an <a
+                    href="https://developer.twitter.com/en/docs/twitter-api/getting-started/guide">API key from
+                Twitter</a>,
+                then simply sign up and log in below.</p>
+            <form action="{{ url_for('index.index', basic_form=basic_form) }}" method="POST">
+                <button class="btn btn-primary btn-lg  mt " name="sign_up" type="submit">
+                    Sign Up
+                </button>
+                <button class="btn btn-primary btn-lg  mt btn-success" name="login" type="submit">
+                    Log in
+                </button>
+            </form>
+
+        {% endif %}
+    </div>
+
+
+
 {% endblock %}

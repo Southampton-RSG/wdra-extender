@@ -1,69 +1,24 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Search Tweets</h1>
-<div>
-    <form action="{{ url_for('extract.get_by_search', basic_form=basic_form) }}" method="POST">
-        <button class="btn btn-primary btn-lg btn-block mt" name="switch_form" type="submit">
-            {% if basic_form == "True" %}
-                Go to Advanced Search
-            {% else %}
-                Go to Basic Search
-            {% endif %}
-        </button>
-    </form>
-</div>
-<div>
-    <div>
-        <button onclick="show_hints()">
-            Show search hints
-        </button>
-    </div>
-    <div id="hints" style="display: none" class="card card-body">
-        This form provides a simple wrapper around the twitter recent search API endpoint:
-        <a href="url">https://developer.twitter.com/en/docs/twitter-api/tweets/search/integrate/build-a-rule</a>
-        For full examples see the docs, for more return objects or timeframe searches see the advanced search.
-        <br>
-        The words given in the 'Search terms' form will be split on commas and added to the search using AND logic,
-        i.e. the tweets returned must include all the search parameters. To implement OR logic, i.e. include tweets
-        that contain either search term, simply add OR with a space 'OR ' before your search term. Finally search
-        terms can be grouped using parentheses, using the AND and OR logic and parentheses search terms of high
-        complexity can be built.
-        <br>
-        The words in the 'Exclude terms' form will be implemented with NOT logic. Tweets with these terms will not
-        be returned in the search. Words in this list should be alone and not grouped in parentheses.
-        <br>
-        In addition we can search for a phrase using quotation marks, i.e. the search
-        <i>Black AND Lives AND Matter</i> may be better implemented as <i>"Black Lives Matter"</i>.
-        <br>
-        <b><u>Operators</u></b>
-        The full list of operators can be found by following the link above.
-        <br>
-        An operator can be used to increase the power of your search. We have discussed using quotes to switch from
-        keyword to phrase matching. Other operators include the hashtag # to match <i>exact</i> hashtags, the @ to
-        match usernames. Other operators can assert that tweets contain elements for example 'has:media' asserts
-        that tweets contain a media object. One of the most commonly used operators is '-is:retweet' that excludes
-        retweets from the search.
-    </div>
-</div>
-<div>
-<button onclick="showExample('{{ basic_form }}')">Show example search</button>
-</div>
-<a id='search_example_basic' style="display: none">
-    This search would return 30 tweets which contain 'dog' and either of the hashtags '#dogs' or '#puppies' but not
-    retweets or tweets containing any of the hashtags '#cats', '#cat', '#kitten' or, '#kittens'.
-</a>
-<a id='search_example_adv' style="display: none">
-    This search would return 30 tweets in two batches of 15 which contain 'dog' and either of the hashtags '#dogs' or
-    '#puppies' but not retweets or tweets containing any of the hashtags '#cats', '#cat', '#kitten' or, '#kittens'.
-</a>
+<h1>Search Tweets</h1><hr>
+
 {% if basic_form == "True" %}
-    <h2>Basic Search</h2>
-    <p>Input comma separated list of include and exclude terms.</p>
+    <h2>2. Basic Search</h2>
+    <div class="mb-2">
+        <form action="{{ url_for('extract.get_by_search', basic_form=basic_form) }}" method="POST">
+            <button class="btn btn-primary" name="switch_form" type="submit">
+                    Go to Advanced Search
+                    <i class="fas fa-angle-double-right"></i>
+
+            </button>
+        </form>
+    </div>
+
     <form action="{{ url_for('extract.get_by_search', basic_form=basic_form) }}" method="POST">
         <div class="input_group">
             <label for="field_search_terms">Include terms</label>
-            <textarea type="text" class="form-control" id="field_search_terms" name="include_terms"></textarea>
+            <textarea type="text" class="form-control" id="field_search_terms" name="include_terms" placeholder="A comma separated list of include and exclude terms."></textarea>
         </div>
         <div class="input_group">
             <label for="field_exclude_terms">Exclude terms</label>
@@ -87,11 +42,19 @@
                 </td>
             </tr>
         </div>
-        <button class="btn btn-primary btn-lg btn-block mt" name="submit_basic" type="submit">Submit</button>
+        <button class="btn btn-primary mt-2" name="submit_basic" type="submit">Search</button>
     </form>
 
 {% else %}
-    <h2>Advanced Search</h2>
+    <h2>2. Advanced Search</h2>
+    <div>
+        <form action="{{ url_for('extract.get_by_search', basic_form=basic_form) }}" method="POST">
+            <button class="btn btn-primary" name="switch_form" type="submit">
+                <i class="fas fa-angle-double-left"></i>
+                Go to Basic Search
+            </button>
+        </form>
+    </div>
     <p>Include and exclude text, tags, and define timeframes.</p>
     <form action="{{ url_for('extract.get_by_search', basic_form=basic_form) }}" method="POST">
         <label><h3>Search Parameters</h3></label>
@@ -216,6 +179,54 @@
 
 {% endif %}
 
+<div class="mt-2">
+    <div class="mt-2 mb-2">
+        <button class="btn btn-outline-primary" onclick="showExample('{{ basic_form }}')"> <i class="fas fa-info-circle"></i> Show example search</button>
+    </div>
+</div>
+
+<a id='search_example_basic' style="display: none">
+    This search would return 30 tweets which contain 'dog' and either of the hashtags '#dogs' or '#puppies' but not
+    retweets or tweets containing any of the hashtags '#cats', '#cat', '#kitten' or, '#kittens'.
+</a>
+<a id='search_example_adv' style="display: none">
+    This search would return 30 tweets in two batches of 15 which contain 'dog' and either of the hashtags '#dogs' or
+    '#puppies' but not retweets or tweets containing any of the hashtags '#cats', '#cat', '#kitten' or, '#kittens'.
+</a>
+
+<div class="mt-2">
+    <div class="mt-2 mb-2">
+        <button class="btn btn-outline-primary" onclick="show_hints()">
+            <i class="fas fa-info-circle"></i> Show search hints <i class="fas fa-angle-down"></i>
+        </button>
+    </div>
+    <div id="hints" style="display: none" class="card card-body">
+        This form provides a simple wrapper around the twitter recent search API endpoint:
+        <a href="url">https://developer.twitter.com/en/docs/twitter-api/tweets/search/integrate/build-a-rule</a>
+        For full examples see the docs, for more return objects or timeframe searches see the advanced search.
+        <br>
+        The words given in the 'Search terms' form will be split on commas and added to the search using AND logic,
+        i.e. the tweets returned must include all the search parameters. To implement OR logic, i.e. include tweets
+        that contain either search term, simply add OR with a space 'OR ' before your search term. Finally search
+        terms can be grouped using parentheses, using the AND and OR logic and parentheses search terms of high
+        complexity can be built.
+        <br>
+        The words in the 'Exclude terms' form will be implemented with NOT logic. Tweets with these terms will not
+        be returned in the search. Words in this list should be alone and not grouped in parentheses.
+        <br>
+        In addition we can search for a phrase using quotation marks, i.e. the search
+        <i>Black AND Lives AND Matter</i> may be better implemented as <i>"Black Lives Matter"</i>.
+        <br>
+        <b><u>Operators</u></b>
+        The full list of operators can be found by following the link above.
+        <br>
+        An operator can be used to increase the power of your search. We have discussed using quotes to switch from
+        keyword to phrase matching. Other operators include the hashtag # to match <i>exact</i> hashtags, the @ to
+        match usernames. Other operators can assert that tweets contain elements for example 'has:media' asserts
+        that tweets contain a media object. One of the most commonly used operators is '-is:retweet' that excludes
+        retweets from the search.
+    </div>
+</div>
 
 <script type="text/javascript">
     function show_hints() {

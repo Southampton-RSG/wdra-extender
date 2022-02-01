@@ -11,13 +11,6 @@
 {% block content %}
 <h1>Extract Details</h1>
 
-<a class="btn btn-prima`ry btn-lg btn-block" href="{{ url_for('auth.profile') }}">
-    Home
-</a>
-<a class="btn btn-prima`ry btn-lg btn-block" href="{{ url_for('extract.show_extracts') }}">
-    Show all Extracts
-</a>
-
 <hr>
 
 <dl>
@@ -29,9 +22,9 @@
         {% if extract.ready %}
             Your extract has been processed and is ready to download.
         {% else %}
-            Your extract is, <a id="progress_status"></a>, check back soon.
+            Extract Status, <a id="progress_status"></a>
             <div id="progress_bar"></div>
-            Msg: <a id="progress_message"></a>
+            <a id="progress_message"></a>
         {% endif %}
     </dd>
 </dl>
@@ -39,16 +32,12 @@
 <hr>
 
 {% if extract.ready %}
-    <a class="btn btn-prima`ry btn-lg btn-block"
+    <a class="btn btn-primary"
        href="{{ url_for('extract.download_extract', extract_uuid=extract.uuid) }}">
         Download
     </a>
 {% else %}
-    <button class="btn btn-info btn-lg btn-block"
-            disabled>
-        Download will be available soon
-    </button>
-    <a class="btn btn-info btn-lg btn-block" href="{{ url_for('tools.kill_task', task_id=extract.uuid) }}">
+    <a class="btn btn-danger" href="{{ url_for('tools.kill_task', task_id=extract.uuid) }}">
         Stop Search
     </a>
 {% endif %}
