@@ -4,6 +4,9 @@ from datetime import datetime
 from .app import celery
 from .extract.models import Extract
 from .user.models import WdraxUser
+from celery.utils.log import get_task_logger
+
+logger = get_task_logger(__name__)
 
 __all__ = [
     'build_extract',
@@ -14,6 +17,7 @@ __all__ = [
 @celery.task(bind=True)
 def build_extract(self, uuid, query, **kwargs):
     """Begin the build of a requested Twitter Extract Bundle."""
+    logger.info(f"Building Extract uuid: {uuid}")
     extract = Extract.query.get(uuid)
     user = WdraxUser.query.get(extract.user_id)
     twitter_key_dict = user.twitter_key_dict()
@@ -26,6 +30,7 @@ def build_extract(self, uuid, query, **kwargs):
 @celery.task
 def rebuild_extract(uuid):
     """Begin the rebuild of a requested Twitter Extract Bundle."""
+    logger.info("Re-building Extract")
     extract = Extract.query.get(uuid)
     user = WdraxUser.query.get(extract.user_id)
     twitter_key_dict = user.twitter_key_dict()
