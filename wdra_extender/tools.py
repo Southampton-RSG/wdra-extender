@@ -67,7 +67,7 @@ def task_status(task_id):
         'STARTING': ['task_type'],
         'COLLECTING': ['collected'],
         'RATE_LIMITING': ['tries', 'sleep_start', 'sleep'],
-        'FAILED': ['error']
+        'FAILURE': ['error']
     }
     response = None
     if task is not None:
@@ -75,8 +75,13 @@ def task_status(task_id):
             if task.state == task_state:
                 # construct response from meta
                 if task.state != 'PENDING':
-                    response = {key: value for key, value in task.info.items()}
-                    response['state'] = task.state
+                    response = {}
+                    try:
+                        response = {key: value for key, value in task.info.items()}
+                        response['state'] = task.state
+                    except AttributeError:
+                        response = {'state': "An Error occurred while fetching Tweets.  "
+                                             "Please check the validity of you Twitter credentials."}
                 else:
                     response = {'state': task.state}
     else:
