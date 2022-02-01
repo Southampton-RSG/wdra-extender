@@ -29,16 +29,20 @@ def get_from_session():
 def select_method():
     """View to select the extract method"""
     extract_methods = {
-        'Search': 'extract.get_by_search',
         'ID': 'extract.get_by_id',
+        'Search': 'extract.get_by_search',
         # 'Replication': 'extract.get_by_replication'
     }
     rich_session = get_from_session()
-    if request.method == "POST":
-        selected = request.form.get('method_select')
-        return redirect(url_for(extract_methods[selected], basic_form=True))
+    if current_user.endpoints is not None:
+        if request.method == "POST":
+            selected = request.form.get('method_select')
+            return redirect(url_for(extract_methods[selected], basic_form=True))
+        else:
+            return render_template('get_method.html', extract_methods=extract_methods)
     else:
-        return render_template('get_method.html', extract_methods=extract_methods)
+        # We don't have API keys
+        return redirect(url_for('auth.get_keys'))
 # ======================================================================================================================
 
 
@@ -48,10 +52,15 @@ def select_method():
 def get_by_search(basic_form):
     """View to request a Twitter extract Bundle using search parameters"""
     if request.method == 'GET':
-        return render_template('get_by_search.html',
+        if current_user.endpoints is not None:
+            return render_template('get_by_search.html',
                                basic_form=basic_form,
                                return_fields=current_app.config['TWITTER_RETURN_DICT'],
                                endpoints=current_user.endpoints)
+        else:
+            # We don't have API keys
+            return redirect(url_for('auth.get_keys'))
+
     if request.method == 'POST':
         if 'switch_form' in request.form:
             if basic_form == "True":
