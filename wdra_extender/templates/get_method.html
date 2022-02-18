@@ -3,51 +3,58 @@
 {% block content %}
 
 <h1>Search Tweets</h1><hr>
-<h3>1. Select Tweet Return Method</h3>
+<h3>1. How do you want to search for tweets and data?</h3>
 
 <div>
     <div class="mt-3">There are two search methods: <strong>Search</strong> and <strong>ID</strong>:</div>
-    <div class="mt-3">
-        <ul>
-            <li>
-                <div class="mt-1">
-                    <strong>Search</strong> has two forms:
-                    <ul>
-                        <li>
-                            The <strong>basic</strong> form can:
-                            <ul>
-                                <li>Include and exclude terms</li>
-                                <li>Set the total number of tweets to return</li>
-                            </ul>
-                            The basic form will return the tweet ID and the tweet text as is the default for the APIv2,
-                            it is also limited to the last 7 days.
-                        </li>
-                        <li>
-                            The <strong>advanced</strong> form can:
-                            <ul>
-                                <li>Include and exclude terms</li>
-                                <li>Set the total number of tweets to return with batch size control</li>
-                                <li>Allow selection of date and time range and/or selection of tweet ID range (within the limitation of
-                            your API credentials, non-academic users are still limited to the last 7 days)</li>
-                                <li>Allow selection of the return information giving access to the full suit of API return fields</li>
-                            </ul>
-                        </li>
-                    </ul>
+    <ul>
+        <li>
+            <div class="p-1">
+
+                <div>
+                    <strong>Search</strong> has two forms, the <strong>basic</strong> and <strong>advanced</strong>.
+                    Both will search for terms in
+                    tweets and return information about those tweets.
                 </div>
-            </li>
-            <li>
-                <div class="mt-3">
-                    <strong>ID</strong> is a <em>tweet hydrating</em> feature.  By supplying a list of tweet IDs the API is used to obtain all available fields from
-                    the tweet.
-                </div>
-            </li>
-        </ul>
-    </div>
+                <ul>
+                    <li>
+                        <div>
+                            The <strong>basic</strong> form offers <i>'include'</i> and <i>'exclude'</i> terms for the
+                            search as well as total number of tweets to return.
+                            The basic form will return the tweet ID and the tweet text of tweets, as is the default for
+                            the Twitter APIv2.
+                            It is also limited in scope to searching withing the last 7 days.
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            The <strong>advanced</strong> form has <i>'include'</i> and <i>'exclude'</i> terms, and
+                            total number of tweets to return with batch size control . The advanced form allows
+                            selection of date and time range and/or selection of tweet ID range (within the limitation
+                            of your API credentials - non-academic users are still limited to the last 7 days so if you
+                            want more you will need to apply for academic research access). The advanced form allows
+                            selection of the return information giving access to
+                            the full suite of API return fields which you can browse and select.
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </li>
+        <li>
+            <div class="p-1">
+                <strong>ID</strong> is a <i>tweet hydrating</i> feature. That is it will use the IDs provided to find
+                and reproduce complete details
+                of all fields of a tweet. By supplying a list of tweet IDs the API is used to obtain all available
+                fields from
+                the tweets.
+            </div>
+        </li>
+    </ul>
 </div>
 <form action="{{ url_for('extract.select_method', extract_uuid=extract_uuid) }}" method="POST">
-    <div>
-
-        <select class = "browser-default custom-select" name= "method_select">
+    <div class="form-group">
+        <label for="method_select">Search method:</label>
+        <select class="browser-default custom-select" name="method_select" id="method_select">
             {% for key, value in extract_methods.items() %}
             <option name= "{{ key }}" SELECTED>{{ key }}</option>
             {% endfor %}

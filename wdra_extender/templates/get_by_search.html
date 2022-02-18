@@ -2,12 +2,68 @@
 
 {% block content %}
 <h1>Search Tweets</h1><hr>
+<div class="mt-2">
+    <div class="mt-2 mb-2">
+        <button class="btn btn-outline-primary btn-sm" onclick="show_hints()">
+            <i class="fas fa-info-circle"></i> Show search hints <i class="fas fa-angle-right"></i>
+        </button>
+    </div>
+    <div id="hints" style="display: none" class="card card-body">
+        <div>
+            This form provides a simple compatible software translating and providing interoperability (wrapping around)
+            the Twitter <a href="https://developer.twitter.com/en/docs/twitter-api/tweets/search/integrate/build-a-rule">
+            recent search API endpoint</a>.
+        </div>
+        <div class="pt-2">
+            To return more objects or to use timeframe searches beyond the 7-day default you will need to use the
+            <strong>Advanced search</strong> and have applied for the requisite credentials from Twitter.
+        </div>
+        <div class="pt-2">
+            It is important to separate search terms by commas as the words given in the <strong>Search terms</strong> field will be
+            split on commas. The words will be added to the search using <strong>AND</strong> logic by default, i.e. the tweets returned
+            must include <i>all</i> the search parameters.
+        </div>
+        <div class="pt-2">
+            To implement <strong>OR</strong> logic, i.e. include tweets that contain either search
+            term, simply add <strong>OR</strong> with a space before your search term: <code>cat OR dog</code>
+        </div>
+        <div class="pt-2">
+            In addition, we can search for a phrase using quotation marks, i.e. the search:
+            <code>Black AND Lives AND Matter</code> may be better implemented as: <code>"Black Lives Matter"</code>.
+        </div>
+        <div class="pt-2">
+            Finally, several search terms can be grouped using parentheses. Using the <strong>AND</strong> and
+            <strong>OR</strong> logic along with parentheses, search terms of high complexity can be built. e.g.:
+            <code>(United States, OR USA), AND (Germany OR Deutschland)</code>.
+        </div>
+        <div class="pt-2">
+            The words in the <strong>Exclude terms</strong> field will be implemented with <strong>NOT</strong> logic.
+            Tweets with these terms will not be returned in the search. Words in this list should be alone and not
+            grouped in parentheses.
+        </div>
+        <div class="pt-2">
+            An operator can be used to increase the power of your search. We have discussed using quotes to switch from
+            keyword to phrase matching. Other operators include the hashtag <code>#</code> to match exact hashtags, and the <code>@</code> to
+            match usernames. Other operators can assert that tweets contain elements for example <code>has:media</code> asserts
+            that tweets searched for will contain a media object. One of the most commonly used operators is <code>-is:retweet</code>
+            that excludes retweets from the search. We implement the removal of retweets as a default suggestion in the 'exclude'
+            terms.
+        </div>
+        <div class="pt-2">
+            Further information on operators for filtering in the Twitter API search can be found
+            <a href="https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/integrate/build-a-rule#availability">here</a>.
+        </div>
+
+    </div>
+</div>
 
 {% if basic_form == "True" %}
-    <h2>2. Basic Search</h2>
+    <h2>Basic Search</h2>
+
+
     <div class="mb-2">
         <form action="{{ url_for('extract.get_by_search', basic_form=basic_form) }}" method="POST">
-            <button class="btn btn-primary" name="switch_form" type="submit">
+            <button class="btn btn-primary btn-sm" name="switch_form" type="submit">
                     Go to Advanced Search
                     <i class="fas fa-angle-double-right"></i>
 
@@ -46,142 +102,147 @@
     </form>
 
 {% else %}
-    <h2>2. Advanced Search</h2>
-    <div>
+    <h2>Advanced Search</h2>
+    <div class="pt-1">
         <form action="{{ url_for('extract.get_by_search', basic_form=basic_form) }}" method="POST">
-            <button class="btn btn-primary" name="switch_form" type="submit">
+            <button class="btn btn-primary btn-sm" name="switch_form" type="submit">
                 <i class="fas fa-angle-double-left"></i>
                 Go to Basic Search
             </button>
         </form>
     </div>
-    <p>Include and exclude text, tags, and define timeframes.</p>
-    <form action="{{ url_for('extract.get_by_search', basic_form=basic_form) }}" method="POST">
-        <label><h3>Search Parameters</h3></label>
-        <table style="width:100%">
-            <tr>
-                <td></td>
-                <td colspan="6"></td>
-            </tr>
-            <tr>
-                <td><label for="include_terms">Include</label></td>
-                <td colspan="6"><textarea type="text" class="form-control" id="include_terms" name="include_terms" ></textarea></td>
-            </tr>
-            <tr>
-                <td><label for="exclude_terms">Exclude</label></td>
-                <td colspan="6"><textarea type="text" class="form-control" id="exclude_terms" name="exclude_terms" >is:retweet</textarea></td>
-            </tr>
-            <tr>
-                <td><label for="number_to_return">Results total</label></td>
-                <td colspan="3"><input type="number" class="form-control" id="number_to_return" name="max_results" value="10"></td>
-                <td><label for="results_per_call">Results per call</label></td>
-                <td colspan="3"><input type="number" class="form-control" id="results_per_call" name="results_per_call" value="10"></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td colspan="3">From</td>
-                <td colspan="3">To</td>
-            </tr>
-            <tr>
-                <td>Date <label for="field_date_from">from</label>/<label for="field_date_from">to</label></td>
-                <td colspan="3"><input type="datetime-local" class="form-control" id="field_date_from" name="start_time" ></td>
-                <td colspan="3"><input type="datetime-local" class="form-control" id="field_date_to" name="end_time" ></td>
-            </tr>
-            <tr>
-                <td><label for="tweet_id">Tweet ID</label></td>
-                <td colspan="2"><input type="text" class="form-control" id="tweet_id" name="since_id"></td>
-                <td><label for="fm_inc">Inclusive</label>
-                    <input type="checkbox" class="form-control" id="fm_inc" name="from_inclusive"></td>
-                <td colspan="2"><input type="text" class="form-control" id="tweet_id" name="to_id"></td>
-                <td><label for="to_inc">Inclusive</label>
-                    <input type="checkbox" class="form-control" id="to_inc" name="to_inclusive"></td>
-            </tr>
-            <tr>
-                <td><label for="method_select">Endpoint</label></td>
-                <td colspan="6">
-                    <select class = "browser-default custom-select" name= "endpoint">
-                        {% for key, enabled in endpoints.items() %}
-                        {% if enabled %}
-                            <option name= "{{ key }}" SELECTED>{{ key }}</option>
-                        {% endif %}
-                        {% endfor %}
-                    </select>
-                </td>
-            </tr>
-        </table>
-        <label><h3>Return Fields</h3></label>
-        <p>Choose the return fields to retrieve from the api</p>
-        <table>
-            <tr>
-                <td>
-                    <label for="allBox">Select All</label>
-                </td>
-                <td>
-                    <input type="checkbox" id="allBox" class="form-control" name="allBox"
-                           onclick="select_all('allBox', {{ return_fields['tweet_fields']|safe }}, 'false', {{ return_fields.keys()|list|safe }} )">
-                </td>
-            </tr>
-            <tr>
-                <td colspan="1">Field</td>
-                <td colspan="1">Include</td>
-                <td colspan="1"></td>
-                <td colspan="1" id="secret_col" style="display: none">Extra Args</td>
-            </tr>
-            {% for field in return_fields['tweet_fields'] %}
-                {% if field in return_fields.keys() %}
-                    <tr>
-                        <td id="{{ field }}_cell1" colspan="1">
-                            <label for="{{ field }}_check"> {{ field }}</label>
-                        </td>
-                        <td id="{{ field }}_cell2" colspan="1">
-                            <input type="checkbox" class="form-control" id="{{ field }}_check" name="{{ field }}"
-                                  onclick="show_options('{{ field }}')">
-                        </td>
-                        <td id="{{ field }}_cell3" colspan="2" >
-                            <table id="{{ field }}_subs" style="display: none">
-                                <tr>
-                                    <td>
-                                        <label for="{{ field }}_allBox">Select All</label>
-                                    </td>
-                                    <td>
-                                        <input type="checkbox" id="{{ field }}_allBox" class="form-control" name="{{ field }}_allBox"
-                                               onclick="select_all('{{ field }}' + '_allBox', {{ return_fields[field]|safe }}, '{{ field }}')">
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Extra Field</td>
-                                    <td>Include</td>
-                                </tr>
-                                {% for sub_field in return_fields[field] %}
+
+    <div class="pt-2">
+        <form action="{{ url_for('extract.get_by_search', basic_form=basic_form) }}" method="POST">
+            <h5>Search Parameters</h5>
+            <div class="pb-2">Include and exclude text, tags, and define timeframes.</div>
+            <table style="width:100%">
+                <tr>
+                    <td></td>
+                    <td colspan="6"></td>
+                </tr>
+                <tr>
+                    <td><label for="include_terms">Include</label></td>
+                    <td colspan="6"><textarea type="text" class="form-control" id="include_terms" name="include_terms" ></textarea></td>
+                </tr>
+                <tr>
+                    <td><label for="exclude_terms">Exclude</label></td>
+                    <td colspan="6"><textarea type="text" class="form-control" id="exclude_terms" name="exclude_terms" >is:retweet</textarea></td>
+                </tr>
+                <tr>
+                    <td><label for="number_to_return">Results total</label></td>
+                    <td colspan="3"><input type="number" class="form-control" id="number_to_return" name="max_results" value="10"></td>
+                    <td><label for="results_per_call">Results per call</label></td>
+                    <td colspan="3"><input type="number" class="form-control" id="results_per_call" name="results_per_call" value="10"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td colspan="3">From</td>
+                    <td colspan="3">To</td>
+                </tr>
+                <tr>
+                    <td>Date <label for="field_date_from">from</label>/<label for="field_date_from">to</label></td>
+                    <td colspan="3"><input type="datetime-local" class="form-control" id="field_date_from" name="start_time" ></td>
+                    <td colspan="3"><input type="datetime-local" class="form-control" id="field_date_to" name="end_time" ></td>
+                </tr>
+                <tr>
+                    <td><label for="tweet_id">Tweet ID</label></td>
+                    <td colspan="2"><input type="text" class="form-control" id="tweet_id" name="since_id"></td>
+                    <td><label for="fm_inc">Inclusive</label>
+                        <input type="checkbox" class="form-control" id="fm_inc" name="from_inclusive"></td>
+                    <td colspan="2"><input type="text" class="form-control" id="tweet_id" name="to_id"></td>
+                    <td><label for="to_inc">Inclusive</label>
+                        <input type="checkbox" class="form-control" id="to_inc" name="to_inclusive"></td>
+                </tr>
+                <tr>
+                    <td><label for="method_select">Endpoint</label></td>
+                    <td colspan="6">
+                        <select class = "browser-default custom-select" name= "endpoint">
+                            {% for key, enabled in endpoints.items() %}
+                            {% if enabled %}
+                                <option name= "{{ key }}" SELECTED>{{ key }}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+            </table>
+
+            <h5 class="pt-4">Return Fields</h5>
+            <p>Choose the return fields to retrieve from the api</p>
+            <table>
+                <tr>
+                    <td>
+                        <label for="allBox">Select All</label>
+                    </td>
+                    <td>
+                        <input type="checkbox" id="allBox" class="form-control" name="allBox"
+                               onclick="select_all('allBox', {{ return_fields['tweet_fields']|safe }}, 'false', {{ return_fields.keys()|list|safe }} )">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="1">Field</td>
+                    <td colspan="1">Include</td>
+                    <td colspan="1"></td>
+                    <td colspan="1" id="secret_col" style="display: none">Extra Args</td>
+                </tr>
+                {% for field in return_fields['tweet_fields'] %}
+                    {% if field in return_fields.keys() %}
+                        <tr>
+                            <td id="{{ field }}_cell1" colspan="1">
+                                <label for="{{ field }}_check"> {{ field }}</label>
+                            </td>
+                            <td id="{{ field }}_cell2" colspan="1">
+                                <input type="checkbox" class="form-control" id="{{ field }}_check" name="{{ field }}"
+                                      onclick="show_options('{{ field }}')">
+                            </td>
+                            <td id="{{ field }}_cell3" colspan="2" >
+                                <table id="{{ field }}_subs" style="display: none">
                                     <tr>
                                         <td>
-                                            <label for="{{ field }}_{{ sub_field }}_check">{{ sub_field }}</label>
+                                            <label for="{{ field }}_allBox">Select All</label>
                                         </td>
                                         <td>
-                                            <input type="checkbox" class="form-control" id="{{ field }}_{{ sub_field }}_check" name="_{{ sub_field }}">
+                                            <input type="checkbox" id="{{ field }}_allBox" class="form-control" name="{{ field }}_allBox"
+                                                   onclick="select_all('{{ field }}' + '_allBox', {{ return_fields[field]|safe }}, '{{ field }}')">
                                         </td>
                                     </tr>
-                                {% endfor %}
-                            </table>
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="1"><label for="{{ field }}_check"> {{ field }}</label></td>
-                        <td colspan="1"><input type="checkbox" class="form-control" id="{{ field }}_check" name="{{ field }}"></td>
-                        <td colspan="2"></td>
-                    </tr>
-                {% endif %}
-            {% endfor %}
-        </table>
-        <button class="btn btn-primary btn-lg btn-block mt" name="submit_adv" type="submit">Submit</button>
-    </form>
+                                    <tr>
+                                        <td>Extra Field</td>
+                                        <td>Include</td>
+                                    </tr>
+                                    {% for sub_field in return_fields[field] %}
+                                        <tr>
+                                            <td>
+                                                <label for="{{ field }}_{{ sub_field }}_check">{{ sub_field }}</label>
+                                            </td>
+                                            <td>
+                                                <input type="checkbox" class="form-control" id="{{ field }}_{{ sub_field }}_check" name="_{{ sub_field }}">
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="1"><label for="{{ field }}_check"> {{ field }}</label></td>
+                            <td colspan="1"><input type="checkbox" class="form-control" id="{{ field }}_check" name="{{ field }}"></td>
+                            <td colspan="2"></td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </table>
+            <button class="btn btn-primary mt" name="submit_adv" type="submit">Search</button>
+        </form>
+    </div>
 
 {% endif %}
 
 <div class="mt-2">
     <div class="mt-2 mb-2">
-        <button class="btn btn-outline-primary" onclick="showExample('{{ basic_form }}')"> <i class="fas fa-info-circle"></i> Show example search</button>
+        <button class="btn btn-outline-primary btn-sm" onclick="showExample('{{ basic_form }}')">
+            <i class="fas fa-info-circle"></i> Show example search  <i class="fas fa-angle-right"></i></button>
     </div>
 </div>
 
@@ -194,39 +255,6 @@
     '#puppies' but not retweets or tweets containing any of the hashtags '#cats', '#cat', '#kitten' or, '#kittens'.
 </a>
 
-<div class="mt-2">
-    <div class="mt-2 mb-2">
-        <button class="btn btn-outline-primary" onclick="show_hints()">
-            <i class="fas fa-info-circle"></i> Show search hints <i class="fas fa-angle-down"></i>
-        </button>
-    </div>
-    <div id="hints" style="display: none" class="card card-body">
-        This form provides a simple wrapper around the twitter recent search API endpoint:
-        <a href="url">https://developer.twitter.com/en/docs/twitter-api/tweets/search/integrate/build-a-rule</a>
-        For full examples see the docs, for more return objects or timeframe searches see the advanced search.
-        <br>
-        The words given in the 'Search terms' form will be split on commas and added to the search using AND logic,
-        i.e. the tweets returned must include all the search parameters. To implement OR logic, i.e. include tweets
-        that contain either search term, simply add OR with a space 'OR ' before your search term. Finally search
-        terms can be grouped using parentheses, using the AND and OR logic and parentheses search terms of high
-        complexity can be built.
-        <br>
-        The words in the 'Exclude terms' form will be implemented with NOT logic. Tweets with these terms will not
-        be returned in the search. Words in this list should be alone and not grouped in parentheses.
-        <br>
-        In addition we can search for a phrase using quotation marks, i.e. the search
-        <i>Black AND Lives AND Matter</i> may be better implemented as <i>"Black Lives Matter"</i>.
-        <br>
-        <b><u>Operators</u></b>
-        The full list of operators can be found by following the link above.
-        <br>
-        An operator can be used to increase the power of your search. We have discussed using quotes to switch from
-        keyword to phrase matching. Other operators include the hashtag # to match <i>exact</i> hashtags, the @ to
-        match usernames. Other operators can assert that tweets contain elements for example 'has:media' asserts
-        that tweets contain a media object. One of the most commonly used operators is '-is:retweet' that excludes
-        retweets from the search.
-    </div>
-</div>
 
 <script type="text/javascript">
     function show_hints() {

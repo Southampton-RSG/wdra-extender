@@ -1,13 +1,57 @@
 {% extends "base.html" %}
 
-{#{% if current_user.is_authenticated %}#}
-{#    {{ url_for('auth.profile') }}#}
-{#{% endif %}#}
-
 {% block content %}
     <div class="jumbotron">
         <h1 class="display-4">Twitter API Search</h1>
         <p class="lead">Accelerate your research by querying the Twitter API directly.</p>
+        <p>
+            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample"
+                    aria-expanded="false" aria-controls="collapseExample">
+                <i class="fas fa-info-circle"></i> Learn more <i class="fas fa-angle-right"></i>
+            </button>
+        </p>
+        <div class="collapse" id="collapseExample">
+            <div class="card card-body">
+                <h5>Welcome</h5>
+                <div class="p-1">This Twitter API search tool was developed to provide a simplified way of extracting
+                    data from the Twitter API.
+                </div>
+                <div class="p-1">We set out to make social media research accessible and inclusive of a wider group of
+                    users, who may not have sufficient developer experience to immediately use the Twitter Developer
+                    Platform.
+                </div>
+                <div class="p-1">Before using the Web Data Research Assistant users will need to apply for access to
+                    the <a href="https://developer.twitter.com/en/docs/twitter-api/getting-started/getting-access-to-the-twitter-api">Twitter API</a>
+                    and receive credentials for access from Twitter.
+                </div>
+                <div class="p-1">Once you have logged in to the Web Data Research Assistant using those credentials you
+                    can use the research tool. You can change your credentials if necessary and appropriate due to a
+                    change in your activity or position.
+                </div>
+
+                <div class="p-1">The WDRA develops completely reproducible results in line with best practices in Open
+                    Science. Once you have created a search you can save and replicate it.
+                </div>
+
+                <div class="p-1">We are committed to ethical research. Extensions to the tool were built under ethics
+                    approval by the <a href="https://www.southampton.ac.uk/">University of Southampton</a>
+                    <a href="https://www.southampton.ac.uk/about/departments/faculties/social-sciences.page">Faculty
+                        of Social Sciences</a> Ethics and Research Governance Committee 62643.A2 (Nov 2021).
+                </div>
+                <div class="p-1">Users should be aware of best practices in ethics of social media research and the
+                    need to comply with <a href="https://developer.twitter.com/en/developer-terms/agreement-and-policy">
+                        Twitter's policies</a>.
+                </div>
+
+                <div class="p-1">The tool's development was supported by the
+                    <a hef="https://participedia.net">Participedia project</a>, the
+                    <a href="https://www.southampton.ac.uk/">University of Southampton</a>, and the
+                    <a href="https://www.ukri.org/">UKRI</a>-funded <a href="https://www.rebootingdemocracy.ac.uk/">
+                        Rebooting Democracy</a> Project, grant reference: <strong>MR/S032711/1</strong>.
+                </div>
+            </div>
+        </div>
+
         <hr class="my-4">
 
         {% if current_user.is_authenticated %}
@@ -29,7 +73,7 @@
                 then simply sign up and log in below.</p>
             <form action="{{ url_for('index.index', basic_form=basic_form) }}" method="POST">
                 <button class="btn btn-primary btn-lg  mt " name="sign_up" type="submit">
-                    Sign Up
+                    Sign up
                 </button>
                 <button class="btn btn-primary btn-lg  mt btn-success" name="login" type="submit">
                     Log in
