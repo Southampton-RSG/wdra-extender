@@ -21,6 +21,7 @@ def build_extract(self, uuid, query, **kwargs):
     extract = Extract.query.get(uuid)
     user = WdraxUser.query.get(extract.user_id)
     twitter_key_dict = user.twitter_key_dict()
+    extract.queuing = False
     extract.building = True
     extract.save()
     state_function = self.update_state

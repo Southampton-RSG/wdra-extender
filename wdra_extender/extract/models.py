@@ -67,7 +67,6 @@ class Extract(db.Model):
     query_string = db.Column(db.String(1024), default="")
     search_settings = db.Column(db.PickleType(), default={})
 
-
     def is_ready(self):
         self.ready = current_app.config['OUTPUT_DIR'].joinpath(
             pathlib.Path(str(self.uuid)).with_suffix('.zip')

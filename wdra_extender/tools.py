@@ -43,7 +43,6 @@ def get_valid_kwargs(func):
 
 
 # Tools for working with/on background tasks============================================================================
-
 def get_task_fun(task_id):
     from .tasks import build_extract, rebuild_extract
     # This is a workaround as getmembers(tasks, isfunction) wont return the celery decorated values using the inspect
@@ -67,6 +66,7 @@ def task_status(task_id):
         'STARTING': ['task_type'],
         'COLLECTING': ['collected'],
         'RATE_LIMITING': ['tries', 'sleep_start', 'sleep'],
+        'SUCCESS': [],
         'FAILURE': ['error']
     }
     response = None
@@ -74,14 +74,15 @@ def task_status(task_id):
         for task_state in task_state_dict.keys():
             if task.state == task_state:
                 # construct response from meta
-                if task.state != 'PENDING':
+                if task.state not in ['PENDING', 'SUCCESS']:
                     response = {}
                     try:
                         response = {key: value for key, value in task.info.items()}
                         response['state'] = task.state
-                    except AttributeError:
+                    except AttributeError as e:
                         response = {'state': "An Error occurred while fetching Tweets.  "
-                                             "Please check the validity of you Twitter credentials."}
+                                             "Please check the validity of you Twitter credentials.\n"
+                                             f"Error log: {e}"}
                 else:
                     response = {'state': task.state}
     else:
