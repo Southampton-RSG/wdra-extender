@@ -37,10 +37,16 @@ function check_long_task(status_url, prog_bar, prog_status, prog_msg) {
             if (data['state'] === 'RATE_LIMITING') {
                 //update status
                 // set nanobar to be the time to retry
-                $(prog_msg).text('Rate Limit hit');
+                $(prog_msg).text('Rate Limit hit. For more details see: https://developer.twitter.com/en/docs/twitter-api/rate-limits');
                 percent = parseInt(100 * ((Date.now()/1000) - data['sleep_start']) / data['sleep']);
                 //rerun in
                 rerun_in = data['sleep'] / 10;
+            }
+            if (data['state'] === 'SUCCESS') {
+                percent = 100;
+                $(prog_msg).text('Collection finished please reload the page.');
+                rerun_in = 10000;
+                location.reload();
             }
             nanobar.go(percent);
         });
