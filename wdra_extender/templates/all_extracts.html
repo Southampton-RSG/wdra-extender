@@ -4,7 +4,9 @@
 <script type="text/javascript">
     $(document).ready(function() {
         {% for _extract in user_extracts %}
-            check_long_task('{{ url_for('tools.task_status', task_id=_extract.uuid) }}', $('#progress_bar_'+'{{ _extract.uuid }}'), $('#progress_status_'+'{{ _extract.uuid }}'), $('#progress_message_'+'{{ _extract.uuid }}'));
+            {% if not _extract.is_ready %}
+                check_long_task('{{ url_for('tools.task_status', task_id=_extract.uuid) }}', $('#progress_bar_'+'{{ _extract.uuid }}'), $('#progress_status_'+'{{ _extract.uuid }}'), $('#progress_message_'+'{{ _extract.uuid }}'));
+            {% endif %}
         {% endfor %}
     });
 </script>

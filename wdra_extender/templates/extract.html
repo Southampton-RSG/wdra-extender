@@ -3,7 +3,9 @@
 {% block extra_head %}
     <script type="text/javascript">
     $(document).ready(function() {
-    check_long_task('{{ url_for('tools.task_status', task_id=extract.uuid) }}', $('#progress_bar'), $('#progress_status'), $('#progress_message'));
+        {% if not extract.ready %}
+            check_long_task('{{ url_for('tools.task_status', task_id=extract.uuid) }}', $('#progress_bar'), $('#progress_status'), $('#progress_message'));
+        {% endif %}
     });
     </script>
 {% endblock %}
