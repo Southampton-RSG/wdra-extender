@@ -46,7 +46,7 @@ function check_long_task(status_url, prog_bar, prog_status, prog_msg) {
                 percent = 100;
                 $(prog_msg).text('Collection finished please reload the page.');
                 rerun_in = 10000;
-                location.reload();
+                return;
             }
             nanobar.go(percent);
         });
