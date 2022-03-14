@@ -3,8 +3,7 @@ import pathlib
 from time import time
 from datetime import datetime
 
-import flask
-from flask import Blueprint, current_app, flash, render_template, redirect, request, send_from_directory, url_for, session
+from flask import Blueprint, current_app, render_template, redirect, request, send_from_directory, url_for, session
 from flask_login import login_required, current_user
 from . import models
 from . import extract_tools
@@ -44,8 +43,6 @@ def select_method():
     else:
         # We don't have API keys
         return redirect(url_for('auth.get_keys'))
-
-
 # ======================================================================================================================
 
 
@@ -57,9 +54,9 @@ def get_by_search(basic_form):
     if request.method == 'GET':
         if current_user.endpoints is not None:
             return render_template('get_by_search.html',
-                                   basic_form=basic_form,
-                                   return_fields=current_app.config['TWITTER_RETURN_DICT'],
-                                   endpoints=current_user.endpoints)
+                               basic_form=basic_form,
+                               return_fields=current_app.config['TWITTER_RETURN_DICT'],
+                               endpoints=current_user.endpoints)
         else:
             # We don't have API keys
             return redirect(url_for('auth.get_keys'))
@@ -145,21 +142,6 @@ def get_by_search(basic_form):
                     if 'id' in request.form.keys():
                         if field[1:] in current_app.config['TWITTER_RETURN_DICT']['id']:
                             adv_dict['expansions'] += [field[1:]]
-
-                # Check that either ID range or date range is provided
-                correct_datetime = (adv_dict.get('start_time', '') is not '') and \
-                                   (adv_dict.get('end_time', '') is not '')
-                correct_id_range = (adv_dict.get('since_id', None) is not None) and \
-                                   (adv_dict.get('until_id', None) is not None)
-                logger.info("Validating range has been passed")
-                logger.info(f"Inputs: {adv_dict.get('start_time', '')}, {adv_dict.get('end_time', '')}, "
-                            f"{adv_dict.get('since_id', None)}, {adv_dict.get('until_id', None)}")
-                logger.info(f"Logic: {correct_datetime}, {correct_id_range}")
-                if not (correct_datetime or correct_id_range):
-                    logger.info(f"Flashing Range Error")
-                    flash("Either a time range or an ID range must be provided", "error")
-                    return redirect(url_for('get_by_search'))
-
             # If no subfields are selected change the value to none
             for key in ['tweet_fields', 'user_fields', 'media_fields', 'place_fields', 'poll_fields', 'expansions']:
                 if len(adv_dict[key]) == 0:
@@ -214,8 +196,6 @@ def get_by_id():
 def get_by_replication(extract_uuid):
     """"""
     return None
-
-
 # ======================================================================================================================
 
 
@@ -242,7 +222,7 @@ def download_extract(extract_uuid):
     """View to download a Twitter Extract Bundle."""
     return send_from_directory(current_app.config['OUTPUT_DIR'],
                                pathlib.Path(
-                                   str(extract_uuid)).with_suffix('.zip'),
+                                    str(extract_uuid)).with_suffix('.zip'),
                                as_attachment=True)
 
 

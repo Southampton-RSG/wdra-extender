@@ -113,7 +113,7 @@
     </div>
 
     <div class="pt-2">
-        <form action="{{ url_for('extract.get_by_search', basic_form=basic_form) }}" method="POST">
+        <form action="{{ url_for('extract.get_by_search', basic_form=basic_form) }}" method="POST" onsubmit="return validateAdvanced()">
             <h5>Search Parameters</h5>
             <div class="pb-2">Include and exclude text, tags, and define timeframes.</div>
             <table style="width:100%">
@@ -257,6 +257,15 @@
 
 
 <script type="text/javascript">
+    function validateAdvanced() {
+        var valid = true;
+        if(document.getElementById("field_date_from").value === "" || document.getElementById("field_date_to").value === ""){
+            valid = false;
+            alert("You must provide a date range.");
+        }
+        return valid;
+    }
+
     function show_hints() {
         var card = document.getElementById("hints")
         if (card.style.display === "none") {
