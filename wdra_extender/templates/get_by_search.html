@@ -259,9 +259,18 @@
 <script type="text/javascript">
     function validateAdvanced() {
         var valid = true;
+        var validation_msg = "";
+        if(document.getElementById("include_terms").value === ""){
+            valid = false;
+            validation_msg += "You must include search terms. ";
+        }
         if(document.getElementById("field_date_from").value === "" || document.getElementById("field_date_to").value === ""){
             valid = false;
-            alert("You must provide a date range.");
+            validation_msg += "You must provide a date range. ";
+        }
+
+        if(!valid){
+            alert(validation_msg);
         }
         return valid;
     }
@@ -296,28 +305,32 @@
                 box = document.getElementById(fields_to_check[field_name] + "_check");
                 box.checked = allBox.checked === true;
                 if (top_fields.includes(fields_to_check[field_name])){
-                    show_options(fields_to_check[field_name])
+                    show_options(fields_to_check[field_name]);
                 }
             } else {
                 box = document.getElementById(main_field_name + "_" + fields_to_check[field_name] + "_check");
-                box.checked = allBox.checked === true
+                box.checked = allBox.checked === true;
             }
         }
     }
 
     function showExample(basic_form) {
         if (basic_form === 'True') {
-            $('#field_search_terms').val("dogs, (#dogs OR #puppies)")
-            $('#field_exclude_terms').val("is:retweet, #cats, #cat, #kitten, #kittens")
-            $('#max_results').val(30)
-            document.getElementById('search_example_basic').style.display = 'block'
+            $('#field_search_terms').val("dogs, (#dogs OR #puppies)");
+            $('#field_exclude_terms').val("is:retweet, #cats, #cat, #kitten, #kittens");
+            $('#max_results').val(30);
+            document.getElementById('search_example_basic').style.display = 'block';
         }
         else {
-            $('#include_terms').val("dogs, (#dogs OR #puppies)")
-            $('#exclude_terms').val("is:retweet, #cats, #cat, #kitten, #kittens")
-            $('#number_to_return').val(30)
-            $('#results_per_call').val(15)
-            document.getElementById('search_example_adv').style.display = 'block'
+            var date_to = new Date();
+            var date_from = new Date(date_to - 604700000);
+            $('#include_terms').val("dogs, (#dogs OR #puppies)");
+            $('#exclude_terms').val("is:retweet, #cats, #cat, #kitten, #kittens");
+            $('#number_to_return').val(30);
+            $('#results_per_call').val(15);
+            $('#field_date_from').val(date_from.toISOString().split(":")[0]+":"+date_from.toISOString().split(":")[1]);
+            $('#field_date_to').val(date_to.toISOString().split(":")[0]+":"+date_to.toISOString().split(":")[1]);
+            document.getElementById('search_example_adv').style.display = 'block';
         }
     }
 
