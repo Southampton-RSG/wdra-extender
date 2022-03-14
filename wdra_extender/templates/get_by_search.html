@@ -71,7 +71,7 @@
         </form>
     </div>
 
-    <form action="{{ url_for('extract.get_by_search', basic_form=basic_form) }}" method="POST">
+    <form action="{{ url_for('extract.get_by_search', basic_form=basic_form) }}" method="POST" onsubmit="return validateBasic()">
         <div class="input_group">
             <label for="field_search_terms">Include terms</label>
             <textarea type="text" class="form-control" id="field_search_terms" name="include_terms" placeholder="A comma separated list of include and exclude terms."></textarea>
@@ -257,6 +257,20 @@
 
 
 <script type="text/javascript">
+    function validateBasic() {
+        var valid = true;
+        var validation_msg = "";
+        if(document.getElementById("field_search_terms").value === "") {
+            valid = false;
+            validation_msg += "You must include search terms. ";
+        }
+
+        if(!valid){
+            alert(validation_msg);
+        }
+        return valid;
+    }
+
     function validateAdvanced() {
         var valid = true;
         var validation_msg = "";
